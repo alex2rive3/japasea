@@ -262,8 +262,12 @@ class ApiController {
       // Si usamos Google Maps, obtener lugares estructurados reales
       let finalLugares = suggestedLugares
       if (useGoogleMapsRecommendations) {
+        console.log('Using Google Maps recommendations for:', message)
         // Obtener lugares estructurados reales de Google Maps
         finalLugares = await ApiController.getGoogleMapsPlaces(message)
+        console.log('Final lugares from Google Maps:', finalLugares)
+      } else {
+        console.log('Using database lugares:', finalLugares.length, 'places')
       }
 
       res.status(200).json({
@@ -355,7 +359,7 @@ class ApiController {
 
       // Obtener respuesta estructurada de Google Maps
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: googleMapsPrompt,
         config: {
           thinkingConfig: {
@@ -364,11 +368,14 @@ class ApiController {
         }
       })
 
-      const jsonResponse = response.text
+      const jsonResponse = response.text.trim()
+      console.log('Google Maps raw response:', jsonResponse)
 
       // Intentar parsear la respuesta JSON
       try {
-        const lugares = JSON.parse(jsonResponse)
+        // Limpiar la respuesta por si tiene marcadores de código
+        const cleanedResponse = jsonResponse.replace(/```json\n?|\n?```/g, '').trim()
+        const lugares = JSON.parse(cleanedResponse)
         
         // Validar que sea un array con al menos 1 elemento
         if (Array.isArray(lugares) && lugares.length > 0) {
@@ -376,23 +383,27 @@ class ApiController {
           const finalLugares = lugares.slice(0, 3)
           
           // Validar estructura de cada lugar
-          return finalLugares.map((lugar, index) => ({
-            key: lugar.key || `Lugar ${index + 1}`,
+          const validatedLugares = finalLugares.map((lugar, index) => ({
+            key: lugar.key || `${searchType} ${index + 1}`,
             type: lugar.type || 'General',
-            description: lugar.description || 'Lugar recomendado en Encarnación',
+            description: lugar.description || `${searchType} recomendado en Encarnación`,
             address: lugar.address || 'Encarnación, Paraguay',
             location: {
-              lat: lugar.location?.lat || (-27.3309 + (Math.random() - 0.5) * 0.01),
-              lng: lugar.location?.lng || (-55.8663 + (Math.random() - 0.5) * 0.01)
+              lat: lugar.location?.lat || (-27.3309 + (Math.random() - 0.5) * 0.02),
+              lng: lugar.location?.lng || (-55.8663 + (Math.random() - 0.5) * 0.02)
             }
           }))
+          
+          console.log('Successfully parsed Google Maps places:', validatedLugares)
+          return validatedLugares
         }
       } catch (parseError) {
         console.error('Error parsing Google Maps response:', parseError)
-        console.log('Raw response:', jsonResponse)
+        console.log('Raw response that failed to parse:', jsonResponse)
       }
 
       // Si falla el parsing, usar lugares de respaldo
+      console.log('Falling back to generateFallbackPlaces')
       return ApiController.generateFallbackPlaces(message, searchType)
 
     } catch (error) {
@@ -415,27 +426,72 @@ class ApiController {
       type = 'Turístico'
     } else if (searchType.includes('compras')) {
       type = 'Compras'
+    } else if (searchType.includes('farmacia')) {
+      type = 'Servicios'
+    } else if (searchType.includes('banco')) {
+      type = 'Servicios'
+    } else if (searchType.includes('gasolinera')) {
+      type = 'Servicios'
+    } else if (searchType.includes('hospital')) {
+      type = 'Servicios'
+    } else if (searchType.includes('supermercado')) {
+      type = 'Compras'
     }
 
-    // Generar 3 lugares de respaldo con nombres más específicos
+    // Generar 3 lugares de respaldo con nombres realistas
     const lugares = []
-    const baseNames = {
-      'Alojamiento': ['Hotel Central', 'Hostal del Río', 'Posada Encarnación'],
-      'Comida': ['Restaurante El Fogón', 'Parrilla La Costanera', 'Pizzería Italiana'],
-      'Desayunos y meriendas': ['Café del Centro', 'Panadería San José', 'Heladería Colonial'],
-      'Turístico': ['Mirador de la Costanera', 'Plaza Central', 'Museo Histórico'],
-      'Compras': ['Mercado Central', 'Galería Comercial', 'Centro de Artesanías'],
-      'General': ['Lugar Recomendado 1', 'Lugar Recomendado 2', 'Lugar Recomendado 3']
+    const fallbackData = {
+      'hoteles': [
+        { name: 'Hotel Central Encarnación', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
+        { name: 'Posada del Río', address: 'Avda. Costanera c/ Cerro Corá' },
+        { name: 'Hotel Plaza', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' }
+      ],
+      'restaurantes': [
+        { name: 'Parrilla La Costanera', address: 'Avda. Costanera c/ Dr. Francia' },
+        { name: 'Restaurante El Mirador', address: 'Avda. Irrazábal c/ Caballero' },
+        { name: 'Pizzería Italiana', address: '14 de Mayo c/ Mcal. Estigarribia' }
+      ],
+      'cafeterías': [
+        { name: 'Café del Centro', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
+        { name: 'Panadería San José', address: 'Avda. Costanera c/ Cerro Corá' },
+        { name: 'Heladería Colonial', address: 'Avda. Caballero c/ Lomas Valentinas' }
+      ],
+      'farmacias': [
+        { name: 'Farmacia San Rafael', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
+        { name: 'Farmacia Central', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' },
+        { name: 'Farmacia del Pueblo', address: 'Avda. Irrazábal c/ Caballero' }
+      ],
+      'bancos': [
+        { name: 'Banco Continental', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
+        { name: 'Banco Nacional de Fomento', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' },
+        { name: 'Banco Itaú', address: 'Avda. Caballero c/ Lomas Valentinas' }
+      ],
+      'supermercados': [
+        { name: 'Supermercado Stock', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
+        { name: 'Supermercado Real', address: 'Avda. Irrazábal c/ Caballero' },
+        { name: 'Autoservicio Central', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' }
+      ],
+      'lugares turísticos': [
+        { name: 'Costanera de Encarnación', address: 'Avda. Costanera' },
+        { name: 'Plaza de Armas', address: '14 de Mayo c/ Mcal. Estigarribia' },
+        { name: 'Museo de la Ciudad', address: 'Avda. Dr. Francia c/ Cerro Corá' }
+      ],
+      'default': [
+        { name: 'Lugar Recomendado Centro', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
+        { name: 'Lugar Recomendado Costanera', address: 'Avda. Costanera' },
+        { name: 'Lugar Recomendado Plaza', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' }
+      ]
     }
 
-    const names = baseNames[type] || baseNames['General']
+    const data = fallbackData[searchType] || fallbackData['default']
     
     for (let i = 0; i < 3; i++) {
+      const item = data[i]
       lugares.push({
-        key: names[i],
+        key: item.name,
         type: type,
-        description: `${names[i]} - ${searchType} recomendado en Encarnación`,
-        address: `Centro de Encarnación, Paraguay`,
+        description: `${item.name} - ${searchType} ubicado en Encarnación, Paraguay`,
+        address: item.address,
         location: {
           lat: -27.3309 + (Math.random() - 0.5) * 0.02,
           lng: -55.8663 + (Math.random() - 0.5) * 0.02
@@ -443,6 +499,7 @@ class ApiController {
       })
     }
 
+    console.log('Generated fallback places:', lugares)
     return lugares
   }
 }
