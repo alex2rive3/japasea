@@ -1,115 +1,13 @@
 const fs = require('fs')
 const path = require('path')
+const { GoogleGenerativeAI } = require('@google/generative-ai')
 
-// Controller para endpoints de prueba y estado del servidor
+// Inicializar Google AI
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
+
+// Controller para endpoints de lugares y AI
 class ApiController {
   
-  // GET /api/health - Verificar el estado del servidor
-  static getHealth(req, res) {
-    try {
-      const healthCheck = {
-        uptime: process.uptime(),
-        message: 'OK',
-        timestamp: new Date().toISOString(),
-        status: 'healthy',
-        version: '1.0.0'
-      }
-      
-      res.status(200).json(healthCheck)
-    } catch (error) {
-      res.status(503).json({
-        status: 'error',
-        message: 'Service unavailable',
-        error: error.message
-      })
-    }
-  }
-  
-  // GET /api/status - Información detallada del servidor
-  static getStatus(req, res) {
-    try {
-      const status = {
-        server: {
-          name: 'Japasea Server',
-          version: '1.0.0',
-          environment: process.env.NODE_ENV || 'development',
-          uptime: process.uptime(),
-          timestamp: new Date().toISOString()
-        },
-        system: {
-          nodeVersion: process.version,
-          platform: process.platform,
-          arch: process.arch,
-          memory: {
-            used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + ' MB',
-            total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB'
-          }
-        },
-        endpoints: {
-          health: '/api/health',
-          status: '/api/status',
-          test: '/api/test',
-          lugares: '/api/lugares',
-          buscarLugares: '/api/lugares/buscar',
-          lugaresAleatorios: '/api/lugares/aleatorios'
-        }
-      }
-      
-      res.status(200).json(status)
-    } catch (error) {
-      res.status(500).json({
-        status: 'error',
-        message: 'Failed to get server status',
-        error: error.message
-      })
-    }
-  }
-  
-  // GET /api/test - Endpoint de prueba simple
-  static getTest(req, res) {
-    try {
-      res.status(200).json({
-        message: 'Test endpoint working correctly!',
-        timestamp: new Date().toISOString(),
-        requestInfo: {
-          method: req.method,
-          url: req.url,
-          headers: req.headers,
-          query: req.query,
-          params: req.params
-        }
-      })
-    } catch (error) {
-      res.status(500).json({
-        status: 'error',
-        message: 'Test endpoint failed',
-        error: error.message
-      })
-    }
-  }
-  
-  // POST /api/test - Endpoint de prueba para POST
-  static postTest(req, res) {
-    try {
-      res.status(201).json({
-        message: 'POST test endpoint working correctly!',
-        timestamp: new Date().toISOString(),
-        receivedData: req.body,
-        requestInfo: {
-          method: req.method,
-          url: req.url,
-          contentType: req.get('Content-Type')
-        }
-      })
-    } catch (error) {
-      res.status(500).json({
-        status: 'error',
-        message: 'POST test endpoint failed',
-        error: error.message
-      })
-    }
-  }
-
   // Helper method para cargar lugares desde el archivo JSON
   static loadLugares() {
     try {
@@ -191,6 +89,110 @@ class ApiController {
       res.status(500).json({
         status: 'error',
         message: 'Failed to get random lugares',
+        error: error.message
+      })
+    }
+  }
+
+  // POST /api/chat - Procesar mensajes del chat con AI
+  static async processChat(req, res) {
+    try {
+      const { message, context } = req.body
+      
+      if (!message) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Message is required'
+        })
+      }
+
+      // Verificar si se configuró la API key
+      if (!process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY === 'your_google_api_key_here') {
+        return res.status(500).json({
+          status: 'error',
+          message: 'Google API key not configured'
+        })
+      }
+
+      // Cargar lugares para el contexto
+      const lugares = ApiController.loadLugares()
+      
+      // Crear el contexto para la AI
+      const lugaresContext = lugares.map(lugar => ({
+        nombre: lugar.key,
+        tipo: lugar.type,
+        descripcion: lugar.description,
+        direccion: lugar.address,
+        ubicacion: lugar.location
+      }))
+
+      // Crear el prompt para la AI
+      const prompt = `
+        Eres un asistente turístico especializado en Encarnación, Paraguay. 
+        Tienes acceso a la siguiente información de lugares:
+
+        ${JSON.stringify(lugaresContext, null, 2)}
+
+        Instrucciones:
+        1. Responde de manera amigable y profesional
+        2. Recomienda lugares específicos basándote en la consulta del usuario
+        3. Siempre menciona nombres exactos de lugares de la lista
+        4. Proporciona información útil y relevante
+        5. Si no encuentras lugares específicos, sugiere explorar las categorías disponibles
+        6. Responde en español
+        7. Sé conciso pero informativo
+
+        Consulta del usuario: ${message}
+        
+        Contexto adicional: ${context || 'Primera consulta'}
+      `
+
+      // Obtener respuesta de la AI
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      const aiResponse = response.text()
+
+      // Buscar lugares relevantes basándose en la consulta
+      const messageWords = message.toLowerCase().split(' ')
+      const relevantLugares = lugares.filter(lugar => {
+        const searchText = `${lugar.key} ${lugar.description} ${lugar.type} ${lugar.address}`.toLowerCase()
+        return messageWords.some(word => searchText.includes(word))
+      })
+
+      // Si no hay lugares relevantes, buscar por tipo
+      let suggestedLugares = relevantLugares
+      if (suggestedLugares.length === 0) {
+        if (message.toLowerCase().includes('hotel') || message.toLowerCase().includes('alojamiento')) {
+          suggestedLugares = lugares.filter(lugar => lugar.type === 'Alojamiento').slice(0, 3)
+        } else if (message.toLowerCase().includes('comida') || message.toLowerCase().includes('restaurante')) {
+          suggestedLugares = lugares.filter(lugar => lugar.type === 'Comida').slice(0, 3)
+        } else if (message.toLowerCase().includes('café') || message.toLowerCase().includes('desayuno')) {
+          suggestedLugares = lugares.filter(lugar => lugar.type === 'Desayunos y meriendas').slice(0, 3)
+        } else if (message.toLowerCase().includes('turismo') || message.toLowerCase().includes('visitar')) {
+          suggestedLugares = lugares.filter(lugar => lugar.type === 'Turístico').slice(0, 3)
+        } else if (message.toLowerCase().includes('compras') || message.toLowerCase().includes('shopping')) {
+          suggestedLugares = lugares.filter(lugar => lugar.type === 'Compras').slice(0, 3)
+        }
+      }
+
+      // Si aún no hay lugares, tomar algunos aleatorios
+      if (suggestedLugares.length === 0) {
+        const shuffled = [...lugares].sort(() => 0.5 - Math.random())
+        suggestedLugares = shuffled.slice(0, 3)
+      }
+
+      res.status(200).json({
+        response: aiResponse,
+        lugares: suggestedLugares,
+        timestamp: new Date().toISOString()
+      })
+
+    } catch (error) {
+      console.error('Error processing chat:', error)
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to process chat message',
         error: error.message
       })
     }

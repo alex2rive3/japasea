@@ -40,5 +40,36 @@ export const lugaresService = {
       console.error('Error fetching random lugares:', error)
       return []
     }
+  },
+
+  async processChatMessage(message: string, context?: string): Promise<{response: string, lugares: Lugar[]}> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          context
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al procesar mensaje de chat')
+      }
+
+      const data = await response.json()
+      return {
+        response: data.response,
+        lugares: data.lugares || []
+      }
+    } catch (error) {
+      console.error('Error processing chat message:', error)
+      return {
+        response: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta nuevamente.',
+        lugares: []
+      }
+    }
   }
 }
