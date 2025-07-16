@@ -29,8 +29,7 @@ function App() {
           display: 'flex', 
           gap: 3,
           flexDirection: { xs: 'column', md: 'row' },
-          height: 'calc(100vh - 48px)',
-          maxHeight: 'calc(100vh - 48px)'
+          height: 'auto',
         }}>
           {/* Chat Component */}
           <Box sx={{ flex: 1 }}>
