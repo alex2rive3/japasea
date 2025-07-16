@@ -60,7 +60,7 @@ export const ChatComponent = ({ height = '500px', onLugaresUpdate }: ChatCompone
           const context = messages.slice(-3).map(msg => `${msg.sender}: ${msg.text}`).join('\n')
           
           // Procesar mensaje con AI
-          const { response, lugares } = await lugaresService.processChatMessage(userInput, context)
+          const { response, lugares, useGoogleMaps } = await lugaresService.processChatMessage(userInput, context)
 
           const botResponse: Message = {
             id: messages.length + 2,
@@ -75,6 +75,19 @@ export const ChatComponent = ({ height = '500px', onLugaresUpdate }: ChatCompone
           // Notificar al componente padre sobre los nuevos lugares
           if (onLugaresUpdate && lugares.length > 0) {
             onLugaresUpdate(lugares)
+          }
+
+          // Mostrar indicador si usa Google Maps
+          if (useGoogleMaps) {
+            const infoResponse: Message = {
+              id: messages.length + 3,
+              text: '💡 Estas recomendaciones provienen de Google Maps ya que no encontré coincidencias específicas en nuestra base de datos.',
+              sender: 'bot',
+              timestamp: new Date(),
+            }
+            setTimeout(() => {
+              setMessages((prev) => [...prev, infoResponse])
+            }, 1000)
           }
         } catch (error) {
           console.error('Error processing chat message:', error)

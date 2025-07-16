@@ -42,7 +42,7 @@ export const lugaresService = {
     }
   },
 
-  async processChatMessage(message: string, context?: string): Promise<{response: string, lugares: Lugar[]}> {
+  async processChatMessage(message: string, context?: string): Promise<{response: string, lugares: Lugar[], useGoogleMaps?: boolean}> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
@@ -62,13 +62,15 @@ export const lugaresService = {
       const data = await response.json()
       return {
         response: data.response,
-        lugares: data.lugares || []
+        lugares: data.lugares || [],
+        useGoogleMaps: data.useGoogleMaps || false
       }
     } catch (error) {
       console.error('Error processing chat message:', error)
       return {
         response: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta nuevamente.',
-        lugares: []
+        lugares: [],
+        useGoogleMaps: false
       }
     }
   }
