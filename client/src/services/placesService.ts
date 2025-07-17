@@ -7,7 +7,7 @@ export const placesService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/places${type ? `?type=${encodeURIComponent(type)}` : ''}`)
       if (!response.ok) {
-        throw new Error('Error fetching places')
+        throw new Error('Error al obtener lugares')
       }
       return await response.json()
     } catch (error) {
@@ -20,7 +20,7 @@ export const placesService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/places/search?q=${encodeURIComponent(query)}`)
       if (!response.ok) {
-        throw new Error('Error searching places')
+        throw new Error('Error al buscar lugares')
       }
       return await response.json()
     } catch (error) {
@@ -33,7 +33,7 @@ export const placesService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/places/random?count=${count}`)
       if (!response.ok) {
-        throw new Error('Error fetching random places')
+        throw new Error('Error al obtener lugares aleatorios')
       }
       return await response.json()
     } catch (error) {
@@ -56,7 +56,7 @@ export const placesService = {
       })
 
       if (!response.ok) {
-        throw new Error('Error processing chat message')
+        throw new Error('Error al procesar mensaje de chat')
       }
 
       const data = await response.json()
@@ -68,7 +68,7 @@ export const placesService = {
     } catch (error) {
       console.error('Error processing chat message:', error)
       return {
-        response: 'Sorry, there was an error processing your message. Please try again.',
+        response: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
         places: [],
         useGoogleMaps: false
       }

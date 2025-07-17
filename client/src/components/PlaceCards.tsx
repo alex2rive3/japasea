@@ -9,14 +9,14 @@ import {
   Button,
 } from '@mui/material'
 import { LocationOn, Phone, Info, Hotel, Restaurant, Coffee, Place, ShoppingBag } from '@mui/icons-material'
-import type { Lugar } from '../types/lugares'
+import type { Place as PlaceType } from '../types/places'
 
-interface LugaresCardsProps {
-  lugares: Lugar[]
-  onLocationClick?: (lugar: Lugar) => void
+interface PlaceCardsProps {
+  places: PlaceType[]
+  onLocationClick?: (place: PlaceType) => void
 }
 
-export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) => {
+export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
   const extractPhone = (description: string): string | null => {
     const phoneRegex = /(\d{4}\s?\d{3}\s?\d{3})/g
     const match = description.match(phoneRegex)
@@ -25,15 +25,15 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
 
   const getTypeColor = (type: string): "primary" | "secondary" | "success" | "warning" | "info" => {
     switch (type.toLowerCase()) {
-      case 'alojamiento':
+      case 'accommodation':
         return 'primary'
-      case 'desayunos y meriendas':
+      case 'breakfast and snacks':
         return 'secondary'
-      case 'comida':
+      case 'food':
         return 'warning'
-      case 'turístico':
+      case 'tourism':
         return 'success'
-      case 'compras':
+      case 'shopping':
         return 'info'
       default:
         return 'primary'
@@ -42,15 +42,15 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
 
   const getTypeIcon = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'alojamiento':
+      case 'accommodation':
         return <Hotel sx={{ fontSize: 20 }} />
-      case 'desayunos y meriendas':
+      case 'breakfast and snacks':
         return <Coffee sx={{ fontSize: 20 }} />
-      case 'comida':
+      case 'food':
         return <Restaurant sx={{ fontSize: 20 }} />
-      case 'turístico':
+      case 'tourism':
         return <Place sx={{ fontSize: 20 }} />
-      case 'compras':
+      case 'shopping':
         return <ShoppingBag sx={{ fontSize: 20 }} />
       default:
         return <Place sx={{ fontSize: 20 }} />
@@ -59,22 +59,22 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
 
   const getDefaultImage = (type: string): string => {
     switch (type.toLowerCase()) {
-      case 'alojamiento':
+      case 'accommodation':
         return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-      case 'desayunos y meriendas':
+      case 'breakfast and snacks':
         return 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-      case 'comida':
+      case 'food':
         return 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-      case 'turístico':
+      case 'tourism':
         return 'https://images.unsplash.com/photo-1539650116574-75c0c6d73aeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-      case 'compras':
+      case 'shopping':
         return 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
       default:
         return 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     }
   }
 
-  if (lugares.length === 0) {
+  if (places.length === 0) {
     return null
   }
 
@@ -96,13 +96,13 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
           alignItems: 'stretch'
         }}
       >
-        {lugares.map((lugar) => {
-          const phone = extractPhone(lugar.description)
-          const cleanDescription = lugar.description.replace(/Teléfono:.*/, '').trim()
+        {places.map((place) => {
+          const phone = extractPhone(place.description)
+          const cleanDescription = place.description.replace(/Teléfono:.*/, '').trim()
           
           return (
             <Card 
-              key={lugar.key}
+              key={place.key}
               elevation={3} 
               sx={{ 
                 display: 'flex',
@@ -122,8 +122,8 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
               <CardMedia
                 component="img"
                 height="180"
-                image={getDefaultImage(lugar.type)}
-                alt={lugar.key}
+                image={getDefaultImage(place.type)}
+                alt={place.key}
                 sx={{
                   objectFit: 'cover',
                   transition: 'transform 0.3s ease-in-out',
@@ -145,12 +145,12 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
                       lineHeight: 1.3
                     }}
                   >
-                    {lugar.key}
+                    {place.key}
                   </Typography>
                   <Chip 
-                    icon={getTypeIcon(lugar.type)}
-                    label={lugar.type} 
-                    color={getTypeColor(lugar.type)}
+                    icon={getTypeIcon(place.type)}
+                    label={place.type} 
+                    color={getTypeColor(place.type)}
                     size="small"
                     sx={{ 
                       fontWeight: 'medium',
@@ -173,7 +173,7 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
                       lineHeight: 1.4
                     }}
                   >
-                    {lugar.address}
+                    {place.address}
                   </Typography>
                 </Box>
 
@@ -220,7 +220,7 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
                     variant="contained"
                     size="medium"
                     color="primary"
-                    onClick={() => onLocationClick?.(lugar)}
+                    onClick={() => onLocationClick?.(place)}
                     startIcon={<Info />}
                     fullWidth
                     sx={{ 
@@ -234,7 +234,7 @@ export const LugaresCards = ({ lugares, onLocationClick }: LugaresCardsProps) =>
                       }
                     }}
                   >
-                    Ver en mapa
+                    Ver en el Mapa
                   </Button>
                 </Box>
               </CardContent>

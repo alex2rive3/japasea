@@ -3,9 +3,8 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Box, Paper, Typography, Card, CardContent, Chip } from '@mui/material'
 import { LocationOn, Phone } from '@mui/icons-material'
-import type { Lugar } from '../types/lugares'
+import type { Place } from '../types/places'
 
-// Fix para los iconos de Leaflet
 const iconPrototype = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown }
 delete iconPrototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -18,14 +17,14 @@ interface MapComponentProps {
   center?: [number, number]
   zoom?: number
   height?: string
-  lugares?: Lugar[]
+  places?: Place[]
 }
 
 export const MapComponent = ({ 
-  center = [-27.331130101011254, -55.865929123942415], // Encarnación, Paraguay
+  center = [-27.331130101011254, -55.865929123942415],
   zoom = 13,
   height = '400px',
-  lugares = []
+  places = []
 }: MapComponentProps) => {
   const extractPhone = (description: string): string | null => {
     const phoneRegex = /(\d{4}\s?\d{3}\s?\d{3})/g
@@ -50,9 +49,8 @@ export const MapComponent = ({
     }
   }
 
-  // Si hay lugares, centrar el mapa en el primer lugar
-  const mapCenter = lugares.length > 0 
-    ? [lugares[0].location.lat, lugares[0].location.lng] as [number, number]
+  const mapCenter = places.length > 0 
+    ? [places[0].location.lat, places[0].location.lng] as [number, number]
     : center
 
   return (
@@ -73,30 +71,30 @@ export const MapComponent = ({
           center={mapCenter} 
           zoom={zoom} 
           style={{ height: '100%', width: '100%' }}
-          key={lugares.length} // Forzar re-render cuando cambien los lugares
+          key={places.length}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          {lugares.map((lugar) => {
-            const phone = extractPhone(lugar.description)
+          {places.map((place) => {
+            const phone = extractPhone(place.description)
             
             return (
               <Marker 
-                key={lugar.key} 
-                position={[lugar.location.lat, lugar.location.lng]}
+                key={place.key} 
+                position={[place.location.lat, place.location.lng]}
               >
                 <Popup>
                   <Card sx={{ minWidth: 250, maxWidth: 300, boxShadow: 'none' }}>
                     <CardContent sx={{ pb: '16px !important' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                         <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
-                          {lugar.key}
+                          {place.key}
                         </Typography>
                         <Chip 
-                          label={lugar.type} 
-                          color={getTypeColor(lugar.type)}
+                          label={place.type} 
+                          color={getTypeColor(place.type)}
                           size="small"
                           sx={{ ml: 1 }}
                         />
@@ -105,12 +103,12 @@ export const MapComponent = ({
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                         <LocationOn sx={{ color: 'text.secondary', mr: 1, fontSize: 16 }} />
                         <Typography variant="body2" color="text.secondary">
-                          {lugar.address}
+                          {place.address}
                         </Typography>
                       </Box>
                       
                       <Typography variant="body2" color="text.primary" sx={{ mb: 1 }}>
-                        {lugar.description.replace(/Teléfono:.*/, '').trim()}
+                        {place.description.replace(/Teléfono:.*/, '').trim()}
                       </Typography>
                       
                       {phone && (

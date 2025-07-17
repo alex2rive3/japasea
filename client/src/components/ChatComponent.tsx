@@ -13,27 +13,27 @@ import {
   InputAdornment,
 } from '@mui/material'
 import { Send, Person, SmartToy } from '@mui/icons-material'
-import { lugaresService } from '../services/lugaresService'
-import type { Lugar } from '../types/lugares'
+import { placesService } from '../services/placesService'
+import type { Place } from '../types/places'
 
 interface Message {
   id: number
   text: string
   sender: 'user' | 'bot'
   timestamp: Date
-  lugares?: Lugar[]
+  places?: Place[]
 }
 
 interface ChatComponentProps {
   height?: string
-  onLugaresUpdate?: (lugares: Lugar[]) => void
+  onPlacesUpdate?: (places: Place[]) => void
 }
 
-export const ChatComponent = ({ height = '500px', onLugaresUpdate }: ChatComponentProps) => {
+export const ChatComponent = ({ height = '500px', onPlacesUpdate }: ChatComponentProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: '¡Hola! Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?',
+      text: '¡Hola! Soy tu asistente virtual. ¿Cómo puedo ayudarte hoy?',
       sender: 'bot',
       timestamp: new Date(),
     },
@@ -53,35 +53,30 @@ export const ChatComponent = ({ height = '500px', onLugaresUpdate }: ChatCompone
       const userInput = inputValue
       setInputValue('')
 
-      // Usar el nuevo endpoint de AI para procesar el mensaje
       setTimeout(async () => {
         try {
-          // Crear contexto basado en mensajes anteriores
           const context = messages.slice(-3).map(msg => `${msg.sender}: ${msg.text}`).join('\n')
           
-          // Procesar mensaje con AI
-          const { response, lugares, useGoogleMaps } = await lugaresService.processChatMessage(userInput, context)
+          const { response, places, useGoogleMaps } = await placesService.processChatMessage(userInput, context)
 
           const botResponse: Message = {
             id: messages.length + 2,
             text: response,
             sender: 'bot',
             timestamp: new Date(),
-            lugares: lugares
+            places: places
           }
 
           setMessages((prev) => [...prev, botResponse])
           
-          // Notificar al componente padre sobre los nuevos lugares
-          if (onLugaresUpdate && lugares.length > 0) {
-            onLugaresUpdate(lugares)
+          if (onPlacesUpdate && places.length > 0) {
+            onPlacesUpdate(places)
           }
 
-          // Mostrar indicador si usa Google Maps
           if (useGoogleMaps) {
             const infoResponse: Message = {
               id: messages.length + 3,
-              text: '💡 Estas recomendaciones provienen de Google Maps ya que no encontré coincidencias específicas en nuestra base de datos.',
+              text: '💡 Estas recomendaciones provienen de Google Maps ya que no pude encontrar coincidencias específicas en nuestra base de datos.',
               sender: 'bot',
               timestamp: new Date(),
             }
@@ -93,7 +88,7 @@ export const ChatComponent = ({ height = '500px', onLugaresUpdate }: ChatCompone
           console.error('Error processing chat message:', error)
           const errorResponse: Message = {
             id: messages.length + 2,
-            text: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta nuevamente.',
+            text: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
             sender: 'bot',
             timestamp: new Date(),
           }
@@ -119,7 +114,7 @@ export const ChatComponent = ({ height = '500px', onLugaresUpdate }: ChatCompone
       }}>
         <Typography variant="h6" component="h2">
           <SmartToy sx={{ mr: 1, verticalAlign: 'middle' }} />
-          Chat Assistant
+          Asistente de Chat
         </Typography>
       </Box>
       

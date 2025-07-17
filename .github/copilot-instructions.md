@@ -8,8 +8,9 @@ This is a full-stack tourism application for Encarnación, Paraguay, with React 
 
 ### Language & Code Standards
 - **ALL DEVELOPMENT MUST BE IN ENGLISH**: Variable names, function names, comments, commit messages, documentation, and any text in the codebase
+- **USER-FACING TEXT MUST BE IN SPANISH**: All messages, responses, and content displayed to users must be in Spanish
 - **NO COMMENTS IN CODE**: Write self-documenting code with clear variable and function names instead of comments
-- **AVOID SPANISH**: Do not use Spanish in any part of the code, including strings that are not user-facing
+- **CLEAR SEPARATION**: Code logic in English, user interface and messages in Spanish
 
 ### Architecture Requirements
 - **Frontend**: Strict componentization - break down UI into small, reusable components
@@ -55,6 +56,7 @@ Please follow these guidelines when providing code suggestions:
 
 ### General Standards
 - **English Only**: All code must be written in English (variables, functions, types, etc.)
+- **Spanish for Users**: All user-facing messages, responses, and content must be in Spanish
 - **No Comments**: Write self-documenting code with descriptive names
 - **TypeScript First**: Use TypeScript for all components and utilities
 - **Consistent Naming**: Use camelCase for variables/functions, PascalCase for components/types
@@ -272,7 +274,7 @@ curl http://localhost:3001/api/status
 # Test POST endpoint
 curl -X POST http://localhost:3001/api/test \
   -H "Content-Type: application/json" \
-  -d '{"message": "Hello World"}'
+  -d '{"message": "Hola Mundo"}'
 ```
 
 ## MVC Architecture Guidelines
@@ -288,3 +290,26 @@ curl -X POST http://localhost:3001/api/test \
 - Input validation middleware
 - Error handling middleware
 - Environment variable protection
+
+## Language Separation Guidelines
+
+### Code Layer (English Only)
+- Variable names: `selectedPlaces`, `searchType`, `placesController`
+- Function names: `getPlaces()`, `searchPlaces()`, `processChat()`
+- File names: `placesController.js`, `placesService.ts`, `places.json`
+- Database field names: `key`, `type`, `description`, `address`, `location`
+- API endpoint names: `/api/places`, `/api/places/search`
+- Log messages for developers: `console.log('Using database places:', places.length)`
+
+### User Interface Layer (Spanish Only)
+- Error messages: `"Error al obtener lugares"`, `"El mensaje es requerido"`
+- API response messages: `"Bienvenido a la API de Japasea"`
+- User notifications: `"Servidor Japasea funcionando correctamente"`
+- Bot responses: All AI responses must be in Spanish for user interaction
+- Frontend display text: All text shown to users in the UI
+
+### Data Layer (Mixed - Context Dependent)
+- User descriptions: Keep original Spanish descriptions for places
+- Place names: Keep original names (e.g., "Costanera de Encarnación")
+- Categories: Use English for database consistency but Spanish for display
+- Addresses: Keep original Spanish format
