@@ -121,24 +121,71 @@ export const ChatComponent = ({ height = '500px', onPlacesUpdate }: ChatComponen
         </Typography>
       </Box>
       
-      <Box sx={{ height, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ height, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Área de mensajes */}
-        <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
-          <List>
+        <Box sx={{ 
+          flex: 1, 
+          overflow: 'auto',
+          p: 1,
+          maxWidth: '100%',
+          // Custom scrollbar styling
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+            borderRadius: '10px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#c1c1c1',
+            borderRadius: '10px',
+            '&:hover': {
+              background: '#a8a8a8',
+            },
+          },
+          // Firefox scrollbar styling
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#c1c1c1 #f1f1f1',
+        }}>
+          <List sx={{ 
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden'
+          }}>
             {messages.map((message) => (
-              <ListItem key={message.id} sx={{ alignItems: 'flex-start', py: 1, flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
+              <ListItem key={message.id} sx={{ 
+                alignItems: 'flex-start', 
+                py: 1, 
+                flexDirection: 'column',
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                boxSizing: 'border-box'
+              }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'flex-start', 
+                  width: '100%',
+                  maxWidth: '100%',
+                  overflow: 'hidden'
+                }}>
                   <Avatar 
                     sx={{ 
                       mr: 2, 
                       bgcolor: message.sender === 'user' ? 'primary.main' : 'secondary.main',
                       width: 32,
-                      height: 32
+                      height: 32,
+                      flexShrink: 0
                     }}
                   >
                     {message.sender === 'user' ? <Person /> : <SmartToy />}
                   </Avatar>
-                  <Box sx={{ flex: 1 }}>
+                  <Box sx={{ 
+                    flex: 1, 
+                    minWidth: 0,
+                    maxWidth: 'calc(100% - 48px)',
+                    overflow: 'hidden'
+                  }}>
                     <ListItemText
                       primary={message.text}
                       secondary={message.timestamp.toLocaleTimeString()}
@@ -150,12 +197,19 @@ export const ChatComponent = ({ height = '500px', onPlacesUpdate }: ChatComponen
                           p: 1,
                           borderRadius: 1,
                           display: 'inline-block',
-                          maxWidth: '100%'
+                          maxWidth: '100%',
+                          wordBreak: 'break-word',
+                          overflow: 'hidden'
                         }
                       }}
                       secondaryTypographyProps={{
                         variant: 'caption',
-                        sx: { mt: 0.5, display: 'block' }
+                        sx: { 
+                          mt: 0.5, 
+                          display: 'block',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }
                       }}
                     />
                   </Box>
@@ -163,7 +217,14 @@ export const ChatComponent = ({ height = '500px', onPlacesUpdate }: ChatComponen
                 
                 {/* Travel Plan Component */}
                 {message.travelPlan && message.sender === 'bot' && (
-                  <Box sx={{ width: '100%', mt: 1, ml: 4 }}>
+                  <Box sx={{ 
+                    width: '100%', 
+                    mt: 1, 
+                    ml: 4,
+                    maxWidth: 'calc(100% - 32px)',
+                    overflow: 'hidden',
+                    boxSizing: 'border-box'
+                  }}>
                     <TravelPlanComponent 
                       travelPlan={message.travelPlan}
                       message={message.text}

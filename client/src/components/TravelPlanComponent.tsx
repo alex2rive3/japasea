@@ -64,32 +64,48 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
   }
 
   return (
-    <Box sx={{ width: '100%', mt: 1, maxWidth: 500 }}>
+    <Box sx={{ 
+      width: '100%', 
+      mt: 1, 
+      maxWidth: '100%', 
+      overflow: 'hidden',
+      boxSizing: 'border-box'
+    }}>
       {/* Compact Message Header */}
       <Paper elevation={1} sx={{ 
         p: 2, 
         mb: 2, 
         bgcolor: '#f8f9fa',
         borderRadius: 2,
-        border: '1px solid #e0e0e0'
+        border: '1px solid #e0e0e0',
+        maxWidth: '100%',
+        overflow: 'hidden'
       }}>
         <Typography variant="body2" sx={{ 
           color: '#555', 
           lineHeight: 1.4,
-          fontSize: '0.875rem'
+          fontSize: '0.875rem',
+          wordBreak: 'break-word'
         }}>
           <strong>🗺️ Plan personalizado:</strong> {message}
         </Typography>
       </Paper>
 
       {/* Compact Travel Plan Days */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: 1.5,
+        maxWidth: '100%',
+        overflow: 'hidden'
+      }}>
         {travelPlan.days.map((day) => (
-          <Box key={day.dayNumber}>
+          <Box key={day.dayNumber} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
             <Card elevation={2} sx={{ 
               borderRadius: 2,
               border: '1px solid #e0e0e0',
-              overflow: 'visible'
+              overflow: 'hidden',
+              maxWidth: '100%'
             }}>
               <CardContent sx={{ p: 0 }}>
                 {/* Compact Day Header */}
@@ -97,17 +113,23 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                   bgcolor: 'primary.main', 
                   color: 'white', 
                   p: 1.5,
-                  borderRadius: '8px 8px 0 0'
+                  borderRadius: '8px 8px 0 0',
+                  maxWidth: '100%',
+                  overflow: 'hidden'
                 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  <Typography variant="subtitle2" sx={{ 
+                    fontWeight: 600, 
+                    fontSize: '0.875rem',
+                    wordBreak: 'break-word'
+                  }}>
                     Día {day.dayNumber} • {day.title}
                   </Typography>
                 </Box>
 
                 {/* Compact Activities */}
-                <Box sx={{ p: 1.5 }}>
+                <Box sx={{ p: 1.5, maxWidth: '100%', overflow: 'hidden' }}>
                   {day.activities.map((activity, index) => (
-                    <Box key={index}>
+                    <Box key={index} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
                       <Box
                         sx={{
                           display: 'flex',
@@ -117,6 +139,8 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                           borderRadius: 1.5,
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
+                          maxWidth: '100%',
+                          overflow: 'hidden',
                           '&:hover': {
                             bgcolor: '#f5f5f5',
                             transform: 'translateY(-1px)',
@@ -130,13 +154,16 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                           display: 'flex', 
                           flexDirection: 'column', 
                           alignItems: 'center', 
-                          minWidth: 65,
-                          gap: 0.5
+                          minWidth: 60,
+                          maxWidth: 60,
+                          gap: 0.5,
+                          flexShrink: 0
                         }}>
                           <Typography variant="caption" sx={{ 
                             color: getCategoryColor(activity.category),
                             fontWeight: 600,
-                            fontSize: '0.75rem'
+                            fontSize: '0.75rem',
+                            textAlign: 'center'
                           }}>
                             {activity.time}
                           </Typography>
@@ -150,8 +177,20 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                         </Box>
 
                         {/* Compact Activity Details */}
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <Box sx={{ 
+                          flex: 1, 
+                          minWidth: 0,
+                          maxWidth: 'calc(100% - 75px)',
+                          overflow: 'hidden'
+                        }}>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 1, 
+                            mb: 0.5,
+                            maxWidth: '100%',
+                            overflow: 'hidden'
+                          }}>
                             <Chip
                               label={activity.category}
                               size="small"
@@ -160,7 +199,13 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                                 color: 'white',
                                 fontWeight: 500,
                                 fontSize: '0.7rem',
-                                height: 20
+                                height: 20,
+                                maxWidth: '120px',
+                                '& .MuiChip-label': {
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }
                               }}
                             />
                           </Box>
@@ -169,7 +214,11 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                             fontWeight: 600, 
                             color: '#1a1a1a',
                             mb: 0.5,
-                            fontSize: '0.875rem'
+                            fontSize: '0.875rem',
+                            wordBreak: 'break-word',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
                           }}>
                             {activity.place.key}
                           </Typography>
@@ -181,28 +230,54 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            wordBreak: 'break-word'
                           }}>
                             {activity.place.description}
                           </Typography>
 
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <LocationOn sx={{ fontSize: 12, color: '#999' }} />
+                          <Box sx={{ 
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            gap: 0.5, 
+                            maxWidth: '100%',
+                            overflow: 'hidden'
+                          }}>
+                            <Box sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 0.5,
+                              maxWidth: '100%',
+                              overflow: 'hidden'
+                            }}>
+                              <LocationOn sx={{ fontSize: 12, color: '#999', flexShrink: 0 }} />
                               <Typography variant="caption" sx={{ 
                                 color: '#999',
-                                fontSize: '0.7rem'
+                                fontSize: '0.7rem',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                flex: 1
                               }}>
                                 {activity.place.address}
                               </Typography>
                             </Box>
 
                             {extractPhoneNumber(activity.place.description) && (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <Phone sx={{ fontSize: 12, color: '#999' }} />
+                              <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 0.5,
+                                maxWidth: '100%',
+                                overflow: 'hidden'
+                              }}>
+                                <Phone sx={{ fontSize: 12, color: '#999', flexShrink: 0 }} />
                                 <Typography variant="caption" sx={{ 
                                   color: '#999',
-                                  fontSize: '0.7rem'
+                                  fontSize: '0.7rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
                                 }}>
                                   {extractPhoneNumber(activity.place.description)}
                                 </Typography>
@@ -230,9 +305,14 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
         mt: 1.5, 
         bgcolor: '#e8f5e8',
         borderRadius: 1,
-        border: '1px solid #c8e6c9'
+        border: '1px solid #c8e6c9',
+        maxWidth: '100%',
+        overflow: 'hidden'
       }}>
-        <Typography variant="caption" color="text.secondary" align="center" sx={{ fontSize: '0.75rem' }}>
+        <Typography variant="caption" color="text.secondary" align="center" sx={{ 
+          fontSize: '0.75rem',
+          wordBreak: 'break-word'
+        }}>
           ✨ {travelPlan.days.reduce((total, day) => total + day.activities.length, 0)} actividades 
           en {travelPlan.totalDays} día{travelPlan.totalDays > 1 ? 's' : ''}
         </Typography>
