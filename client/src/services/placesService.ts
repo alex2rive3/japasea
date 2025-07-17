@@ -1,4 +1,4 @@
-import type { Place } from '../types/places'
+import type { Place, ChatResponse } from '../types/places'
 
 const API_BASE_URL = 'http://localhost:3001'
 
@@ -42,7 +42,7 @@ export const placesService = {
     }
   },
 
-  async processChatMessage(message: string, context?: string): Promise<{response: string, places: Place[], useGoogleMaps?: boolean}> {
+  async processChatMessage(message: string, context?: string): Promise<ChatResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
@@ -60,18 +60,39 @@ export const placesService = {
       }
 
       const data = await response.json()
+      
       return {
-        response: data.response,
+        message: data.message || data.response,
         places: data.places || [],
-        useGoogleMaps: data.useGoogleMaps || false
+        travelPlan: data.travelPlan,
+        timestamp: data.timestamp || new Date().toISOString()
       }
     } catch (error) {
       console.error('Error processing chat message:', error)
       return {
-        response: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
+        message: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
         places: [],
-        useGoogleMaps: false
+        timestamp: new Date().toISOString()
       }
     }
+  },
+
+  isTravelPlan(response: ChatResponse): response is ChatResponse & { travelPlan: NonNullable<ChatResponse['travelPlan']> } {
+    return response.travelPlan !== undefined
+  },
+
+  extractAllPlacesFromTravelPlan(response: ChatResponse): Place[] {
+    if (!this.isTravelPlan(response)) {
+      return response.places || []
+    }
+
+    const allPlaces: Place[] = []
+    response.travelPlan.days.forEach(day => {
+      day.activities.forEach(activity => {
+        allPlaces.push(activity.place)
+      })
+    })
+    
+    return allPlaces
   }
 }

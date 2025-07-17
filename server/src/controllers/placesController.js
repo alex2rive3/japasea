@@ -105,152 +105,10 @@ class PlacesController {
         })
       }
 
-      const places = PlacesController.loadPlaces()
-      
-      const messageWords = message.toLowerCase().split(' ')
-      let suggestedPlaces = []
-      let useGoogleMapsRecommendations = false
+      const localPlaces = PlacesController.loadPlaces()
+      const response = await PlacesController.generateTravelResponse(message, context, localPlaces)
 
-      const relevantPlaces = places.filter(place => {
-        const searchText = `${place.key} ${place.description} ${place.type} ${place.address}`.toLowerCase()
-        return messageWords.some(word => word.length > 2 && searchText.includes(word))
-      })
-
-      if (message.toLowerCase().includes('hotel') || message.toLowerCase().includes('accommodation')) {
-        suggestedPlaces = places.filter(place => place.type === 'Accommodation')
-      } else if (message.toLowerCase().includes('food') || message.toLowerCase().includes('restaurant') || message.toLowerCase().includes('eat')) {
-        suggestedPlaces = places.filter(place => place.type === 'Food')
-      } else if (message.toLowerCase().includes('cafe') || message.toLowerCase().includes('breakfast') || message.toLowerCase().includes('snack')) {
-        suggestedPlaces = places.filter(place => place.type === 'Breakfast and Snacks')
-      } else if (message.toLowerCase().includes('tourism') || message.toLowerCase().includes('visit') || message.toLowerCase().includes('tourist')) {
-        suggestedPlaces = places.filter(place => place.type === 'Tourism')
-      } else if (message.toLowerCase().includes('shopping') || message.toLowerCase().includes('store')) {
-        suggestedPlaces = places.filter(place => place.type === 'Shopping')
-      } else if (relevantPlaces.length > 0) {
-        suggestedPlaces = relevantPlaces
-      }
-
-      if (suggestedPlaces.length === 0 && (
-        message.toLowerCase().includes('pharmacy') ||
-        message.toLowerCase().includes('gas station') ||
-        message.toLowerCase().includes('bank') ||
-        message.toLowerCase().includes('hospital') ||
-        message.toLowerCase().includes('supermarket') ||
-        message.toLowerCase().includes('church') ||
-        message.toLowerCase().includes('school') ||
-        message.toLowerCase().includes('university') ||
-        message.toLowerCase().includes('park') ||
-        message.toLowerCase().includes('plaza') ||
-        message.toLowerCase().includes('market') ||
-        message.toLowerCase().includes('stadium') ||
-        message.toLowerCase().includes('terminal') ||
-        message.toLowerCase().includes('airport') ||
-        message.toLowerCase().includes('bridge') ||
-        message.toLowerCase().includes('waterfront') ||
-        messageWords.some(word => word.length > 4)
-      )) {
-        useGoogleMapsRecommendations = true
-        suggestedPlaces = []
-      }
-
-      if (suggestedPlaces.length === 0 && !useGoogleMapsRecommendations) {
-        const categories = ['Accommodation', 'Food', 'Breakfast and Snacks', 'Tourism', 'Shopping']
-        suggestedPlaces = []
-        
-        for (const category of categories) {
-          const categoryPlaces = places.filter(place => place.type === category)
-          if (categoryPlaces.length > 0) {
-            const randomIndex = Math.floor(Math.random() * categoryPlaces.length)
-            suggestedPlaces.push(categoryPlaces[randomIndex])
-          }
-          if (suggestedPlaces.length >= 3) break
-        }
-      }
-
-      if (!useGoogleMapsRecommendations) {
-        if (suggestedPlaces.length > 3) {
-          suggestedPlaces = suggestedPlaces.sort(() => 0.5 - Math.random()).slice(0, 3)
-        } else if (suggestedPlaces.length < 3) {
-          const remainingPlaces = places.filter(place => !suggestedPlaces.includes(place))
-          const shuffled = remainingPlaces.sort(() => 0.5 - Math.random())
-          const needed = 3 - suggestedPlaces.length
-          suggestedPlaces = [...suggestedPlaces, ...shuffled.slice(0, needed)]
-        }
-      }
-
-      const placesContext = useGoogleMapsRecommendations ? [] : suggestedPlaces.map(place => ({
-        name: place.key,
-        type: place.type,
-        description: place.description,
-        address: place.address,
-        location: place.location
-      }))
-
-      const prompt = `
-        You are JapaseaBot, a tourism assistant specialized in Encarnación, Paraguay.
-
-        ${placesContext.length > 0 ? `
-        AVAILABLE PLACES DATABASE:
-        ${JSON.stringify(placesContext, null, 2)}
-        
-        INSTRUCTIONS: Use THESE places from our database.
-        ` : `
-        INSTRUCTIONS: Use your general knowledge to recommend 3 real places in Encarnación, Paraguay.
-        The specific places will be provided by the system, but mention that they are recommendations based on updated information.
-        `}
-
-        GENERAL GUIDELINES:
-        1. Respond ONLY in Spanish, in a friendly and professional manner
-        2. ALWAYS mention the exact names of the places
-        3. Provide addresses when possible
-        4. Briefly explain why each place is relevant to the query
-        5. Limit your response to a maximum of 200 words
-
-        RESPONSE FORMAT:
-        - Brief personalized greeting
-        - Mention the 3 recommended places by name
-        - Brief description of each place and why it's relevant
-        - Invite to explore the map for more details
-
-        CONTEXT INFORMATION ABOUT ENCARNACIÓN:
-        - City in the Itapúa department, Paraguay
-        - Located on the border with Argentina
-        - Known for its waterfront, carnival and tourism
-        - Important: Encarnación Waterfront, San Roque González de Santa Cruz Bridge, Historic center
-
-        USER QUERY: "${message}"
-        
-        PREVIOUS CONTEXT: ${context || 'First user query'}
-        
-        ${placesContext.length === 0 ? 'IMPORTANT: Provide 3 relevant recommendations from Encarnación based on your general knowledge.' : ''}
-      `
-
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          thinkingConfig: {
-            thinkingBudget: 0,
-          },
-        }
-      })
-
-      const aiResponse = response.text
-
-      let finalPlaces = suggestedPlaces
-      if (useGoogleMapsRecommendations) {
-        console.log('Using Google Maps recommendations for:', message)
-        finalPlaces = await PlacesController.getGoogleMapsPlaces(message)
-        console.log('Final places from Google Maps:', finalPlaces)
-      } else {
-        console.log('Using database places:', finalPlaces.length, 'places')
-      }
-
-      res.status(200).json({
-        response: aiResponse,
-        places: finalPlaces,
-        timestamp: new Date().toISOString()
-      })
+      res.status(200).json(response)
 
     } catch (error) {
       console.error('Error processing chat:', error)
@@ -262,209 +120,315 @@ class PlacesController {
     }
   }
 
-  static async getGoogleMapsPlaces(message) {
-    try {
-      let searchType = 'places'
-      if (message.toLowerCase().includes('hotel') || message.toLowerCase().includes('accommodation')) {
-        searchType = 'hotels'
-      } else if (message.toLowerCase().includes('food') || message.toLowerCase().includes('restaurant') || message.toLowerCase().includes('eat')) {
-        searchType = 'restaurants'
-      } else if (message.toLowerCase().includes('cafe') || message.toLowerCase().includes('breakfast') || message.toLowerCase().includes('snack')) {
-        searchType = 'cafes'
-      } else if (message.toLowerCase().includes('tourism') || message.toLowerCase().includes('visit') || message.toLowerCase().includes('tourist')) {
-        searchType = 'tourist places'
-      } else if (message.toLowerCase().includes('shopping') || message.toLowerCase().includes('store')) {
-        searchType = 'shopping centers'
-      } else if (message.toLowerCase().includes('pharmacy')) {
-        searchType = 'pharmacies'
-      } else if (message.toLowerCase().includes('gas station')) {
-        searchType = 'gas stations'
-      } else if (message.toLowerCase().includes('bank')) {
-        searchType = 'banks'
-      } else if (message.toLowerCase().includes('hospital')) {
-        searchType = 'hospitals'
-      } else if (message.toLowerCase().includes('supermarket')) {
-        searchType = 'supermarkets'
-      } else if (message.toLowerCase().includes('church')) {
-        searchType = 'churches'
-      } else if (message.toLowerCase().includes('school') || message.toLowerCase().includes('university')) {
-        searchType = 'educational institutions'
-      } else if (message.toLowerCase().includes('park') || message.toLowerCase().includes('plaza')) {
-        searchType = 'parks and plazas'
+  static async generateTravelResponse(message, context, localPlaces) {
+    const isTravelPlan = PlacesController.detectTravelPlan(message)
+    
+    if (isTravelPlan) {
+      return await PlacesController.generateTravelPlan(message, context, localPlaces)
+    } else {
+      return await PlacesController.generateSimpleRecommendation(message, context, localPlaces)
+    }
+  }
+
+  static detectTravelPlan(message) {
+    const travelPlanIndicators = [
+      'plan', 'itinerario', 'viaje', 'días', 'dia', 'día', 'semana', 'fin de semana',
+      'recorrido', 'ruta', 'agenda', 'cronograma', 'programar', 'organizar',
+      'visitar en', 'hacer en', 'qué hacer', 'actividades'
+    ]
+    
+    const messageLower = message.toLowerCase()
+    return travelPlanIndicators.some(indicator => messageLower.includes(indicator))
+  }
+
+  static async generateTravelPlan(message, context, localPlaces) {
+    const prompt = `
+      Eres JapaseaBot, un asistente turístico especializado en Encarnación, Paraguay, experto en crear planes de viaje personalizados.
+
+      INFORMACIÓN SOBRE ENCARNACIÓN:
+      - Ciudad ubicada en el departamento de Itapúa, Paraguay
+      - Frontera con Argentina (Posadas)
+      - Famosa por su Costanera, Carnaval Encarnaceno y turismo
+      - Atracciones principales: Costanera de Encarnación, Puente San Roque González de Santa Cruz, Centro Histórico
+      - Zona comercial y gastronómica en el centro y Paseo Gastronómico
+      - Coordenadas aproximadas: -27.3309, -55.8663
+
+      LUGARES LOCALES DE APOYO (usa como referencia):
+      ${JSON.stringify(localPlaces.slice(0, 10), null, 2)}
+
+      CONSULTA DEL USUARIO: "${message}"
+      CONTEXTO PREVIO: ${context || 'Primera consulta del usuario'}
+
+      INSTRUCCIONES PARA CREAR EL PLAN:
+      1. Analiza la consulta para extraer: número de días, preferencias gastronómicas, actividades deseadas, tipo de alojamiento
+      2. Crea un plan día por día que incluya lugares REALES de Encarnación
+      3. Combina lugares de la base de datos local con lugares reales de Google Maps
+      4. Para cada día, incluye: desayuno, actividades matutinas, almuerzo, actividades vespertinas, cena
+      5. Sugiere lugares específicos con nombres reales y direcciones exactas
+      6. Considera la proximidad geográfica de los lugares
+
+      ESTRUCTURA DE RESPUESTA REQUERIDA (JSON):
+      {
+        "message": "Mensaje personalizado de bienvenida y resumen del plan (máximo 150 palabras)",
+        "travelPlan": {
+          "totalDays": número_de_días,
+          "days": [
+            {
+              "dayNumber": 1,
+              "title": "Título del día (ej: Llegada y Centro Histórico)",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "category": "Desayuno",
+                  "place": {
+                    "key": "Nombre exacto del lugar",
+                    "type": "Desayunos y meriendas",
+                    "description": "Descripción detallada del lugar y por qué es perfecto para esta actividad",
+                    "address": "Dirección específica con calles reales",
+                    "location": {"lat": -27.xxxx, "lng": -55.xxxx}
+                  }
+                },
+                {
+                  "time": "11:00",
+                  "category": "Turismo",
+                  "place": {
+                    "key": "Nombre exacto del lugar",
+                    "type": "Turístico",
+                    "description": "Descripción de la actividad turística",
+                    "address": "Dirección específica",
+                    "location": {"lat": -27.xxxx, "lng": -55.xxxx}
+                  }
+                },
+                {
+                  "time": "13:00",
+                  "category": "Almuerzo",
+                  "place": {
+                    "key": "Nombre exacto del restaurante",
+                    "type": "Gastronomía",
+                    "description": "Descripción del tipo de comida y especialidades",
+                    "address": "Dirección específica",
+                    "location": {"lat": -27.xxxx, "lng": -55.xxxx}
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "timestamp": "${new Date().toISOString()}"
       }
 
-      const googleMapsPrompt = `
-        You are an assistant that extracts specific information about places in Encarnación, Paraguay.
+      CATEGORÍAS DE LUGARES:
+      - Alojamiento: Hoteles, hostales, posadas
+      - Gastronomía: Restaurantes, parrillas, comida internacional
+      - Desayunos y meriendas: Cafés, panaderías, heladerías
+      - Turístico: Museos, plazas, costanera, centros comerciales
+      - Entretenimiento: Bares, pubs, vida nocturna
 
-        USER QUERY: "${message}"
-        SEARCH TYPE: ${searchType}
+      CALLES Y AVENIDAS PRINCIPALES DE ENCARNACIÓN:
+      - Avda. Costanera (zona turística principal)
+      - Avda. Dr. Francia (Paseo Gastronómico)
+      - Avda. Irrazábal, Avda. Caballero
+      - 14 de Mayo, Mcal. Estigarribia, Cerro Corá
+      - Zona centro: Plaza de Armas y alrededores
 
-        INSTRUCTIONS:
-        1. Provide exactly 3 real ${searchType} places in Encarnación, Paraguay
-        2. For each place, provide information in strict JSON format
-        3. Use real Google Maps coordinates
-        4. Include real and specific addresses
-        5. Use exact names of establishments that exist in Encarnación
+      RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
+    `
 
-        JSON RESPONSE FORMAT:
-        [
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        thinkingConfig: {
+          thinkingBudget: 0,
+        },
+      }
+    })
+
+    try {
+      const jsonResponse = response.text.trim()
+      const cleanedResponse = jsonResponse.replace(/```json\n?|\n?```/g, '').trim()
+      const parsedResponse = JSON.parse(cleanedResponse)
+      
+      return parsedResponse
+    } catch (parseError) {
+      console.error('Error parsing travel plan response:', parseError)
+      return PlacesController.generateFallbackTravelPlan(message)
+    }
+  }
+
+  static async generateSimpleRecommendation(message, context, localPlaces) {
+    const relevantLocalPlaces = PlacesController.findRelevantLocalPlaces(message, localPlaces)
+    
+    const prompt = `
+      Eres JapaseaBot, un asistente turístico especializado en Encarnación, Paraguay.
+
+      LUGARES LOCALES DISPONIBLES:
+      ${JSON.stringify(relevantLocalPlaces, null, 2)}
+
+      INFORMACIÓN SOBRE ENCARNACIÓN:
+      - Ciudad en el departamento de Itapúa, Paraguay
+      - Frontera con Argentina, conocida por su Costanera y Carnaval
+      - Coordenadas: -27.3309, -55.8663
+      - Calles principales: Avda. Costanera, Dr. Francia, Irrazábal, Caballero
+
+      CONSULTA DEL USUARIO: "${message}"
+      CONTEXTO PREVIO: ${context || 'Primera consulta'}
+
+      INSTRUCCIONES:
+      1. Responde en español de manera amigable y profesional
+      2. Proporciona exactamente 3 recomendaciones de lugares REALES
+      3. Combina lugares de la base local con lugares reales de Google Maps si es necesario
+      4. Incluye nombres exactos, direcciones específicas y coordenadas precisas
+      5. Explica brevemente por qué cada lugar es relevante
+
+      ESTRUCTURA DE RESPUESTA (JSON):
+      {
+        "message": "Respuesta personalizada en español (máximo 200 palabras)",
+        "places": [
           {
-            "key": "Exact place name",
-            "type": "Appropriate category",
-            "description": "Brief description of the place",
-            "address": "Exact address with real streets",
-            "location": {
-              "lat": -27.xxxx,
-              "lng": -55.xxxx
-            }
+            "key": "Nombre exacto del lugar",
+            "type": "Categoría apropiada",
+            "description": "Descripción detallada y relevancia",
+            "address": "Dirección específica con calles reales",
+            "location": {"lat": -27.xxxx, "lng": -55.xxxx}
+          }
+        ],
+        "timestamp": "${new Date().toISOString()}"
+      }
+
+      RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
+    `
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        thinkingConfig: {
+          thinkingBudget: 0,
+        },
+      }
+    })
+
+    try {
+      const jsonResponse = response.text.trim()
+      const cleanedResponse = jsonResponse.replace(/```json\n?|\n?```/g, '').trim()
+      const parsedResponse = JSON.parse(cleanedResponse)
+      
+      return parsedResponse
+    } catch (parseError) {
+      console.error('Error parsing simple recommendation response:', parseError)
+      return PlacesController.generateFallbackRecommendation(message, relevantLocalPlaces)
+    }
+  }
+
+  static findRelevantLocalPlaces(message, localPlaces) {
+    const messageWords = message.toLowerCase().split(' ')
+    
+    const relevantPlaces = localPlaces.filter(place => {
+      const searchText = `${place.key} ${place.description} ${place.type} ${place.address}`.toLowerCase()
+      return messageWords.some(word => word.length > 2 && searchText.includes(word))
+    })
+
+    if (relevantPlaces.length >= 3) {
+      return relevantPlaces.slice(0, 3)
+    }
+
+    if (message.toLowerCase().includes('hotel') || message.toLowerCase().includes('alojamiento')) {
+      return localPlaces.filter(place => place.type === 'Alojamiento').slice(0, 3)
+    } else if (message.toLowerCase().includes('comida') || message.toLowerCase().includes('restaurante') || message.toLowerCase().includes('comer')) {
+      return localPlaces.filter(place => place.type === 'Gastronomía' || place.type === 'Comida').slice(0, 3)
+    } else if (message.toLowerCase().includes('café') || message.toLowerCase().includes('desayuno') || message.toLowerCase().includes('merienda')) {
+      return localPlaces.filter(place => place.type === 'Desayunos y meriendas').slice(0, 3)
+    } else if (message.toLowerCase().includes('turismo') || message.toLowerCase().includes('visitar') || message.toLowerCase().includes('turistico')) {
+      return localPlaces.filter(place => place.type === 'Turístico').slice(0, 3)
+    }
+
+    return localPlaces.slice(0, 3)
+  }
+
+  static generateFallbackTravelPlan(message) {
+    return {
+      message: "He preparado un plan básico para tu visita a Encarnación. Los lugares son recomendaciones generales que puedes ajustar según tus preferencias específicas.",
+      travelPlan: {
+        totalDays: 3,
+        days: [
+          {
+            dayNumber: 1,
+            title: "Llegada y Centro Histórico",
+            activities: [
+              {
+                time: "09:00",
+                category: "Desayuno",
+                place: {
+                  key: "Café Central Encarnación",
+                  type: "Desayunos y meriendas",
+                  description: "Café céntrico perfecto para comenzar el día con un buen desayuno paraguayo",
+                  address: "Avda. Dr. Francia c/ 14 de Mayo",
+                  location: { lat: -27.3309, lng: -55.8663 }
+                }
+              },
+              {
+                time: "11:00",
+                category: "Turismo",
+                place: {
+                  key: "Plaza de Armas",
+                  type: "Turístico",
+                  description: "Plaza central histórica con monumentos y ambiente tradicional",
+                  address: "14 de Mayo c/ Mcal. Estigarribia",
+                  location: { lat: -27.3323, lng: -55.8656 }
+                }
+              },
+              {
+                time: "13:00",
+                category: "Almuerzo",
+                place: {
+                  key: "Restaurante La Costanera",
+                  type: "Gastronomía",
+                  description: "Restaurante con vista al río y especialidades locales",
+                  address: "Avda. Costanera",
+                  location: { lat: -27.3340, lng: -55.8737 }
+                }
+              }
+            ]
           }
         ]
+      },
+      timestamp: new Date().toISOString()
+    }
+  }
 
-        CONTEXT INFORMATION:
-        - Encarnación is located at approximately: -27.3309, -55.8663
-        - Main avenues: Costanera, Dr. Francia, Irrazábal, Caballero
-        - Important streets: 14 de Mayo, Mcal. Estigarribia, Cerro Corá
-        - Commercial area: city center
-        - Tourist area: waterfront and surroundings
-
-        RESPOND ONLY WITH THE JSON ARRAY, NO ADDITIONAL TEXT.
-      `
-
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: googleMapsPrompt,
-        config: {
-          thinkingConfig: {
-            thinkingBudget: 0,
-          },
-        }
-      })
-
-      const jsonResponse = response.text.trim()
-      console.log('Google Maps raw response:', jsonResponse)
-
-      try {
-        const cleanedResponse = jsonResponse.replace(/```json\n?|\n?```/g, '').trim()
-        const places = JSON.parse(cleanedResponse)
-        
-        if (Array.isArray(places) && places.length > 0) {
-          const finalPlaces = places.slice(0, 3)
-          
-          const validatedPlaces = finalPlaces.map((place, index) => ({
-            key: place.key || `${searchType} ${index + 1}`,
-            type: place.type || 'General',
-            description: place.description || `${searchType} recomendado en Encarnación`,
-            address: place.address || 'Encarnación, Paraguay',
-            location: {
-              lat: place.location?.lat || (-27.3309 + (Math.random() - 0.5) * 0.02),
-              lng: place.location?.lng || (-55.8663 + (Math.random() - 0.5) * 0.02)
-            }
-          }))
-          
-          console.log('Successfully parsed Google Maps places:', validatedPlaces)
-          return validatedPlaces
-        }
-      } catch (parseError) {
-        console.error('Error parsing Google Maps response:', parseError)
-        console.log('Raw response that failed to parse:', jsonResponse)
+  static generateFallbackRecommendation(message, localPlaces) {
+    const places = localPlaces.length > 0 ? localPlaces.slice(0, 3) : [
+      {
+        key: "Costanera de Encarnación",
+        type: "Turístico",
+        description: "Hermosa costanera con vista al río Paraná, ideal para pasear y disfrutar",
+        address: "Avda. Costanera",
+        location: { lat: -27.3340, lng: -55.8737 }
+      },
+      {
+        key: "Paseo Gastronómico",
+        type: "Gastronomía",
+        description: "Zona gastronómica con variedad de restaurantes y opciones culinarias",
+        address: "Avda. Francia",
+        location: { lat: -27.3353, lng: -55.8716 }
+      },
+      {
+        key: "Shopping Costanera",
+        type: "Compras",
+        description: "Centro comercial moderno con tiendas, restaurantes y entretenimiento",
+        address: "Avda. Costanera",
+        location: { lat: -27.3253, lng: -55.8754 }
       }
+    ]
 
-      console.log('Falling back to generateFallbackPlaces')
-      return PlacesController.generateFallbackPlaces(message, searchType)
-
-    } catch (error) {
-      console.error('Error getting Google Maps places:', error)
-      return PlacesController.generateFallbackPlaces(message, 'places')
+    return {
+      message: "Aquí tienes algunas recomendaciones para tu visita a Encarnación. Estos lugares te ofrecerán una buena experiencia de la ciudad y sus atractivos principales.",
+      places: places,
+      timestamp: new Date().toISOString()
     }
   }
 
-  static generateFallbackPlaces(message, searchType) {
-    let type = 'General'
-    if (searchType.includes('hotel')) {
-      type = 'Accommodation'
-    } else if (searchType.includes('restaurant') || searchType.includes('food')) {
-      type = 'Food'
-    } else if (searchType.includes('cafe')) {
-      type = 'Breakfast and Snacks'
-    } else if (searchType.includes('tourist')) {
-      type = 'Tourism'
-    } else if (searchType.includes('shopping')) {
-      type = 'Shopping'
-    } else if (searchType.includes('pharmacy')) {
-      type = 'Services'
-    } else if (searchType.includes('bank')) {
-      type = 'Services'
-    } else if (searchType.includes('gas station')) {
-      type = 'Services'
-    } else if (searchType.includes('hospital')) {
-      type = 'Services'
-    } else if (searchType.includes('supermarket')) {
-      type = 'Shopping'
-    }
-
-    const places = []
-    const fallbackData = {
-      'hotels': [
-        { name: 'Hotel Central Encarnación', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
-        { name: 'Posada del Río', address: 'Avda. Costanera c/ Cerro Corá' },
-        { name: 'Hotel Plaza', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' }
-      ],
-      'restaurants': [
-        { name: 'Parrilla La Costanera', address: 'Avda. Costanera c/ Dr. Francia' },
-        { name: 'Restaurante El Mirador', address: 'Avda. Irrazábal c/ Caballero' },
-        { name: 'Pizzería Italiana', address: '14 de Mayo c/ Mcal. Estigarribia' }
-      ],
-      'cafes': [
-        { name: 'Café del Centro', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
-        { name: 'Panadería San José', address: 'Avda. Costanera c/ Cerro Corá' },
-        { name: 'Heladería Colonial', address: 'Avda. Caballero c/ Lomas Valentinas' }
-      ],
-      'pharmacies': [
-        { name: 'Farmacia San Rafael', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
-        { name: 'Farmacia Central', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' },
-        { name: 'Farmacia del Pueblo', address: 'Avda. Irrazábal c/ Caballero' }
-      ],
-      'banks': [
-        { name: 'Banco Continental', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
-        { name: 'Banco Nacional de Fomento', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' },
-        { name: 'Banco Itaú', address: 'Avda. Caballero c/ Lomas Valentinas' }
-      ],
-      'supermarkets': [
-        { name: 'Supermercado Stock', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
-        { name: 'Supermercado Real', address: 'Avda. Irrazábal c/ Caballero' },
-        { name: 'Autoservicio Central', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' }
-      ],
-      'tourist places': [
-        { name: 'Costanera de Encarnación', address: 'Avda. Costanera' },
-        { name: 'Plaza de Armas', address: '14 de Mayo c/ Mcal. Estigarribia' },
-        { name: 'Museo de la Ciudad', address: 'Avda. Dr. Francia c/ Cerro Corá' }
-      ],
-      'default': [
-        { name: 'Lugar Recomendado Centro', address: 'Avda. Dr. Francia c/ 14 de Mayo' },
-        { name: 'Lugar Recomendado Costanera', address: 'Avda. Costanera' },
-        { name: 'Lugar Recomendado Plaza', address: 'Mcal. Estigarribia c/ Tomás R. Pereira' }
-      ]
-    }
-
-    const data = fallbackData[searchType] || fallbackData['default']
-    
-    for (let i = 0; i < 3; i++) {
-      const item = data[i]
-      places.push({
-        key: item.name,
-        type: type,
-        description: `${item.name} - ${searchType} ubicado en Encarnación, Paraguay`,
-        address: item.address,
-        location: {
-          lat: -27.3309 + (Math.random() - 0.5) * 0.02,
-          lng: -55.8663 + (Math.random() - 0.5) * 0.02
-        }
-      })
-    }
-
-    console.log('Generated fallback places:', places)
-    return places
-  }
 }
 
 module.exports = PlacesController
