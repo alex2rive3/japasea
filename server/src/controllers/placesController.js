@@ -106,7 +106,16 @@ class PlacesController {
       }
 
       const localPlaces = PlacesController.loadPlaces()
-      const response = await PlacesController.generateTravelResponse(message, context, localPlaces)
+      
+      // Detectar si es una consulta de plan de viaje o una consulta simple
+      const isTravelPlanQuery = PlacesController.detectTravelPlan(message)
+      
+      let response
+      if (isTravelPlanQuery) {
+        response = await PlacesController.generateTravelPlan(message, context, localPlaces)
+      } else {
+        response = await PlacesController.generateSimpleRecommendation(message, context, localPlaces)
+      }
 
       res.status(200).json(response)
 
@@ -120,119 +129,169 @@ class PlacesController {
     }
   }
 
-  static async generateTravelResponse(message, context, localPlaces) {
-    const isTravelPlan = PlacesController.detectTravelPlan(message)
-    
-    if (isTravelPlan) {
-      return await PlacesController.generateTravelPlan(message, context, localPlaces)
-    } else {
-      return await PlacesController.generateSimpleRecommendation(message, context, localPlaces)
-    }
-  }
-
   static detectTravelPlan(message) {
-    const travelPlanIndicators = [
-      'plan', 'itinerario', 'viaje', 'días', 'dia', 'día', 'semana', 'fin de semana',
-      'recorrido', 'ruta', 'agenda', 'cronograma', 'programar', 'organizar',
-      'visitar en', 'hacer en', 'qué hacer', 'actividades'
+    const messageLower = message.toLowerCase()
+    
+    // Detectar menciones explícitas de días
+    const dayKeywords = /(\d+)\s*(día|dias|day|days)/i
+    if (dayKeywords.test(message)) {
+      return true
+    }
+    
+    // Detectar palabras que indican planificación de viaje
+    const travelPlanKeywords = [
+      'plan', 'planear', 'itinerario', 'ruta', 'recorrido', 'trip', 'viaje',
+      'conocer', 'recorrer', 'turistear', 'explorar', 'visitar encarnación'
     ]
     
-    const messageLower = message.toLowerCase()
-    return travelPlanIndicators.some(indicator => messageLower.includes(indicator))
+    // Detectar múltiples actividades (indica necesidad de plan)
+    const hasMultipleActivities = messageLower.includes(' y ') && 
+      (messageLower.includes('comer') || messageLower.includes('ir') || 
+       messageLower.includes('visitar') || messageLower.includes('hacer'))
+    
+    const hasTravelKeywords = travelPlanKeywords.some(keyword => 
+      messageLower.includes(keyword)
+    )
+    
+    return hasTravelKeywords || hasMultipleActivities
   }
 
   static async generateTravelPlan(message, context, localPlaces) {
-    const prompt = `
-      Eres JapaseaBot, un asistente turístico especializado en Encarnación, Paraguay, experto en crear planes de viaje personalizados.
+    const prompt = `Eres JapaseaBot, un asistente turístico especializado en Encarnación, Paraguay, experto en crear planes de viaje personalizados y detallados.
 
-      INFORMACIÓN SOBRE ENCARNACIÓN:
-      - Ciudad ubicada en el departamento de Itapúa, Paraguay
-      - Frontera con Argentina (Posadas)
-      - Famosa por su Costanera, Carnaval Encarnaceno y turismo
-      - Atracciones principales: Costanera de Encarnación, Puente San Roque González de Santa Cruz, Centro Histórico
-      - Zona comercial y gastronómica en el centro y Paseo Gastronómico
-      - Coordenadas aproximadas: -27.3309, -55.8663
+## INFORMACIÓN GEOGRÁFICA Y TURÍSTICA:
+- **Ubicación**: Encarnación, Departamento de Itapúa, Paraguay
+- **Frontera**: Con Posadas, Argentina (conectada por Puente San Roque González)
+- **Atracciones icónicas**: Costanera de Encarnación, Carnaval Encarnaceno, Centro Histórico
+- **Zonas principales**: Centro comercial, Paseo Gastronómico (Avda. Dr. Francia), Costanera
+- **Coordenadas base**: -27.3309, -55.8663
 
-      LUGARES LOCALES DE APOYO (usa como referencia):
-      ${JSON.stringify(localPlaces.slice(0, 10), null, 2)}
+## DATOS LOCALES DE REFERENCIA:
+${JSON.stringify(localPlaces.slice(0, 10), null, 2)}
 
-      CONSULTA DEL USUARIO: "${message}"
-      CONTEXTO PREVIO: ${context || 'Primera consulta del usuario'}
+## CONSULTA DEL USUARIO:
+"${message}"
 
-      INSTRUCCIONES PARA CREAR EL PLAN:
-      1. Analiza la consulta para extraer: número de días, preferencias gastronómicas, actividades deseadas, tipo de alojamiento
-      2. Crea un plan día por día que incluya lugares REALES de Encarnación
-      3. Combina lugares de la base de datos local con lugares reales de Google Maps
-      4. Para cada día, incluye: desayuno, actividades matutinas, almuerzo, actividades vespertinas, cena
-      5. Sugiere lugares específicos con nombres reales y direcciones exactas
-      6. Considera la proximidad geográfica de los lugares
+## CONTEXTO PREVIO:
+${context || 'Primera consulta del usuario'}
 
-      ESTRUCTURA DE RESPUESTA REQUERIDA (JSON):
+## PROCESO DE ANÁLISIS DE LA CONSULTA:
+
+### PASO 1: EXTRACCIÓN DE PARÁMETROS
+Analiza la consulta para identificar:
+- **Duración**: Número de días (si no se especifica = 1 día)
+- **Preferencias gastronómicas**: Tipos de comida, restricciones, presupuesto
+- **Actividades deseadas**: Turismo, entretenimiento, compras, naturaleza, vida nocturna, baile
+- **Tipo de viaje**: Familiar, romántico, aventura, cultural, negocios, fiesta/diversión nocturna
+- **Alojamiento**: Si se menciona o se necesita incluir
+- **Horarios**: Preferencias de tiempo (mañana, tarde, noche)
+
+### PASO 2: PLANIFICACIÓN ESTRATÉGICA
+- **Proximidad geográfica**: Agrupa lugares cercanos para optimizar traslados
+- **Flujo temporal**: Secuencia lógica de actividades (desayuno → turismo → almuerzo → actividades → cena)
+- **Variedad equilibrada**: Combina gastronomía, turismo y entretenimiento
+- **Lugares auténticos**: Prioriza establecimientos reales y reconocidos
+
+## ESTRUCTURA DE RESPUESTA OPTIMIZADA (JSON):
+
+{
+  "message": "Mensaje personalizado que resume el plan creado, destaca los puntos fuertes y da consejos adicionales (100-150 palabras)",
+  "travelPlan": {
+    "totalDays": [número_detectado_o_1_por_defecto],
+    "days": [
       {
-        "message": "Mensaje personalizado de bienvenida y resumen del plan (máximo 150 palabras)",
-        "travelPlan": {
-          "totalDays": número_de_días,
-          "days": [
-            {
-              "dayNumber": 1,
-              "title": "Título del día (ej: Llegada y Centro Histórico)",
-              "activities": [
-                {
-                  "time": "09:00",
-                  "category": "Desayuno",
-                  "place": {
-                    "key": "Nombre exacto del lugar",
-                    "type": "Desayunos y meriendas",
-                    "description": "Descripción detallada del lugar y por qué es perfecto para esta actividad",
-                    "address": "Dirección específica con calles reales",
-                    "location": {"lat": -27.xxxx, "lng": -55.xxxx}
-                  }
-                },
-                {
-                  "time": "11:00",
-                  "category": "Turismo",
-                  "place": {
-                    "key": "Nombre exacto del lugar",
-                    "type": "Turístico",
-                    "description": "Descripción de la actividad turística",
-                    "address": "Dirección específica",
-                    "location": {"lat": -27.xxxx, "lng": -55.xxxx}
-                  }
-                },
-                {
-                  "time": "13:00",
-                  "category": "Almuerzo",
-                  "place": {
-                    "key": "Nombre exacto del restaurante",
-                    "type": "Gastronomía",
-                    "description": "Descripción del tipo de comida y especialidades",
-                    "address": "Dirección específica",
-                    "location": {"lat": -27.xxxx, "lng": -55.xxxx}
-                  }
-                }
-              ]
+        "dayNumber": 1,
+        "title": "[Título descriptivo del día basado en actividades principales]",
+        "activities": [
+          {
+            "time": "09:00",
+            "category": "Desayuno",
+            "place": {
+              "key": "Nombre exacto del establecimiento",
+              "type": "Desayunos y meriendas",
+              "description": "Descripción específica: tipo de comida, especialidades, ambiente, por qué es ideal para esta parte del plan",
+              "address": "Dirección completa con calle y número específico",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              {
+            "time": "21:00",
+            "category": "Entretenimiento",
+            "place": {
+              "key": "Nombre exacto del bar/discoteca",
+              "type": "Entretenimiento",
+              "description": "Tipo de música, ambiente, horarios, por qué es ideal para terminar la noche",
+              "address": "Dirección específica",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
             }
-          ]
-        },
-        "timestamp": "${new Date().toISOString()}"
+          }
+            }
+          },
+          {
+            "time": "10:30",
+            "category": "Turismo",
+            "place": {
+              "key": "Nombre exacto del lugar turístico",
+              "type": "Turístico",
+              "description": "Descripción detallada: qué se puede ver/hacer, tiempo recomendado, por qué es imperdible",
+              "address": "Dirección específica",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
+          },
+          {
+            "time": "12:30",
+            "category": "Almuerzo",
+            "place": {
+              "key": "Nombre exacto del restaurante",
+              "type": "Gastronomía",
+              "description": "Especialidades, tipo de cocina, ambiente, rango de precios, por qué encaja con el plan",
+              "address": "Dirección específica",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
+          },
+          {
+            "time": "15:00",
+            "category": "Turismo",
+            "place": {
+              "key": "Segundo lugar turístico",
+              "type": "Turístico",
+              "description": "Actividad complementaria, diferente al primer sitio turístico",
+              "address": "Dirección específica",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
+          },
+          {
+            "time": "19:00",
+            "category": "Cena",
+            "place": {
+              "key": "Nombre exacto del restaurante para cena",
+              "type": "Gastronomía",
+              "description": "Ambiente nocturno, especialidades, por qué cierra bien el día",
+              "address": "Dirección específica",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
+          }
+        ]
       }
-
-      CATEGORÍAS DE LUGARES:
-      - Alojamiento: Hoteles, hostales, posadas
-      - Gastronomía: Restaurantes, parrillas, comida internacional
-      - Desayunos y meriendas: Cafés, panaderías, heladerías
-      - Turístico: Museos, plazas, costanera, centros comerciales
-      - Entretenimiento: Bares, pubs, vida nocturna
-
-      CALLES Y AVENIDAS PRINCIPALES DE ENCARNACIÓN:
-      - Avda. Costanera (zona turística principal)
-      - Avda. Dr. Francia (Paseo Gastronómico)
-      - Avda. Irrazábal, Avda. Caballero
-      - 14 de Mayo, Mcal. Estigarribia, Cerro Corá
-      - Zona centro: Plaza de Armas y alrededores
-
-      RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
-    `
+    ]
+  },
+  "timestamp": "${new Date().toISOString()}"
+} `
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -257,47 +316,119 @@ class PlacesController {
   }
 
   static async generateSimpleRecommendation(message, context, localPlaces) {
-    const relevantLocalPlaces = PlacesController.findRelevantLocalPlaces(message, localPlaces)
-    
+  
     const prompt = `
-      Eres JapaseaBot, un asistente turístico especializado en Encarnación, Paraguay.
+Eres JapaseaBot, un asistente turístico local especializado en Encarnación, Paraguay. Tienes conocimiento exhaustivo de la ciudad y respondes consultas específicas con recomendaciones precisas.
 
-      LUGARES LOCALES DISPONIBLES:
-      ${JSON.stringify(relevantLocalPlaces, null, 2)}
+## CONTEXTO DE ENCARNACIÓN:
+- Ciudad fronteriza con Posadas, Argentina
+- Departamento de Itapúa, Paraguay
+- Conocida por: Costanera, Carnaval Encarnaceno, gastronomía local
+- Atracciones icónicas: Costanera de Encarnación, Puente San Roque González, Centro Histórico
+- Zona gastronómica: Centro y Paseo Gastronómico
+- Coordenadas: -27.3309, -55.8663
 
-      INFORMACIÓN SOBRE ENCARNACIÓN:
-      - Ciudad en el departamento de Itapúa, Paraguay
-      - Frontera con Argentina, conocida por su Costanera y Carnaval
-      - Coordenadas: -27.3309, -55.8663
-      - Calles principales: Avda. Costanera, Dr. Francia, Irrazábal, Caballero
+## DATOS LOCALES DE REFERENCIA:
+${JSON.stringify(localPlaces.slice(0, 10), null, 2)}
 
-      CONSULTA DEL USUARIO: "${message}"
-      CONTEXTO PREVIO: ${context || 'Primera consulta'}
+## CONSULTA DEL USUARIO: 
+"${message}"
 
-      INSTRUCCIONES:
-      1. Responde en español de manera amigable y profesional
-      2. Proporciona exactamente 3 recomendaciones de lugares REALES
-      3. Combina lugares de la base local con lugares reales de Google Maps si es necesario
-      4. Incluye nombres exactos, direcciones específicas y coordenadas precisas
-      5. Explica brevemente por qué cada lugar es relevante
+## CONTEXTO PREVIO: 
+${context || 'Primera consulta'}
 
-      ESTRUCTURA DE RESPUESTA (JSON):
+## INSTRUCCIONES PARA LA RESPUESTA:
+
+### REGLAS FUNDAMENTALES:
+1. **CANTIDAD**: Responde con EXACTAMENTE 3-4 lugares (nunca menos de 3, nunca más de 4)
+2. **RELEVANCIA**: Cada lugar debe responder DIRECTAMENTE a la consulta específica
+3. **PRECISIÓN**: Usa nombres reales de establecimientos de Encarnación
+4. **CONCISIÓN**: Respuesta directa sin información adicional no solicitada
+5. **IDIOMA**: Responde en español natural y amigable
+
+### CRITERIOS DE SELECCIÓN:
+- Prioriza lugares que coincidan exactamente con lo solicitado
+- Incluye variedad en ubicaciones (centro, costanera, barrios)
+- Considera diferentes rangos de precio cuando sea relevante
+- Asegúrate de que los lugares estén actualmente operativos
+
+### FORMATO DE RESPUESTA REQUERIDO (JSON):
+{
+  "message": "Respuesta concisa en español (máximo 80 palabras) que introduce las recomendaciones",
+  "travelPlan": {
+    "totalDays": 1,
+    "days": [
       {
-        "message": "Respuesta personalizada en español (máximo 200 palabras)",
-        "places": [
+        "dayNumber": 1,
+        "title": "Lugares recomendados para tu consulta",
+        "activities": [
           {
-            "key": "Nombre exacto del lugar",
-            "type": "Categoría apropiada",
-            "description": "Descripción detallada y relevancia",
-            "address": "Dirección específica con calles reales",
-            "location": {"lat": -27.xxxx, "lng": -55.xxxx}
+            "category": "Recomendación",
+            "place": {
+              "key": "Nombre exacto del establecimiento",
+              "type": "Categoría específica (ej: pizzería, restaurante, café)",
+              "description": "Breve descripción específica del lugar y por qué es ideal para esta consulta (máximo 30 palabras)",
+              "address": "Dirección completa con nombre de calle y número",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
+          },
+          {
+            "category": "Recomendación",
+            "place": {
+              "key": "Nombre exacto del establecimiento 2",
+              "type": "Categoría específica",
+              "description": "Descripción breve y específica (máximo 30 palabras)",
+              "address": "Dirección completa",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
+          },
+          {
+            "category": "Recomendación",
+            "place": {
+              "key": "Nombre exacto del establecimiento 3",
+              "type": "Categoría específica",
+              "description": "Descripción breve y específica (máximo 30 palabras)",
+              "address": "Dirección completa",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
           }
-        ],
-        "timestamp": "${new Date().toISOString()}"
+        ]
       }
+    ]
+  },
+  "timestamp": "${new Date().toISOString()}"
+}
 
-      RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
-    `
+## EJEMPLOS DE CONSULTAS Y RESPUESTAS ESPERADAS:
+
+**Consulta**: "¿Dónde puedo comer buena pizza?"
+**Respuesta esperada**: 3-4 pizzerías específicas de Encarnación
+
+**Consulta**: "¿Dónde tomar un buen café?"
+**Respuesta esperada**: 3-4 cafeterías locales
+
+**Consulta**: "Lugares para cenar con vista al río"
+**Respuesta esperada**: 3-4 restaurantes con vista al río Paraná
+
+## VALIDACIÓN FINAL:
+- ✅ Exactamente 3-4 lugares
+- ✅ Cada lugar responde a la consulta específica
+- ✅ Nombres reales de establecimientos
+- ✅ Direcciones específicas de Encarnación
+- ✅ Coordenadas precisas
+- ✅ JSON válido y completo
+
+RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
+`
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -347,14 +478,18 @@ class PlacesController {
   }
 
   static generateFallbackTravelPlan(message) {
+    // Detectar si se mencionan días específicos en el mensaje
+    const dayMatches = message.match(/(\d+)\s*(día|dias|day|days)/i)
+    const totalDays = dayMatches ? parseInt(dayMatches[1]) : 1
+    
     return {
-      message: "He preparado un plan básico para tu visita a Encarnación. Los lugares son recomendaciones generales que puedes ajustar según tus preferencias específicas.",
+      message: `He preparado un plan de ${totalDays} día${totalDays > 1 ? 's' : ''} para tu visita a Encarnación. Los lugares son recomendaciones generales que puedes ajustar según tus preferencias específicas.`,
       travelPlan: {
-        totalDays: 3,
+        totalDays: totalDays,
         days: [
           {
             dayNumber: 1,
-            title: "Llegada y Centro Histórico",
+            title: totalDays === 1 ? "Día Completo en Encarnación" : "Llegada y Centro Histórico",
             activities: [
               {
                 time: "09:00",
@@ -387,6 +522,28 @@ class PlacesController {
                   description: "Restaurante con vista al río y especialidades locales",
                   address: "Avda. Costanera",
                   location: { lat: -27.3340, lng: -55.8737 }
+                }
+              },
+              {
+                time: "15:30",
+                category: "Turismo",
+                place: {
+                  key: "Costanera de Encarnación",
+                  type: "Turístico",
+                  description: "Hermoso paseo junto al río Paraná con vistas panorámicas",
+                  address: "Avda. Costanera",
+                  location: { lat: -27.3350, lng: -55.8740 }
+                }
+              },
+              {
+                time: "19:00",
+                category: "Cena",
+                place: {
+                  key: "Paseo Gastronómico",
+                  type: "Gastronomía",
+                  description: "Zona gastronómica con variedad de restaurantes y ambiente nocturno",
+                  address: "Avda. Francia",
+                  location: { lat: -27.3353, lng: -55.8716 }
                 }
               }
             ]
@@ -424,7 +581,19 @@ class PlacesController {
 
     return {
       message: "Aquí tienes algunas recomendaciones para tu visita a Encarnación. Estos lugares te ofrecerán una buena experiencia de la ciudad y sus atractivos principales.",
-      places: places,
+      travelPlan: {
+        totalDays: 1,
+        days: [
+          {
+            dayNumber: 1,
+            title: "Recomendaciones para tu consulta",
+            activities: places.map(place => ({
+              category: "Recomendación",
+              place: place
+            }))
+          }
+        ]
+      },
       timestamp: new Date().toISOString()
     }
   }
