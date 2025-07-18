@@ -10,21 +10,24 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
+  Avatar,
+  Button,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
-  Chat as ChatIcon,
-  Map as MapIcon,
   Home as HomeIcon,
-  Settings as SettingsIcon,
+  Explore as ExploreIcon,
+  FavoriteBorder as WishlistIcon,
+  CardTravel as TripsIcon,
+  Inbox as InboxIcon,
+  Add as AddIcon,
 } from '@mui/icons-material'
 
 interface SidebarProps {
   children: React.ReactNode
 }
 
-const drawerWidth = 240
+const drawerWidth = 260
 
 export const Sidebar = ({ children }: SidebarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -34,57 +37,114 @@ export const Sidebar = ({ children }: SidebarProps) => {
   }
 
   const menuItems = [
-    { text: 'Inicio', icon: <HomeIcon />, href: '#' },
-    { text: 'Chat', icon: <ChatIcon />, href: '#' },
-    { text: 'Mapa', icon: <MapIcon />, href: '#' },
-    { text: 'Configuración', icon: <SettingsIcon />, href: '#' },
+    { text: 'Inicio', icon: <HomeIcon />, href: '#', active: true },
+    { text: 'Explorar', icon: <ExploreIcon />, href: '#', active: false },
+    { text: 'Favoritos', icon: <WishlistIcon />, href: '#', active: false },
+    { text: 'Viajes', icon: <TripsIcon />, href: '#', active: false },
+    { text: 'Mensajes', icon: <InboxIcon />, href: '#', active: false },
   ]
 
   const drawer = (
-    <Box>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Profile Section */}
       <Box sx={{ 
-        p: 2, 
-        bgcolor: 'primary.main', 
-        color: 'white',
-        textAlign: 'center',
-        minHeight: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
+        p: 3, 
+        bgcolor: 'background.paper',
+        borderBottom: '1px solid',
+        borderColor: 'divider'
       }}>
-        <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-          Japasea
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Avatar 
+            sx={{ 
+              width: 40, 
+              height: 40,
+              bgcolor: 'primary.main'
+            }}
+            src="/api/placeholder/40/40"
+          >
+            S
+          </Avatar>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              fontWeight: 600,
+              color: 'text.primary'
+            }}
+          >
+            Sophia's Travel
+          </Typography>
+        </Box>
       </Box>
-      <Divider />
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} sx={{ cursor: 'pointer' }}>
-            <ListItemIcon sx={{ color: 'primary.main' }}>
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText 
-              primary={item.text}
-              primaryTypographyProps={{
-                fontSize: '0.95rem',
-                fontWeight: 500
+
+      {/* Navigation Menu */}
+      <Box sx={{ flexGrow: 1, py: 1 }}>
+        <List sx={{ px: 1 }}>
+          {menuItems.map((item) => (
+            <ListItem 
+              key={item.text} 
+              sx={{ 
+                cursor: 'pointer',
+                borderRadius: 2,
+                mb: 0.5,
+                mx: 1,
+                bgcolor: item.active ? 'primary.light' : 'transparent',
+                '&:hover': {
+                  bgcolor: item.active ? 'primary.light' : 'action.hover'
+                }
               }}
-            />
-          </ListItem>
-        ))}
-      </List>
+            >
+              <ListItemIcon 
+                sx={{ 
+                  color: item.active ? 'primary.main' : 'text.secondary',
+                  minWidth: 40
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.text}
+                primaryTypographyProps={{
+                  fontSize: '0.95rem',
+                  fontWeight: item.active ? 600 : 400,
+                  color: item.active ? 'primary.main' : 'text.primary'
+                }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+
+      {/* Create Plan Button */}
+      <Box sx={{ p: 2 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          startIcon={<AddIcon />}
+          sx={{
+            borderRadius: 2,
+            py: 1.5,
+            textTransform: 'none',
+            fontWeight: 600,
+            fontSize: '0.95rem'
+          }}
+        >
+          Crear Plan
+        </Button>
+      </Box>
     </Box>
   )
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', width: '100vw' }}>
+      {/* Mobile AppBar - only show when drawer is closed */}
       <AppBar
         position="fixed"
         sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
+          width: { md: `calc(100vw - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
-          display: { md: 'none' },
-          bgcolor: 'primary.main'
+          display: { xs: mobileOpen ? 'none' : 'flex', md: 'none' },
+          bgcolor: 'primary.main',
+          zIndex: (theme) => theme.zIndex.drawer - 1,
         }}
       >
         <Toolbar>
@@ -98,7 +158,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Japasea
+            Sophia's Travel
           </Typography>
         </Toolbar>
       </AppBar>
@@ -120,6 +180,9 @@ export const Sidebar = ({ children }: SidebarProps) => {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
+              bgcolor: 'background.default',
+              borderRight: '1px solid',
+              borderColor: 'divider',
             },
           }}
         >
@@ -134,6 +197,9 @@ export const Sidebar = ({ children }: SidebarProps) => {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
+              bgcolor: 'background.default',
+              borderRight: '1px solid',
+              borderColor: 'divider',
             },
           }}
           open
@@ -146,9 +212,9 @@ export const Sidebar = ({ children }: SidebarProps) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          mt: { xs: 8, md: 0 },
+          width: { md: `calc(100vw - ${drawerWidth}px)` },
+          maxWidth: { md: `calc(100vw - ${drawerWidth}px)` },
+          mt: { xs: mobileOpen ? 0 : 7, md: 0 }, // Space for mobile AppBar when drawer is closed
         }}
       >
         {children}

@@ -1,8 +1,9 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { Box, Paper, Typography, Card, CardContent, Chip } from '@mui/material'
+import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
 import { LocationOn, Phone } from '@mui/icons-material'
+import { useEffect, useRef } from 'react'
 import type { Place } from '../types/places'
 
 const iconPrototype = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown }
@@ -16,16 +17,34 @@ L.Icon.Default.mergeOptions({
 interface MapComponentProps {
   center?: [number, number]
   zoom?: number
-  height?: string
   places?: Place[]
 }
 
 export const MapComponent = ({ 
-  center = [-27.331130101011254, -55.865929123942415],
-  zoom = 13,
-  height = '400px',
+  center = [-27.3328, -55.8664], // More centered on Encarnación city
+  zoom = 15, // Closer zoom to see the city better
   places = []
 }: MapComponentProps) => {
+  const mapRef = useRef<L.Map | null>(null)
+
+  useEffect(() => {
+    // Force map to invalidate size when component mounts or resizes
+    const handleResize = () => {
+      if (mapRef.current) {
+        setTimeout(() => {
+          mapRef.current?.invalidateSize()
+        }, 100)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    handleResize() // Call once on mount
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   const extractPhone = (description: string): string | null => {
     const phoneRegex = /(\d{4}\s?\d{3}\s?\d{3})/g
     const match = description.match(phoneRegex)
@@ -54,24 +73,68 @@ export const MapComponent = ({
     : center
 
   return (
-    <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden', my: 2 }}>
+    <Box sx={{ 
+      bgcolor: 'background.paper',
+      borderRadius: 0,
+      overflow: 'hidden',
+      height: '100%',
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      border: 'none'
+    }}>
+      {/* Header Section */}
       <Box sx={{ 
-        bgcolor: 'primary.main', 
-        color: 'white', 
-        p: 2, 
-        textAlign: 'center' 
+        p: 3,
+        pb: 2,
+        bgcolor: '#f8f9fa',
+        borderBottom: '1px solid #e9ecef',
+        flexShrink: 0
       }}>
-        <Typography variant="h6" component="h2">
-          <LocationOn sx={{ mr: 1, verticalAlign: 'middle' }} />
-          Mapa Interactivo - Encarnación, Paraguay
+        <Typography 
+          variant="h5" 
+          component="h2" 
+          sx={{ 
+            fontWeight: 600,
+            color: '#2c3e50',
+            mb: 1,
+            fontSize: '1.5rem'
+          }}
+        >
+          Mapa Interactivo
+        </Typography>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: '#6c757d',
+            fontSize: '0.875rem'
+          }}
+        >
+          Explora destinos, hoteles y actividades.
         </Typography>
       </Box>
-      <Box sx={{ height, width: '100%' }}>
+
+      {/* Map Container */}
+      <Box sx={{ 
+        flex: 1,
+        position: 'relative',
+        minHeight: 0, // Allow flex child to shrink
+        width: '100%',
+        overflow: 'hidden',
+        borderRadius: 0 // Remove border radius for full coverage
+      }}>
         <MapContainer 
           center={mapCenter} 
           zoom={zoom} 
-          style={{ height: '100%', width: '100%' }}
-          key={places.length}
+          style={{ 
+            height: '100%', 
+            width: '100%',
+            zIndex: 1
+          }}
+          key={`${places.length}-${mapCenter.join(',')}`}
+          scrollWheelZoom={true}
+          zoomControl={true}
+          ref={mapRef}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -127,6 +190,6 @@ export const MapComponent = ({
           })}
         </MapContainer>
       </Box>
-    </Paper>
+    </Box>
   )
 }
