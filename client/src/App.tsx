@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { MapComponent } from './components/MapComponent'
 import { ChatComponent } from './components/ChatComponent'
-import { PlaceCards } from './components/PlaceCards'
+
 import { Sidebar } from './components/Sidebar'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import { Box } from '@mui/material'
@@ -15,9 +15,6 @@ function App() {
     setPlaces(newPlaces)
   }
 
-  const handleLocationClick = (place: Place) => {
-    console.log('Clicked on location:', place.key)
-  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -44,12 +41,6 @@ function App() {
           </Box>
         </Box>
         
-        {places.length > 0 && (
-          <PlaceCards 
-            places={places}
-            onLocationClick={handleLocationClick}
-          />
-        )}
       </Sidebar>
     </ThemeProvider>
   )

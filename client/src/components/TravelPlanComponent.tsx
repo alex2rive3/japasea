@@ -27,7 +27,6 @@ interface TravelPlanComponentProps {
 
 const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
   travelPlan,
-  message,
   onPlaceClick
 }) => {
   const getCategoryIcon = (category: string) => {
@@ -71,25 +70,6 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
       overflow: 'hidden',
       boxSizing: 'border-box'
     }}>
-      {/* Compact Message Header */}
-      <Paper elevation={1} sx={{ 
-        p: 2, 
-        mb: 2, 
-        bgcolor: '#f8f9fa',
-        borderRadius: 2,
-        border: '1px solid #e0e0e0',
-        maxWidth: '100%',
-        overflow: 'hidden'
-      }}>
-        <Typography variant="body2" sx={{ 
-          color: '#555', 
-          lineHeight: 1.4,
-          fontSize: '0.875rem',
-          wordBreak: 'break-word'
-        }}>
-          <strong>🗺️ Plan personalizado:</strong> {message}
-        </Typography>
-      </Paper>
 
       {/* Compact Travel Plan Days */}
       <Box sx={{ 
