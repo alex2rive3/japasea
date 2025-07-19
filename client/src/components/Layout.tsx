@@ -13,6 +13,15 @@ import {
   Button,
   Badge,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Chip,
+  TextField,
+  Alert,
+  CircularProgress,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
@@ -24,12 +33,19 @@ import {
   Add as AddIcon,
   Search as SearchIcon,
   Notifications as NotificationsIcon,
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  Lock as LockIcon,
+  Save as SaveIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
+import { useAuth } from '../hooks/useAuth'
+import type { UpdateProfileData } from '../types/auth'
 
 interface LayoutProps {
   children: React.ReactNode
-  onProfileClick?: () => void
   onNotificationClick?: () => void
   onSearch?: (query: string) => void
 }
@@ -38,13 +54,21 @@ const drawerWidth = 260
 
 export const Layout = ({ 
   children,
-  onProfileClick, 
   onNotificationClick, 
   onSearch 
 }: LayoutProps) => {
+  const { user, updateProfile, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(true) // Desktop sidebar state
   const [searchQuery, setSearchQuery] = useState('')
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [profileData, setProfileData] = useState<UpdateProfileData>({
+    name: user?.name || '',
+    phone: user?.phone || ''
+  })
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -59,6 +83,59 @@ export const Layout = ({
     setSearchQuery(value)
     if (onSearch) {
       onSearch(value)
+    }
+  }
+
+  const handleProfileModalOpen = () => {
+    setProfileModalOpen(true)
+    setProfileData({
+      name: user?.name || '',
+      phone: user?.phone || ''
+    })
+    setMessage('')
+    setError('')
+  }
+
+  const handleProfileModalClose = () => {
+    setProfileModalOpen(false)
+  }
+
+  const handleProfileChange = (field: keyof UpdateProfileData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: event.target.value
+    }))
+    if (message || error) {
+      setMessage('')
+      setError('')
+    }
+  }
+
+  const handleUpdateProfile = async () => {
+    if (!profileData.name?.trim()) {
+      setError('El nombre es requerido')
+      return
+    }
+
+    try {
+      setIsUpdating(true)
+      setError('')
+      await updateProfile(profileData)
+      setMessage('Perfil actualizado exitosamente')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error actualizando perfil'
+      setError(errorMessage)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      setProfileModalOpen(false)
+    } catch (error) {
+      console.error('Error durante logout:', error)
     }
   }
 
@@ -266,7 +343,7 @@ export const Layout = ({
 
             {/* Profile Avatar */}
             <IconButton
-              onClick={onProfileClick}
+              onClick={handleProfileModalOpen}
               sx={{ p: 0.5, ml: 1 }}
             >
               <Avatar 
@@ -274,13 +351,14 @@ export const Layout = ({
                   width: 36, 
                   height: 36,
                   bgcolor: 'primary.main',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
                   '&:hover': {
                     boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)',
                   },
                 }}
-                src="/api/placeholder/36/36"
               >
-                S
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </Avatar>
             </IconButton>
           </Box>
@@ -360,6 +438,119 @@ export const Layout = ({
       >
         {children}
       </Box>
+      
+      {/* Profile Modal */}
+      <Dialog 
+        open={profileModalOpen} 
+        onClose={handleProfileModalClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar
+              sx={{
+                width: 60,
+                height: 60,
+                bgcolor: 'primary.main',
+                fontSize: '1.5rem',
+                fontWeight: 'bold'
+              }}
+            >
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </Avatar>
+            <Box>
+              <Typography variant="h6">Mi Perfil</Typography>
+              <Chip
+                label={user?.role === 'admin' ? 'Administrador' : 'Usuario'}
+                color={user?.role === 'admin' ? 'secondary' : 'primary'}
+                size="small"
+              />
+            </Box>
+          </Box>
+        </DialogTitle>
+        
+        <DialogContent>
+          {(message || error) && (
+            <Alert 
+              severity={message ? 'success' : 'error'} 
+              sx={{ mb: 2 }}
+              onClose={() => {
+                setMessage('')
+                setError('')
+              }}
+            >
+              {message || error}
+            </Alert>
+          )}
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
+            <TextField
+              fullWidth
+              label="Nombre completo"
+              value={profileData.name}
+              onChange={handleProfileChange('name')}
+              disabled={isUpdating}
+              InputProps={{
+                startAdornment: <PersonIcon sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Email"
+              value={user?.email}
+              disabled
+              InputProps={{
+                startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+              helperText="El email no se puede cambiar"
+            />
+
+            <TextField
+              fullWidth
+              label="Teléfono (opcional)"
+              value={profileData.phone}
+              onChange={handleProfileChange('phone')}
+              disabled={isUpdating}
+              placeholder="+595 987 654 321"
+              InputProps={{
+                startAdornment: <PhoneIcon sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+
+            {user?.createdAt && (
+              <Typography variant="body2" color="text.secondary">
+                Miembro desde: {new Date(user.createdAt).toLocaleDateString('es-ES')}
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+        
+        <DialogActions>
+          <Button 
+            onClick={handleLogout}
+            color="error"
+            startIcon={<LockIcon />}
+          >
+            Cerrar Sesión
+          </Button>
+          <Button 
+            onClick={handleProfileModalClose}
+            startIcon={<CloseIcon />}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleUpdateProfile}
+            variant="contained"
+            disabled={isUpdating}
+            startIcon={isUpdating ? <CircularProgress size={20} /> : <SaveIcon />}
+          >
+            {isUpdating ? 'Guardando...' : 'Guardar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
