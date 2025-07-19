@@ -77,18 +77,15 @@ export function RegisterComponent() {
   return (
     <Box
       sx={{
+        width: '100%',
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: { xs: 'flex-start', sm: 'center' },
         justifyContent: 'center',
         backgroundColor: '#f5f7fa',
         p: { xs: 2, sm: 3 },
         boxSizing: 'border-box',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0
+        py: { xs: 3, sm: 3 }
       }}
     >
       <Paper
@@ -99,7 +96,7 @@ export function RegisterComponent() {
           maxWidth: 480,
           borderRadius: 3,
           backgroundColor: 'white',
-          margin: 'auto'
+          mx: 'auto'
         }}
       >
         <Box sx={{ textAlign: 'center', mb: 4 }}>
@@ -162,7 +159,32 @@ export function RegisterComponent() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      '& input': {
+                        backgroundColor: 'white !important',
+                        color: 'black !important',
+                        '&:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:hover': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:focus': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:active': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        }
+                      }
                     }
                   }}
                 />
@@ -191,7 +213,32 @@ export function RegisterComponent() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      '& input': {
+                        backgroundColor: 'white !important',
+                        color: 'black !important',
+                        '&:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:hover': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:focus': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:active': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        }
+                      }
                     }
                   }}
                 />
@@ -219,7 +266,32 @@ export function RegisterComponent() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      '& input': {
+                        backgroundColor: 'white !important',
+                        color: 'black !important',
+                        '&:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:hover': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:focus': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:active': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        }
+                      }
                     }
                   }}
                 />
@@ -259,7 +331,32 @@ export function RegisterComponent() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      '& input': {
+                        backgroundColor: 'white !important',
+                        color: 'black !important',
+                        '&:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:hover': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:focus': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:active': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        }
+                      }
                     }
                   }}
                 />
@@ -299,7 +396,32 @@ export function RegisterComponent() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      '& input': {
+                        backgroundColor: 'white !important',
+                        color: 'black !important',
+                        '&:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:hover': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:focus': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:active': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        }
+                      }
                     }
                   }}
                 />

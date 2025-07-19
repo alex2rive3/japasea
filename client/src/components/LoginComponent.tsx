@@ -65,18 +65,14 @@ export function LoginComponent() {
   return (
     <Box
       sx={{
+        width: '100%',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#f5f7fa',
         p: { xs: 2, sm: 3 },
-        boxSizing: 'border-box',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0
+        boxSizing: 'border-box'
       }}
     >
       <Paper
@@ -87,7 +83,7 @@ export function LoginComponent() {
           maxWidth: 420,
           borderRadius: 3,
           backgroundColor: 'white',
-          margin: 'auto'
+          mx: 'auto'
         }}
       >
         <Box sx={{ textAlign: 'center', mb: 4 }}>
@@ -151,7 +147,32 @@ export function LoginComponent() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      '& input': {
+                        backgroundColor: 'white !important',
+                        color: 'black !important',
+                        '&:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:hover': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:focus': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:active': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        }
+                      }
                     }
                   }}
                 />
@@ -191,7 +212,32 @@ export function LoginComponent() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      '& input': {
+                        backgroundColor: 'white !important',
+                        color: 'black !important',
+                        '&:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:hover': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:focus': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        },
+                        '&:-webkit-autofill:active': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: 'black !important',
+                          backgroundColor: 'white !important'
+                        }
+                      }
                     }
                   }}
                 />
