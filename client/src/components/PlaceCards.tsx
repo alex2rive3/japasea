@@ -17,6 +17,11 @@ interface PlaceCardsProps {
 }
 
 export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
+  // Verificación defensiva para evitar errores si places es undefined
+  if (!places || places.length === 0) {
+    return null
+  }
+
   const extractPhone = (description: string): string | null => {
     const phoneRegex = /(\d{4}\s?\d{3}\s?\d{3})/g
     const match = description.match(phoneRegex)
@@ -72,10 +77,6 @@ export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
       default:
         return 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     }
-  }
-
-  if (places.length === 0) {
-    return null
   }
 
   return (
