@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { AuthProvider } from './contexts/AuthContext'
@@ -12,12 +12,6 @@ import { theme } from './theme'
 
 // Componente interno para manejar la navegación
 function AppContent() {
-  const navigate = useNavigate()
-
-  const handleProfileClick = () => {
-    navigate('/profile')
-  }
-
   return (
     <Routes>
       {/* Public routes */}
@@ -29,7 +23,7 @@ function AppContent() {
         path="/"
         element={
           <ProtectedRoute>
-            <Layout onProfileClick={handleProfileClick}>
+            <Layout>
               <HomeComponent />
             </Layout>
           </ProtectedRoute>
@@ -39,7 +33,7 @@ function AppContent() {
         path="/profile"
         element={
           <ProtectedRoute>
-            <Layout onProfileClick={handleProfileClick}>
+            <Layout>
               <ProfileComponent />
             </Layout>
           </ProtectedRoute>

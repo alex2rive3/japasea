@@ -284,7 +284,6 @@ body('password')
 ### 🔮 Futuras Mejoras Recomendadas
 - [ ] Verificación por email
 - [ ] Recuperación de contraseña por email
-- [ ] Autenticación de dos factores (2FA)
 - [ ] Login con redes sociales (Google, Facebook)
 - [ ] Logs de auditoría
 - [ ] Detección de ubicación sospechosa
