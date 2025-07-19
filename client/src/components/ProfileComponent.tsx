@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'
 import type { UpdateProfileData, ChangePasswordData } from '../types/auth'
+import { profileStyles } from '../styles'
 
 export function ProfileComponent() {
   const { user, updateProfile, changePassword, logout, isLoading } = useAuth()
@@ -140,21 +141,21 @@ export function ProfileComponent() {
 
   if (!user) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+      <Box sx={profileStyles.container}>
         <CircularProgress />
       </Box>
     )
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+    <Box sx={profileStyles.paper}>
+      <Paper elevation={3} sx={profileStyles.card}>
+        <Box sx={profileStyles.header}>
           
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 1 }}>
+          <Typography variant="h4" component="h1" sx={profileStyles.title}>
             Mi Perfil
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+          <Box sx={profileStyles.userInfo}>
             <Chip
               label={user.role === 'admin' ? 'Administrador' : 'Usuario'}
               color={user.role === 'admin' ? 'secondary' : 'primary'}
