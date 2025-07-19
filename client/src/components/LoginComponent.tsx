@@ -42,7 +42,7 @@ export function LoginComponent() {
     }
   })
 
-  const onSubmit = async (data: FieldValues) => {
+  const onSubmit = async (data: LoginFormData) => {
     const loginData: LoginCredentials = {
       email: data.email as string,
       password: data.password as string
