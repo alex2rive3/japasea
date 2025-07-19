@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { MapComponent } from './components/MapComponent'
 import { ChatComponent } from './components/ChatComponent'
-
-import { Sidebar } from './components/Sidebar'
+import { Layout } from './components/Layout'
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import { Box } from '@mui/material'
 import { theme } from './theme'
@@ -15,33 +14,66 @@ function App() {
     setPlaces(newPlaces)
   }
 
+  const handleSearch = (query: string) => {
+    console.log('Searching for:', query)
+  }
+
+  const handleProfileClick = () => {
+    console.log('Profile clicked')
+  }
+
+  const handleNotificationClick = () => {
+    console.log('Notifications clicked')
+  }
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Sidebar>
+      <Layout
+        onSearch={handleSearch}
+        onProfileClick={handleProfileClick}
+        onNotificationClick={handleNotificationClick}
+      >
         <Box sx={{ 
           display: 'flex', 
-          gap: 3,
+          gap: 1,
           flexDirection: { xs: 'column', md: 'row' },
-          height: 'auto',
+          height: '100%',
+          width: '100%',
+          overflow: 'hidden',
+          p: 1
         }}>
-          <Box sx={{ flex: 1 }}>
+          {/* Chat Component - Left Half on desktop, top on mobile */}
+          <Box sx={{ 
+            flex: 1,
+            minWidth: 0,
+            minHeight: { xs: 0, md: 'auto' },
+            overflow: 'hidden',
+            borderRadius: 0,
+            boxShadow: 'none',
+            bgcolor: '#ffffff'
+          }}>
             <ChatComponent 
-              height="calc(100vh - 120px)" 
               onPlacesUpdate={handlePlacesUpdate}
             />
           </Box>
           
-          <Box sx={{ flex: 1 }}>
+          {/* Map Component - Right Half on desktop, bottom on mobile */}
+          <Box sx={{ 
+            flex: 1,
+            minWidth: 0,
+            minHeight: { xs: 0, md: 'auto' },
+            overflow: 'hidden',
+            borderRadius: 0,
+            boxShadow: 'none',
+            bgcolor: '#ffffff'
+          }}>
             <MapComponent 
-              height="calc(100vh - 120px)"
               places={places}
             />
           </Box>
         </Box>
-        
-      </Sidebar>
+      </Layout>
     </ThemeProvider>
   )
 }
