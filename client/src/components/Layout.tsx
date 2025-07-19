@@ -26,6 +26,7 @@ import {
   Notifications as NotificationsIcon,
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
+import { useAuth } from '../hooks/useAuth'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -42,6 +43,7 @@ export const Layout = ({
   onNotificationClick, 
   onSearch 
 }: LayoutProps) => {
+  const { user } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(true) // Desktop sidebar state
   const [searchQuery, setSearchQuery] = useState('')
@@ -274,13 +276,14 @@ export const Layout = ({
                   width: 36, 
                   height: 36,
                   bgcolor: 'primary.main',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
                   '&:hover': {
                     boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)',
                   },
                 }}
-                src="/api/placeholder/36/36"
               >
-                S
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </Avatar>
             </IconButton>
           </Box>

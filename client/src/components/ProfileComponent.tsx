@@ -12,7 +12,7 @@ import {
   DialogContent,
   DialogActions,
   Chip,
-  Divider
+  Divider,
 } from '@mui/material'
 import {
   Person as PersonIcon,
@@ -20,8 +20,6 @@ import {
   Phone as PhoneIcon,
   Lock as LockIcon,
   Save as SaveIcon,
-  AdminPanelSettings as AdminIcon,
-  AccountCircle as UserIcon
 } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'
 import type { UpdateProfileData, ChangePasswordData } from '../types/auth'
@@ -152,11 +150,11 @@ export function ProfileComponent() {
     <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
+          
           <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 1 }}>
             Mi Perfil
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-            {user.role === 'admin' ? <AdminIcon color="primary" /> : <UserIcon color="primary" />}
             <Chip
               label={user.role === 'admin' ? 'Administrador' : 'Usuario'}
               color={user.role === 'admin' ? 'secondary' : 'primary'}
