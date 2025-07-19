@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Controller, type FieldValues } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import {
   Box,
   Paper,
@@ -19,13 +19,17 @@ import {
   VisibilityOff
 } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'
-import { useFormWithValidation, useAuthForm } from '../hooks/useForm'
+import { useFormWithValidation, loginSchema } from '../hooks/useForm'
 import type { LoginCredentials } from '../types/auth'
+
+interface LoginFormData {
+  email: string
+  password: string
+}
 
 export function LoginComponent() {
   const navigate = useNavigate()
   const { login, isLoading } = useAuth()
-  const { loginSchema } = useAuthForm()
   
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -44,8 +48,8 @@ export function LoginComponent() {
 
   const onSubmit = async (data: LoginFormData) => {
     const loginData: LoginCredentials = {
-      email: data.email as string,
-      password: data.password as string
+      email: data.email,
+      password: data.password
     }
     
     try {

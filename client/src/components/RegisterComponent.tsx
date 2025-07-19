@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Controller, type FieldValues } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import {
   Box,
   Paper,
@@ -21,13 +21,20 @@ import {
   VisibilityOff
 } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'
-import { useFormWithValidation, useAuthForm } from '../hooks/useForm'
+import { useFormWithValidation, registerSchema } from '../hooks/useForm'
 import type { RegisterData } from '../types/auth'
+
+interface RegisterFormData {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  phone?: string
+}
 
 export function RegisterComponent() {
   const navigate = useNavigate()
   const { register, isLoading } = useAuth()
-  const { registerSchema } = useAuthForm()
   
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -48,7 +55,7 @@ export function RegisterComponent() {
     }
   })
 
-  const onSubmit = async (data: RegisterData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     const registerData: RegisterData = {
       name: data.name,
       email: data.email,
