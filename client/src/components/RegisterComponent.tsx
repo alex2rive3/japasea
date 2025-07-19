@@ -48,12 +48,12 @@ export function RegisterComponent() {
     }
   })
 
-  const onSubmit = async (data: FieldValues) => {
+  const onSubmit = async (data: RegisterData) => {
     const registerData: RegisterData = {
-      name: data.name as string,
-      email: data.email as string,
-      password: data.password as string,
-      phone: data.phone as string || undefined
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      phone: data.phone || undefined
     }
     
     try {
