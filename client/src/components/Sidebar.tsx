@@ -157,9 +157,6 @@ export const Sidebar = ({ children }: SidebarProps) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Sophia's Travel
-          </Typography>
         </Toolbar>
       </AppBar>
 
