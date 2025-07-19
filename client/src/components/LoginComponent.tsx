@@ -21,6 +21,7 @@ import {
 import { useAuth } from '../hooks/useAuth'
 import { useFormWithValidation, loginSchema } from '../hooks/useForm'
 import type { LoginCredentials } from '../types/auth'
+import { authStyles, fieldVariants, quickStyles } from '../styles'
 
 interface LoginFormData {
   email: string
@@ -67,56 +68,36 @@ export function LoginComponent() {
   }
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f5f7fa',
-        p: { xs: 2, sm: 3 },
-        boxSizing: 'border-box'
-      }}
-    >
-      <Paper
-        elevation={3}
-        sx={{
-          p: { xs: 3, sm: 4 },
-          width: '100%',
-          maxWidth: 420,
-          borderRadius: 3,
-          backgroundColor: 'white',
-          mx: 'auto'
-        }}
-      >
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{
-              fontWeight: 700,
-              color: 'primary.main',
-              mb: 1,
-              fontSize: { xs: '2rem', sm: '2.5rem' }
-            }}
-          >
-            Japasea
-          </Typography>
-          <Typography 
-            variant="h6" 
-            color="text.secondary"
-            sx={{ 
-              fontWeight: 400,
-              opacity: 0.8
-            }}
-          >
-            Bienvenido de vuelta
-          </Typography>
-        </Box>
+    <Box sx={authStyles.container}>
+      <Paper elevation={3} sx={authStyles.paper}>
+        <Box sx={authStyles.card}>
+          <Box sx={authStyles.header}>
+            <Typography
+              variant="h3"
+              component="h1"
+              sx={{
+                fontWeight: 700,
+                color: 'primary.main',
+                mb: 1,
+                fontSize: { xs: '2rem', sm: '2.5rem' }
+              }}
+            >
+              Japasea
+            </Typography>
+            <Typography 
+              variant="h6" 
+              color="text.secondary"
+              sx={{ 
+                fontWeight: 400,
+                opacity: 0.8
+              }}
+            >
+              Bienvenido de vuelta
+            </Typography>
+          </Box>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Box sx={authStyles.form}>
             {error && (
               <Alert 
                 severity="error" 
@@ -149,36 +130,7 @@ export function LoginComponent() {
                       </InputAdornment>
                     )
                   }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      backgroundColor: 'white',
-                      '& input': {
-                        backgroundColor: 'white !important',
-                        color: 'black !important',
-                        '&:-webkit-autofill': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        },
-                        '&:-webkit-autofill:hover': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        },
-                        '&:-webkit-autofill:focus': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        },
-                        '&:-webkit-autofill:active': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        }
-                      }
-                    }
-                  }}
+                  sx={fieldVariants.authInput}
                 />
               )}
             />
@@ -214,36 +166,7 @@ export function LoginComponent() {
                       </InputAdornment>
                     )
                   }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      backgroundColor: 'white',
-                      '& input': {
-                        backgroundColor: 'white !important',
-                        color: 'black !important',
-                        '&:-webkit-autofill': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        },
-                        '&:-webkit-autofill:hover': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        },
-                        '&:-webkit-autofill:focus': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        },
-                        '&:-webkit-autofill:active': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: 'black !important',
-                          backgroundColor: 'white !important'
-                        }
-                      }
-                    }
-                  }}
+                  sx={fieldVariants.authInput}
                 />
               )}
             />
@@ -254,25 +177,11 @@ export function LoginComponent() {
               size="large"
               fullWidth
               disabled={isLoading || isSubmitting}
-              sx={{
-                py: 1.8,
-                borderRadius: 2,
-                textTransform: 'none',
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                mt: 2,
-                backgroundColor: 'primary.main',
-                '&:hover': {
-                  backgroundColor: 'primary.dark'
-                },
-                '&:disabled': {
-                  opacity: 0.7
-                }
-              }}
+              sx={authStyles.button}
             >
               {(isLoading || isSubmitting) ? (
                 <>
-                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  <CircularProgress size={20} color="inherit" sx={quickStyles.loadingIcon} />
                   Iniciando sesión...
                 </>
               ) : (
@@ -280,7 +189,7 @@ export function LoginComponent() {
               )}
             </Button>
 
-            <Box sx={{ textAlign: 'center', mt: 3 }}>
+            <Box sx={authStyles.link}>
               <Typography variant="body2" color="text.secondary">
                 ¿No tienes una cuenta?{' '}
                 <Link
@@ -295,8 +204,9 @@ export function LoginComponent() {
                 </Link>
               </Typography>
             </Box>
-          </Box>
-        </form>
+            </Box>
+          </form>
+        </Box>
       </Paper>
     </Box>
   )
