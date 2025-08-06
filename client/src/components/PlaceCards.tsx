@@ -28,7 +28,9 @@ export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
     return match ? match[0] : null
   }
 
-  const getTypeColor = (type: string): "primary" | "secondary" | "success" | "warning" | "info" => {
+  const getTypeColor = (type: string | undefined): "primary" | "secondary" | "success" | "warning" | "info" => {
+    if (!type) return 'primary'
+    
     switch (type.toLowerCase()) {
       case 'accommodation':
         return 'primary'
@@ -45,7 +47,9 @@ export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
     }
   }
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: string | undefined) => {
+    if (!type) return <Place sx={{ fontSize: 20 }} />
+    
     switch (type.toLowerCase()) {
       case 'accommodation':
         return <Hotel sx={{ fontSize: 20 }} />
@@ -62,7 +66,9 @@ export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
     }
   }
 
-  const getDefaultImage = (type: string): string => {
+  const getDefaultImage = (type: string | undefined): string => {
+    if (!type) return 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+    
     switch (type.toLowerCase()) {
       case 'accommodation':
         return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
@@ -150,7 +156,7 @@ export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
                   </Typography>
                   <Chip 
                     icon={getTypeIcon(place.type)}
-                    label={place.type} 
+                    label={place.type || 'Lugar'} 
                     color={getTypeColor(place.type)}
                     size="small"
                     sx={{ 

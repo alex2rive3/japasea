@@ -2,6 +2,19 @@ import type { Place, ChatResponse } from '../types/places'
 
 const API_BASE_URL = 'http://localhost:3001'
 
+interface ChatHistorySession {
+  _id: string
+  sessionId: string
+  lastActivity: string
+  messages: Array<{
+    text: string
+    sender: 'user' | 'bot'
+    timestamp: string
+    context?: string
+    response?: ChatResponse
+  }>
+}
+
 export const placesService = {
   async getPlacesByType(type?: string): Promise<Place[]> {
     try {
@@ -42,16 +55,24 @@ export const placesService = {
     }
   },
 
-  async processChatMessage(message: string, context?: string): Promise<ChatResponse> {
+  async processChatMessage(message: string, context?: string, sessionId?: string): Promise<ChatResponse> {
     try {
+      const token = localStorage.getItem('accessToken')
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           message,
-          context
+          context,
+          sessionId
         })
       })
 
@@ -65,7 +86,8 @@ export const placesService = {
         message: data.message || data.response,
         places: data.places || [],
         travelPlan: data.travelPlan,
-        timestamp: data.timestamp || new Date().toISOString()
+        timestamp: data.timestamp || new Date().toISOString(),
+        sessionId: data.sessionId
       }
     } catch (error) {
       console.error('Error processing chat message:', error)
@@ -94,5 +116,53 @@ export const placesService = {
     })
     
     return allPlaces
+  },
+
+  async getChatHistory(limit: number = 10): Promise<{ status: string; data: ChatHistorySession[] }> {
+    try {
+      const token = localStorage.getItem('accessToken')
+      if (!token) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/chat/history?limit=${limit}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al obtener el historial del chat')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching chat history:', error)
+      return { status: 'error', data: [] }
+    }
+  },
+
+  async getChatSession(sessionId: string): Promise<{ status: string; data: ChatHistorySession | null }> {
+    try {
+      const token = localStorage.getItem('accessToken')
+      if (!token) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/chat/session/${sessionId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al obtener la sesión del chat')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching chat session:', error)
+      return { status: 'error', data: null }
+    }
   }
 }

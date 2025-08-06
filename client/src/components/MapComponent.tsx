@@ -51,7 +51,9 @@ export const MapComponent = ({
     return match ? match[0] : null
   }
 
-  const getTypeColor = (type: string): "primary" | "secondary" | "success" | "warning" | "info" => {
+  const getTypeColor = (type: string | undefined): "primary" | "secondary" | "success" | "warning" | "info" => {
+    if (!type) return 'primary'
+    
     switch (type.toLowerCase()) {
       case 'alojamiento':
         return 'primary'
@@ -156,7 +158,7 @@ export const MapComponent = ({
                           {place.key}
                         </Typography>
                         <Chip 
-                          label={place.type} 
+                          label={place.type || 'Lugar'} 
                           color={getTypeColor(place.type)}
                           size="small"
                           sx={{ ml: 1 }}

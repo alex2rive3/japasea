@@ -29,7 +29,9 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
   travelPlan,
   onPlaceClick
 }) => {
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category: string | undefined) => {
+    if (!category) return <PlaceIcon sx={{ fontSize: 16 }} />
+    
     const categoryLower = category.toLowerCase()
     if (categoryLower.includes('desayuno') || categoryLower.includes('merienda')) {
       return <LocalCafe sx={{ fontSize: 16 }} />
@@ -43,7 +45,9 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
     return <PlaceIcon sx={{ fontSize: 16 }} />
   }
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category: string | undefined) => {
+    if (!category) return '#26A69A'
+    
     const categoryLower = category.toLowerCase()
     if (categoryLower.includes('desayuno') || categoryLower.includes('merienda')) {
       return '#8D6E63'
@@ -79,8 +83,8 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
         maxWidth: '100%',
         overflow: 'hidden'
       }}>
-        {travelPlan.days.map((day) => (
-          <Box key={day.dayNumber} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+        {travelPlan.days.map((day, dayIndex) => (
+          <Box key={`day-${dayIndex}-${day.dayNumber}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
             <Card elevation={2} sx={{ 
               borderRadius: 2,
               border: '1px solid #e0e0e0',
@@ -108,8 +112,8 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
 
                 {/* Compact Activities */}
                 <Box sx={{ p: 1.5, maxWidth: '100%', overflow: 'hidden' }}>
-                  {day.activities.map((activity, index) => (
-                    <Box key={index} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+                  {day.activities.map((activity, activityIndex) => (
+                    <Box key={`activity-${dayIndex}-${activityIndex}-${activity.place.key}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
                       <Box
                         sx={{
                           display: 'flex',
@@ -172,7 +176,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                             overflow: 'hidden'
                           }}>
                             <Chip
-                              label={activity.category}
+                              label={activity.category || 'Actividad'}
                               size="small"
                               sx={{
                                 bgcolor: getCategoryColor(activity.category),
@@ -267,7 +271,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                         </Box>
                       </Box>
 
-                      {index < day.activities.length - 1 && (
+                      {activityIndex < day.activities.length - 1 && (
                         <Divider sx={{ my: 0.5, mx: 1 }} />
                       )}
                     </Box>
