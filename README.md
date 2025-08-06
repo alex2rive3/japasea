@@ -12,6 +12,7 @@ Una aplicación web full-stack moderna de turismo para Encarnación, Paraguay. C
 - [Uso](#-uso)
 - [API Endpoints](#-api-endpoints)
 - [Componentes](#-componentes)
+- [Documentación Adicional](#-documentación-adicional)
 - [Contribución](#-contribución)
 - [Licencia](#-licencia)
 
@@ -29,18 +30,22 @@ Japasea 2.0 es una plataforma turística completa diseñada para ayudar a los vi
 ### Frontend
 - 🗺️ **Mapas Interactivos** con React Leaflet
 - 🤖 **Chat Bot** con integración de IA para recomendaciones
+- 💾 **Historial de Chat Persistente** para usuarios autenticados
 - 📱 **Diseño Responsivo** con Material-UI
 - 🎨 **Interfaz Moderna** y minimalista
 - 🔍 **Búsqueda en Tiempo Real** de lugares
 - 📍 **Marcadores Personalizados** por categoría
+- 🔐 **Sistema de Autenticación** completo con JWT
 
 ### Backend
 - 🚀 **API RESTful** con Express.js
 - 🧠 **Integración con Google Generative AI**
 - 🏗️ **Arquitectura MVC** bien estructurada
-- 🔒 **Seguridad** con Helmet y CORS
+- 🔒 **Seguridad** con Helmet, CORS y autenticación JWT
 - 📊 **Logging** con Morgan
 - 🔄 **Hot Reload** en desarrollo
+- 🗄️ **MongoDB** para persistencia de datos
+- 📝 **Historial de Chat** con sesiones persistentes
 
 ## 🛠️ Tecnologías
 
@@ -58,7 +63,11 @@ Japasea 2.0 es una plataforma turística completa diseñada para ayudar a los vi
 ### Backend Stack
 - **Node.js** - Runtime de JavaScript
 - **Express.js 4.18** - Framework web
+- **MongoDB** - Base de datos NoSQL
+- **Mongoose** - ODM para MongoDB
 - **Google Generative AI** - Integración de IA
+- **JWT** - JSON Web Tokens para autenticación
+- **Bcrypt** - Encriptación de contraseñas
 - **Helmet** - Headers de seguridad
 - **CORS** - Compartir recursos entre orígenes
 - **Morgan** - Logging de peticiones HTTP
@@ -369,10 +378,27 @@ tail -f server/logs/error.log
 - Implementar rate limiting
 - Monitorear logs de seguridad
 
+## 📚 Documentación Adicional
+
+### Documentos de Negocio
+- **[Resumen Ejecutivo](EXECUTIVE_SUMMARY.md)** - Presentación del proyecto para inversores y socios
+- **[Estrategia de Monetización](MONETIZATION_STRATEGY.md)** - Análisis detallado de modelos de negocio
+- **[Tips Monetización Paraguay](MONETIZATION_TIPS_PARAGUAY.md)** - Estrategias específicas para el mercado local
+
+### Documentos de Desarrollo
+- **[Plan de Desarrollo](DEVELOPMENT_ROADMAP.md)** - Roadmap completo con fases de desarrollo
+- **[Implementación Técnica](TECHNICAL_IMPLEMENTATION_PLAN.md)** - Arquitectura y stack tecnológico
+- **[Checklist de Lanzamiento](LAUNCH_CHECKLIST.md)** - Lista completa de tareas para el launch
+
+### Documentos Técnicos
+- **[API de Autenticación](server/docs/AUTH_API.md)** - Documentación del sistema de autenticación
+- **[Estado de Integración](INTEGRATION_COMPLETE.md)** - Estado actual de componentes integrados
+
 ## 📈 Roadmap
 
-### Próximas Características
-- [ ] Autenticación de usuarios
+### Próximas Características (Ver [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) para detalles)
+- [x] Autenticación de usuarios ✅
+- [x] Historial de chat persistente ✅
 - [ ] Favoritos personalizados
 - [ ] Reseñas y calificaciones
 - [ ] Integración con redes sociales
