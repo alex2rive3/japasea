@@ -16,7 +16,7 @@ export interface PlacesResponse {
 
 export interface TravelActivity {
   time: string
-  category: string
+  category?: string // Hacer opcional para manejar casos donde no esté definido
   place: Place
 }
 
@@ -49,4 +49,5 @@ export interface ChatResponse {
   places?: Place[]
   travelPlan?: TravelPlan
   timestamp: string
+  sessionId?: string
 }

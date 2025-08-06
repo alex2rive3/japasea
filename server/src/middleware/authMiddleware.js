@@ -178,8 +178,38 @@ const handleValidationErrors = (req, res, next) => {
   next()
 }
 
+// Middleware de autenticación opcional
+const optionalAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization
+    const token = authHeader && authHeader.split(' ')[1]
+    
+    if (!token) {
+      // Si no hay token, continuar sin usuario
+      req.user = null
+      return next()
+    }
+    
+    const decoded = jwt.verify(token, config.JWT_SECRET)
+    const user = await User.findById(decoded.id).select('-password -refreshToken')
+    
+    if (user && user.isActive) {
+      req.user = user
+    } else {
+      req.user = null
+    }
+    
+    next()
+  } catch (error) {
+    // Si hay error con el token, continuar sin usuario
+    req.user = null
+    next()
+  }
+}
+
 module.exports = {
   authenticateToken,
+  optionalAuth,
   requireRole,
   loginRateLimit,
   registerRateLimit,

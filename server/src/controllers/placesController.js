@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { GoogleGenAI } = require('@google/genai')
+const ChatHistory = require('../models/chatHistoryModel')
 
 const ai = new GoogleGenAI({})
 
@@ -89,7 +90,7 @@ class PlacesController {
 
   static async processChat(req, res) {
     try {
-      const { message, context } = req.body
+      const { message, context, sessionId } = req.body
       
       if (!message) {
         return res.status(400).json({
@@ -115,6 +116,34 @@ class PlacesController {
         response = await PlacesController.generateTravelPlan(message, context, localPlaces)
       } else {
         response = await PlacesController.generateSimpleRecommendation(message, context, localPlaces)
+      }
+
+      // Guardar en el historial si el usuario está autenticado
+      if (req.user && req.user._id) {
+        try {
+          const chatSessionId = sessionId || `session-${Date.now()}`
+          const chatHistory = await ChatHistory.findOrCreateSession(req.user._id, chatSessionId)
+          
+          // Añadir mensaje del usuario
+          await chatHistory.addMessage({
+            text: message,
+            sender: 'user',
+            context: context || ''
+          })
+          
+          // Añadir respuesta del bot
+          await chatHistory.addMessage({
+            text: response.message || 'Respuesta generada',
+            sender: 'bot',
+            response: response
+          })
+          
+          // Añadir sessionId a la respuesta
+          response.sessionId = chatSessionId
+        } catch (historyError) {
+          console.error('Error saving chat history:', historyError)
+          // No fallar la respuesta si hay error al guardar el historial
+        }
       }
 
       res.status(200).json(response)
@@ -595,6 +624,71 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
         ]
       },
       timestamp: new Date().toISOString()
+    }
+  }
+
+  // Método para obtener el historial del chat del usuario
+  static async getChatHistory(req, res) {
+    try {
+      if (!req.user || !req.user._id) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Usuario no autenticado'
+        })
+      }
+
+      const { limit = 10 } = req.query
+      const history = await ChatHistory.getUserHistory(req.user._id, parseInt(limit))
+
+      res.status(200).json({
+        status: 'success',
+        data: history
+      })
+    } catch (error) {
+      console.error('Error getting chat history:', error)
+      res.status(500).json({
+        status: 'error',
+        message: 'Error al obtener el historial del chat',
+        error: error.message
+      })
+    }
+  }
+
+  // Método para obtener una sesión específica del chat
+  static async getChatSession(req, res) {
+    try {
+      if (!req.user || !req.user._id) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Usuario no autenticado'
+        })
+      }
+
+      const { sessionId } = req.params
+      
+      const history = await ChatHistory.findOne({
+        user: req.user._id,
+        sessionId: sessionId
+      })
+
+      if (!history) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Sesión de chat no encontrada'
+        })
+      }
+
+      res.status(200).json({
+        status: 'success',
+        data: history
+      })
+    } catch (error) {
+      console.error('Error getting chat session:', error)
+      res.status(500).json({
+        status: 'error',
+        message: 'Error al obtener la sesión del chat',
+        error: error.message
+      })
     }
   }
 

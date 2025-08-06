@@ -29,7 +29,9 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
   travelPlan,
   onPlaceClick
 }) => {
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (category: string | undefined) => {
+    if (!category) return <PlaceIcon sx={{ fontSize: 16 }} />
+    
     const categoryLower = category.toLowerCase()
     if (categoryLower.includes('desayuno') || categoryLower.includes('merienda')) {
       return <LocalCafe sx={{ fontSize: 16 }} />
@@ -43,7 +45,9 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
     return <PlaceIcon sx={{ fontSize: 16 }} />
   }
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category: string | undefined) => {
+    if (!category) return '#26A69A'
+    
     const categoryLower = category.toLowerCase()
     if (categoryLower.includes('desayuno') || categoryLower.includes('merienda')) {
       return '#8D6E63'
@@ -172,7 +176,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                             overflow: 'hidden'
                           }}>
                             <Chip
-                              label={activity.category}
+                              label={activity.category || 'Actividad'}
                               size="small"
                               sx={{
                                 bgcolor: getCategoryColor(activity.category),

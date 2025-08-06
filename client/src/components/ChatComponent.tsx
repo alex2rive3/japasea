@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -9,11 +9,13 @@ import {
   Avatar,
   Divider,
   InputAdornment,
+  Chip,
 } from '@mui/material'
-import { Send, Person, SmartToy } from '@mui/icons-material'
+import { Send, Person, SmartToy, History } from '@mui/icons-material'
 import { placesService } from '../services/placesService'
 import TravelPlanComponent from './TravelPlanComponent'
 import type { Place, TravelPlan } from '../types/places'
+import { useAuth } from '../hooks/useAuth'
 
 interface Message {
   id: number
@@ -29,6 +31,7 @@ interface ChatComponentProps {
 }
 
 export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
+  const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -38,6 +41,48 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
     },
   ])
   const [inputValue, setInputValue] = useState('')
+  const [sessionId, setSessionId] = useState<string>(`session-${Date.now()}`)
+
+  // Cargar historial cuando el componente se monta (si el usuario está autenticado)
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (user) {
+        try {
+          const historyResponse = await placesService.getChatHistory(1)
+          if (historyResponse.status === 'success' && historyResponse.data.length > 0) {
+            const latestSession = historyResponse.data[0]
+            
+            // Si hay una sesión reciente (menos de 30 minutos), continuar con ella
+            const lastActivity = new Date(latestSession.lastActivity)
+            const now = new Date()
+            const diffMinutes = (now.getTime() - lastActivity.getTime()) / (1000 * 60)
+            
+            if (diffMinutes < 30) {
+              setSessionId(latestSession.sessionId)
+              
+              // Convertir mensajes del historial al formato del componente
+              const historicalMessages: Message[] = latestSession.messages.map((msg, index) => ({
+                id: index + 1,
+                text: msg.text,
+                sender: msg.sender,
+                timestamp: new Date(msg.timestamp),
+                places: msg.response?.places,
+                travelPlan: msg.response?.travelPlan
+              }))
+              
+              if (historicalMessages.length > 0) {
+                setMessages(historicalMessages)
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error loading chat history:', error)
+        }
+      }
+    }
+    
+    loadChatHistory()
+  }, [user])
 
   const handleSendMessage = async () => {
     if (inputValue.trim()) {
@@ -56,7 +101,12 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
         try {
           const context = messages.slice(-3).map(msg => `${msg.sender}: ${msg.text}`).join('\n')
           
-          const chatResponse = await placesService.processChatMessage(userInput, context)
+          const chatResponse = await placesService.processChatMessage(userInput, context, sessionId)
+
+          // Actualizar sessionId si viene uno nuevo en la respuesta
+          if (chatResponse.sessionId) {
+            setSessionId(chatResponse.sessionId)
+          }
 
           const places = chatResponse.places || []
           const allPlaces = placesService.isTravelPlan(chatResponse) 
@@ -136,6 +186,16 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
         }}>
           Cuéntame tus preferencias de viaje para comenzar.
         </Typography>
+        {user && (
+          <Chip
+            icon={<History />}
+            label="Historial guardado"
+            size="small"
+            sx={{ mt: 1 }}
+            color="primary"
+            variant="outlined"
+          />
+        )}
       </Box>
       
       <Box sx={{ 
