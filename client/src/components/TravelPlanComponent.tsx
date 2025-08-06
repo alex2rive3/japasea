@@ -83,8 +83,8 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
         maxWidth: '100%',
         overflow: 'hidden'
       }}>
-        {travelPlan.days.map((day) => (
-          <Box key={day.dayNumber} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+        {travelPlan.days.map((day, dayIndex) => (
+          <Box key={`day-${dayIndex}-${day.dayNumber}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
             <Card elevation={2} sx={{ 
               borderRadius: 2,
               border: '1px solid #e0e0e0',
@@ -112,8 +112,8 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
 
                 {/* Compact Activities */}
                 <Box sx={{ p: 1.5, maxWidth: '100%', overflow: 'hidden' }}>
-                  {day.activities.map((activity, index) => (
-                    <Box key={index} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+                  {day.activities.map((activity, activityIndex) => (
+                    <Box key={`activity-${dayIndex}-${activityIndex}-${activity.place.key}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
                       <Box
                         sx={{
                           display: 'flex',
@@ -271,7 +271,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                         </Box>
                       </Box>
 
-                      {index < day.activities.length - 1 && (
+                      {activityIndex < day.activities.length - 1 && (
                         <Divider sx={{ my: 0.5, mx: 1 }} />
                       )}
                     </Box>

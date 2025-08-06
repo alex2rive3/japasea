@@ -5,7 +5,7 @@ export interface Place {
     lat: number
     lng: number
   }
-  type: string
+  type?: string // Hacer opcional para manejar casos donde no esté definido
   address: string
 }
 
