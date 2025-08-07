@@ -18,10 +18,21 @@ interface ChatHistorySession {
 export const placesService = {
   async getPlacesByType(type?: string): Promise<Place[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/places${type ? `?type=${encodeURIComponent(type)}` : ''}`)
+      const token = localStorage.getItem('accessToken')
+      const headers: HeadersInit = {}
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/api/places${type ? `?type=${encodeURIComponent(type)}` : ''}`, {
+        headers
+      })
+      
       if (!response.ok) {
         throw new Error('Error al obtener lugares')
       }
+      
       return await response.json()
     } catch (error) {
       console.error('Error fetching places:', error)

@@ -5,6 +5,7 @@ import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
 import { LocationOn, Phone } from '@mui/icons-material'
 import { useEffect, useRef } from 'react'
 import type { Place } from '../types/places'
+import { FavoriteButton } from './FavoriteButton'
 
 const iconPrototype = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown }
 delete iconPrototype._getIconUrl
@@ -157,12 +158,18 @@ export const MapComponent = ({
                         <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
                           {place.key}
                         </Typography>
-                        <Chip 
-                          label={place.type || 'Lugar'} 
-                          color={getTypeColor(place.type)}
-                          size="small"
-                          sx={{ ml: 1 }}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Chip 
+                            label={place.type || 'Lugar'} 
+                            color={getTypeColor(place.type)}
+                            size="small"
+                          />
+                          <FavoriteButton 
+                            placeId={place._id || place.key}
+                            placeName={place.key}
+                            size="small"
+                          />
+                        </Box>
                       </Box>
                       
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

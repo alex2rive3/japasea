@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Box,
   Drawer,
@@ -39,6 +40,7 @@ import {
   Lock as LockIcon,
   Save as SaveIcon,
   Close as CloseIcon,
+  AccountCircle as AccountCircleIcon,
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
 import { useAuth } from '../hooks/useAuth'
@@ -57,6 +59,8 @@ export const Layout = ({
   onNotificationClick, 
   onSearch 
 }: LayoutProps) => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const { user, updateProfile, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(true) // Desktop sidebar state
@@ -147,11 +151,12 @@ export const Layout = ({
   }
 
   const menuItems = [
-    { text: 'Inicio', icon: <HomeIcon />, href: '#', active: true },
-    { text: 'Explorar', icon: <ExploreIcon />, href: '#', active: false },
-    { text: 'Favoritos', icon: <WishlistIcon />, href: '#', active: false },
-    { text: 'Viajes', icon: <TripsIcon />, href: '#', active: false },
-    { text: 'Mensajes', icon: <InboxIcon />, href: '#', active: false },
+    { text: 'Inicio', icon: <HomeIcon />, path: '/' },
+    { text: 'Explorar', icon: <ExploreIcon />, path: '/explore' },
+    { text: 'Favoritos', icon: <WishlistIcon />, path: '/favorites' },
+    { text: 'Viajes', icon: <TripsIcon />, path: '/trips' },
+    { text: 'Mensajes', icon: <InboxIcon />, path: '/messages' },
+    { text: 'Mi Perfil', icon: <AccountCircleIcon />, path: '/profile' },
   ]
 
   const drawer = (
@@ -160,23 +165,26 @@ export const Layout = ({
       {/* Navigation Menu */}
       <Box sx={{ flexGrow: 1, py: 1, mt:{ xs: 0, md: 8 } }}>
         <List sx={{ px: 1 }}>
-          {menuItems.map((item) => (
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path
+            return (
             <ListItem 
               key={item.text} 
+              onClick={() => navigate(item.path)}
               sx={{ 
                 cursor: 'pointer',
                 borderRadius: 2,
                 mb: 0.5,
                 mx: 1,
-                bgcolor: item.active ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
+                bgcolor: isActive ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
                 '&:hover': {
-                  bgcolor: item.active ? 'rgba(25, 118, 210, 0.12)' : 'rgba(0, 0, 0, 0.04)'
+                  bgcolor: isActive ? 'rgba(25, 118, 210, 0.12)' : 'rgba(0, 0, 0, 0.04)'
                 }
               }}
             >
               <ListItemIcon 
                 sx={{ 
-                  color: item.active ? '#1976d2' : 'rgba(0, 0, 0, 0.6)',
+                  color: isActive ? '#1976d2' : 'rgba(0, 0, 0, 0.6)',
                   minWidth: 40
                 }}
               >
@@ -186,12 +194,13 @@ export const Layout = ({
                 primary={item.text}
                 primaryTypographyProps={{
                   fontSize: '0.95rem',
-                  fontWeight: item.active ? 600 : 400,
-                  color: item.active ? '#1976d2' : 'rgba(0, 0, 0, 0.87)'
+                  fontWeight: isActive ? 600 : 400,
+                  color: isActive ? '#1976d2' : 'rgba(0, 0, 0, 0.87)'
                 }}
               />
             </ListItem>
-          ))}
+            )
+          })}
         </List>
       </Box>
 
@@ -343,7 +352,7 @@ export const Layout = ({
 
             {/* Profile Avatar */}
             <IconButton
-              onClick={handleProfileModalOpen}
+              onClick={() => navigate('/profile')}
               sx={{ p: 0.5, ml: 1 }}
             >
               <Avatar 

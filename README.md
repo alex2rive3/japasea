@@ -99,7 +99,7 @@ japasea2.0/
 │   │   ├── utils/                   # Utilidades
 │   │   ├── App.tsx                  # Componente principal
 │   │   ├── main.tsx                 # Punto de entrada
-│   │   ├── theme.ts                 # Tema Material-UI
+
 │   │   └── index.css                # Estilos globales
 │   ├── public/                      # Archivos públicos
 │   ├── package.json                 # Dependencias frontend

@@ -63,6 +63,7 @@ export interface AuthContextType {
   updateProfile: (data: UpdateProfileData) => Promise<User>
   changePassword: (data: ChangePasswordData) => Promise<void>
   refreshToken: () => Promise<void>
+  refreshUser: () => Promise<void>
 }
 
 export interface TokenResponse {

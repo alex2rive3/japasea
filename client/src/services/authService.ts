@@ -240,6 +240,89 @@ class AuthService {
     return token !== null && !this.isTokenExpired(token)
   }
 
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al enviar email de recuperación')
+      }
+
+      return data
+    } catch (error) {
+      this.handleError(error, 'Error al solicitar recuperación de contraseña')
+      throw error
+    }
+  }
+
+  async resetPassword(token: string, password: string): Promise<LoginResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token, password })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al restablecer contraseña')
+      }
+
+      return data
+    } catch (error) {
+      this.handleError(error, 'Error al restablecer contraseña')
+      throw error
+    }
+  }
+
+  async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-email/${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al verificar email')
+      }
+
+      return data
+    } catch (error) {
+      this.handleError(error, 'Error al verificar email')
+      throw error
+    }
+  }
+
+  async resendVerificationEmail(): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await this.api.post('/api/auth/resend-verification')
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message)
+      }
+
+      return response.data
+    } catch (error) {
+      this.handleError(error, 'Error al reenviar email de verificación')
+      throw error
+    }
+  }
+
   private handleError(error: unknown, fallbackMessage: string): void {
     console.error(fallbackMessage, error)
     

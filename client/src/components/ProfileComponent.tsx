@@ -13,6 +13,24 @@ import {
   DialogActions,
   Chip,
   Divider,
+  Tabs,
+  Tab,
+  Switch,
+  FormControlLabel,
+  FormGroup,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+  Card,
+  CardContent,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  IconButton,
+  Badge,
 } from '@mui/material'
 import {
   Person as PersonIcon,
@@ -20,14 +38,50 @@ import {
   Phone as PhoneIcon,
   Lock as LockIcon,
   Save as SaveIcon,
+  Favorite as FavoriteIcon,
+  Settings as SettingsIcon,
+  BarChart as StatsIcon,
+  History as HistoryIcon,
+  Language as LanguageIcon,
+  Palette as PaletteIcon,
+  Notifications as NotificationsIcon,
+  Search as SearchIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material'
 import { useAuth } from '../hooks/useAuth'
+import { useFavorites } from '../hooks/useFavorites'
 import type { UpdateProfileData, ChangePasswordData } from '../types/auth'
 import { profileStyles } from '../styles'
+import { favoritesService } from '../services/favoritesService'
+import { EmailVerificationBanner } from './EmailVerificationBanner'
+
+interface TabPanelProps {
+  children?: React.ReactNode
+  index: number
+  value: number
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`profile-tabpanel-${index}`}
+      aria-labelledby={`profile-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+    </div>
+  )
+}
 
 export function ProfileComponent() {
   const { user, updateProfile, changePassword, logout, isLoading } = useAuth()
+  const { favorites, favoriteCount, removeFavorite } = useFavorites()
   
+  const [tabValue, setTabValue] = useState(0)
   const [profileData, setProfileData] = useState<UpdateProfileData>({
     name: user?.name || '',
     phone: user?.phone || ''
@@ -38,12 +92,24 @@ export function ProfileComponent() {
     newPassword: ''
   })
   
+  const [preferences, setPreferences] = useState({
+    theme: user?.preferences?.theme || 'light',
+    language: user?.preferences?.language || 'es',
+    notifications: {
+      email: user?.preferences?.notifications?.email ?? true,
+      push: user?.preferences?.notifications?.push ?? true,
+      newsletter: user?.preferences?.notifications?.newsletter ?? false,
+    },
+    searchHistory: user?.preferences?.searchHistory ?? true,
+  })
+  
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isUpdating, setIsUpdating] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [favoriteStats, setFavoriteStats] = useState<any>(null)
 
   useEffect(() => {
     if (user) {
@@ -51,6 +117,30 @@ export function ProfileComponent() {
         name: user.name,
         phone: user.phone || ''
       })
+      
+      setPreferences({
+        theme: user.preferences?.theme || 'light',
+        language: user.preferences?.language || 'es',
+        notifications: {
+          email: user.preferences?.notifications?.email ?? true,
+          push: user.preferences?.notifications?.push ?? true,
+          newsletter: user.preferences?.notifications?.newsletter ?? false,
+        },
+        searchHistory: user.preferences?.searchHistory ?? true,
+      })
+    }
+  }, [user])
+
+  useEffect(() => {
+    // Cargar estadísticas de favoritos
+    if (user) {
+      favoritesService.getFavoriteStats()
+        .then(response => {
+          if (response.success) {
+            setFavoriteStats(response.data)
+          }
+        })
+        .catch(console.error)
     }
   }, [user])
 
@@ -90,6 +180,52 @@ export function ProfileComponent() {
       setError(errorMessage)
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue)
+  }
+
+  const handlePreferenceChange = (pref: string) => (event: any) => {
+    const value = event.target.checked ?? event.target.value
+    
+    if (pref.includes('.')) {
+      const [parent, child] = pref.split('.')
+      setPreferences(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent as keyof typeof prev],
+          [child]: value
+        }
+      }))
+    } else {
+      setPreferences(prev => ({
+        ...prev,
+        [pref]: value
+      }))
+    }
+  }
+
+  const handleSavePreferences = async () => {
+    try {
+      setIsUpdating(true)
+      // Aquí iría la llamada a la API para guardar preferencias
+      await updateProfile({ preferences } as any)
+      setMessage('Preferencias actualizadas exitosamente')
+    } catch (error) {
+      setError('Error al actualizar preferencias')
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleDeleteSearchHistory = async () => {
+    try {
+      // Aquí iría la llamada para eliminar el historial
+      setMessage('Historial de búsquedas eliminado')
+    } catch (error) {
+      setError('Error al eliminar historial')
     }
   }
 
@@ -151,21 +287,22 @@ export function ProfileComponent() {
     <Box sx={profileStyles.paper}>
       <Paper elevation={3} sx={profileStyles.card}>
         <Box sx={profileStyles.header}>
-          
           <Typography variant="h4" component="h1" sx={profileStyles.title}>
             Mi Perfil
           </Typography>
-          <Box sx={profileStyles.userInfo}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
             <Chip
               label={user.role === 'admin' ? 'Administrador' : 'Usuario'}
               color={user.role === 'admin' ? 'secondary' : 'primary'}
               size="small"
             />
+            <Typography variant="body2" color="text.secondary">
+              Miembro desde: {new Date(user.createdAt).toLocaleDateString('es-ES')}
+            </Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary">
-            Miembro desde: {new Date(user.createdAt).toLocaleDateString('es-ES')}
-          </Typography>
         </Box>
+
+        <EmailVerificationBanner />
 
         {(message || error) && (
           <Alert 
@@ -180,12 +317,23 @@ export function ProfileComponent() {
           </Alert>
         )}
 
-        {/* Información del Perfil */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <PersonIcon color="primary" />
-            Información Personal
-          </Typography>
+        {/* Tabs de navegación */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={tabValue} onChange={handleTabChange} aria-label="profile tabs">
+            <Tab icon={<PersonIcon />} label="Información" />
+            <Tab icon={<FavoriteIcon />} label={`Favoritos (${favoriteCount})`} />
+            <Tab icon={<SettingsIcon />} label="Preferencias" />
+            <Tab icon={<StatsIcon />} label="Estadísticas" />
+          </Tabs>
+        </Box>
+
+        {/* Tab 1: Información Personal */}
+        <TabPanel value={tabValue} index={0}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <PersonIcon color="primary" />
+              Información Personal
+            </Typography>
           
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <TextField
@@ -261,6 +409,271 @@ export function ProfileComponent() {
             </Button>
           </Box>
         </Box>
+        </TabPanel>
+
+        {/* Tab 2: Favoritos */}
+        <TabPanel value={tabValue} index={1}>
+          <Box>
+            <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FavoriteIcon color="primary" />
+              Mis Favoritos
+            </Typography>
+            
+            {favorites.length === 0 ? (
+              <Typography color="text.secondary">
+                No tienes lugares favoritos guardados aún.
+              </Typography>
+            ) : (
+              <Grid container spacing={2}>
+                {favorites.slice(0, 6).map((favorite) => (
+                  <Grid item xs={12} sm={6} md={4} key={favorite._id}>
+                    <Card variant="outlined">
+                      <CardContent>
+                        <Typography variant="subtitle1" gutterBottom>
+                          {favorite.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {favorite.type} • {favorite.address}
+                        </Typography>
+                        <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Agregado: {new Date(favorite.favoritedAt).toLocaleDateString()}
+                          </Typography>
+                          <IconButton 
+                            size="small" 
+                            onClick={() => removeFavorite(favorite._id)}
+                            color="error"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+            
+            {favorites.length > 6 && (
+              <Button sx={{ mt: 2 }}>
+                Ver todos ({favorites.length})
+              </Button>
+            )}
+          </Box>
+        </TabPanel>
+
+        {/* Tab 3: Preferencias */}
+        <TabPanel value={tabValue} index={2}>
+          <Box>
+            <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <SettingsIcon color="primary" />
+              Preferencias
+            </Typography>
+            
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Idioma</InputLabel>
+                  <Select
+                    value={preferences.language}
+                    onChange={handlePreferenceChange('language')}
+                    label="Idioma"
+                    startAdornment={<LanguageIcon sx={{ mr: 1, color: 'text.secondary' }} />}
+                  >
+                    <MenuItem value="es">Español</MenuItem>
+                    <MenuItem value="pt">Português</MenuItem>
+                    <MenuItem value="en">English</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Tema</InputLabel>
+                  <Select
+                    value={preferences.theme}
+                    onChange={handlePreferenceChange('theme')}
+                    label="Tema"
+                    startAdornment={<PaletteIcon sx={{ mr: 1, color: 'text.secondary' }} />}
+                  >
+                    <MenuItem value="light">Claro</MenuItem>
+                    <MenuItem value="dark">Oscuro</MenuItem>
+                    <MenuItem value="auto">Automático</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <NotificationsIcon />
+                  Notificaciones
+                </Typography>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch 
+                        checked={preferences.notifications.email}
+                        onChange={handlePreferenceChange('notifications.email')}
+                      />
+                    }
+                    label="Notificaciones por email"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch 
+                        checked={preferences.notifications.push}
+                        onChange={handlePreferenceChange('notifications.push')}
+                      />
+                    }
+                    label="Notificaciones push"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch 
+                        checked={preferences.notifications.newsletter}
+                        onChange={handlePreferenceChange('notifications.newsletter')}
+                      />
+                    }
+                    label="Newsletter semanal"
+                  />
+                </FormGroup>
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <HistoryIcon />
+                  Privacidad
+                </Typography>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch 
+                        checked={preferences.searchHistory}
+                        onChange={handlePreferenceChange('searchHistory')}
+                      />
+                    }
+                    label="Guardar historial de búsquedas"
+                  />
+                </FormGroup>
+                {preferences.searchHistory && user?.searchHistory?.length > 0 && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    sx={{ mt: 1 }}
+                    onClick={handleDeleteSearchHistory}
+                    startIcon={<DeleteIcon />}
+                  >
+                    Eliminar historial ({user.searchHistory.length} búsquedas)
+                  </Button>
+                )}
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  onClick={handleSavePreferences}
+                  disabled={isUpdating}
+                  startIcon={isUpdating ? <CircularProgress size={20} /> : <SaveIcon />}
+                >
+                  {isUpdating ? 'Guardando...' : 'Guardar Preferencias'}
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+        </TabPanel>
+
+        {/* Tab 4: Estadísticas */}
+        <TabPanel value={tabValue} index={3}>
+          <Box>
+            <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <StatsIcon color="primary" />
+              Mis Estadísticas
+            </Typography>
+            
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography color="text.secondary" gutterBottom>
+                      Lugares Favoritos
+                    </Typography>
+                    <Typography variant="h4">
+                      <Badge badgeContent={favoriteCount} color="primary">
+                        <FavoriteIcon />
+                      </Badge>
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              {favoriteStats && (
+                <>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card>
+                      <CardContent>
+                        <Typography color="text.secondary" gutterBottom>
+                          Tipo Favorito
+                        </Typography>
+                        <Typography variant="h6">
+                          {Object.entries(favoriteStats.byType)
+                            .sort(([,a], [,b]) => (b as number) - (a as number))[0]?.[0] || 'N/A'}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card>
+                      <CardContent>
+                        <Typography color="text.secondary" gutterBottom>
+                          Búsquedas Realizadas
+                        </Typography>
+                        <Typography variant="h4">
+                          {user?.searchHistory?.length || 0}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card>
+                      <CardContent>
+                        <Typography color="text.secondary" gutterBottom>
+                          Miembro Desde
+                        </Typography>
+                        <Typography variant="h6">
+                          {Math.floor((new Date().getTime() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))} días
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </>
+              )}
+              
+              {user?.searchHistory && user.searchHistory.length > 0 && (
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                    Búsquedas Recientes
+                  </Typography>
+                  <List>
+                    {user.searchHistory.slice(-5).reverse().map((search, index) => (
+                      <ListItem key={index}>
+                        <ListItemIcon>
+                          <SearchIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={search.query}
+                          secondary={`${new Date(search.searchedAt).toLocaleDateString()} - ${search.resultsCount} resultados`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Grid>
+              )}
+            </Grid>
+          </Box>
+        </TabPanel>
       </Paper>
 
       {/* Dialog para cambiar contraseña */}

@@ -1,13 +1,68 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="description" content="Japasea - Tu guía turística inteligente para descubrir Encarnación, Paraguay. Encuentra los mejores lugares, restaurantes y experiencias con ayuda de IA." />
+    <meta name="keywords" content="turismo, Encarnación, Paraguay, viajes, restaurantes, hoteles, guía turística, IA" />
+    <meta name="author" content="Japasea Team" />
+
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://japasea.com/" />
+    <meta property="og:title" content="Japasea - Turismo inteligente en Encarnación" />
+    <meta property="og:description" content="Descubre los mejores lugares de Encarnación con ayuda de inteligencia artificial" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://japasea.com/" />
+    <meta property="twitter:title" content="Japasea - Turismo inteligente en Encarnación" />
+    <meta property="twitter:description" content="Descubre los mejores lugares de Encarnación con ayuda de inteligencia artificial" />
+    <meta property="twitter:image" content="/twitter-image.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    
+    <!-- Preconnect para mejorar performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    
+    <title>Japasea - Tu guía turística inteligente en Encarnación</title>
+    
+    <!-- Estilos para cuando JS está deshabilitado -->
+    <style>
+      noscript {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        text-align: center;
+        font-family: 'Roboto', sans-serif;
+      }
+    </style>
   </head>
   <body>
+
+    <noscript>
+      <div>
+        <h1>JavaScript Requerido</h1>
+        <p>Lo sentimos, pero Japasea requiere JavaScript para funcionar correctamente.</p>
+        <p>Por favor, habilita JavaScript en tu navegador y recarga la página.</p>
+      </div>
+    </noscript>
+    
     <div id="root"></div>
+    
     <script type="module" src="/src/main.tsx"></script>
+
   </body>
 </html>

@@ -33,41 +33,40 @@
 
 #### Backend
 - [ ] **Sistema de Autenticación Completo**
-  - JWT con refresh tokens
-  - OAuth2 (Google, Facebook)
-  - Recuperación de contraseña
-  - Verificación de email
+  - [x]JWT con refresh tokens
+  - [ ]OAuth2 (Google, Facebook)
+  - [x]Recuperación de contraseña
+  - [x]Verificación de email
 
 - [ ] **Base de Datos MongoDB**
-  - Migrar de JSON a MongoDB
-  - Esquemas para usuarios, lugares, reseñas
-  - Índices optimizados
-  - Backup automatizado
+  - [x]Migrar de JSON a MongoDB
+  - [x]Esquemas para usuarios, lugares, reseñas
+  - [x]Índices optimizados
+  - [ ]Backup automatizado
 
 - [ ] **API Mejorada**
-  - Versionado de API (v1, v2)
-  - Rate limiting por usuario
-  - Caché con Redis
-  - Documentación con Swagger
+  - [x]Versionado de API (v1, v2)
+  - [x]Rate limiting por usuario
+  - [ ]Caché con Redis
+  - [ ]Documentación con Swagger
 
 #### Frontend
 - [ ] **Sistema de Usuario**
-  - Perfil de usuario completo
-  - Historial de búsquedas
-  - Lugares favoritos
-  - Configuración de preferencias
+  - [x]Perfil de usuario completo
+  - [x]Historial de búsquedas
+  - [x]Lugares favoritos
+  - [x]Configuración de preferencias
 
 - [ ] **Mejoras de UX/UI**
-  - Modo oscuro
-  - PWA (Progressive Web App)
-  - Animaciones suaves
-  - Loading states mejorados
+  - [ ]Modo oscuro
+  - [ ]Animaciones suaves
+  - [ ]Loading states mejorados
 
 - [ ] **Optimización**
-  - Lazy loading de componentes
-  - Compresión de imágenes
-  - Service Workers
-  - SEO mejorado
+  - [ ]Lazy loading de componentes
+  - [ ]Compresión de imágenes
+  - [ ]Service Workers
+  - [ ]SEO mejorado
 
 ### 📊 Entregables
 - Sistema de usuarios funcional

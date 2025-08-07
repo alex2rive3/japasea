@@ -6,8 +6,12 @@ require('dotenv').config()
 
 const config = require('./config/config')
 const connectDatabase = require('./config/database')
+const { extractVersion, apiVersionInfo } = require('./middleware/apiVersioning')
+const apiRoutesV1 = require('./routes/v1')
+const apiRoutesV2 = require('./routes/v2')
 const apiRoutes = require('./routes/apiRoutes')
 const authRoutes = require('./routes/authRoutes')
+const favoritesRoutes = require('./routes/favoritesRoutes')
 
 const app = express()
 
@@ -24,8 +28,19 @@ app.use(morgan('combined'))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 
-// Rutas de la aplicación
+// Middleware de versionado para todas las rutas /api
+app.use('/api', extractVersion)
+
+// Endpoint para información de versiones
+app.get('/api/versions', apiVersionInfo)
+
+// Rutas versionadas
+app.use('/api/v1', apiRoutesV1)
+app.use('/api/v2', apiRoutesV2)
+
+// Rutas legacy (sin versión explícita - redirigir a v1)
 app.use('/api/auth', authRoutes)
+app.use('/api/favorites', favoritesRoutes)
 app.use('/api', apiRoutes)
 
 app.get('/', (req, res) => {

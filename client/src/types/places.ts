@@ -1,4 +1,5 @@
 export interface Place {
+  _id?: string // ID de MongoDB
   key: string
   description: string
   location: {

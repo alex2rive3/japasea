@@ -30,6 +30,13 @@ router.post('/login',
 
 router.post('/refresh-token', authController.refreshToken)
 
+// Recuperación de contraseña (rutas públicas)
+router.post('/forgot-password', authController.forgotPassword)
+router.post('/reset-password', authController.resetPassword)
+
+// Verificación de email (ruta pública)
+router.get('/verify-email/:token', authController.verifyEmail)
+
 // Rutas protegidas (requieren autenticación)
 router.use(authenticateToken)
 
@@ -42,5 +49,8 @@ router.put('/change-password',
   authController.changePassword
 )
 router.delete('/account', authController.deleteAccount)
+
+// Reenvío de email de verificación (requiere autenticación)
+router.post('/resend-verification', authController.resendVerificationEmail)
 
 module.exports = router

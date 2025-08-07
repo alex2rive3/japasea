@@ -10,7 +10,8 @@
     "test:watch": "jest --watch --testEnvironment=node",
     "test:coverage": "jest --coverage --testEnvironment=node",
     "db:seed": "node scripts/seedDatabase.js seed",
-    "db:clear": "node scripts/seedDatabase.js clear"
+    "db:clear": "node scripts/seedDatabase.js clear",
+    "migrate:places": "node scripts/migratePlacesToMongoDB.js"
   },
   "keywords": [
     "express",

@@ -171,6 +171,22 @@ export function LoginComponent() {
               )}
             />
 
+            <Box sx={{ textAlign: 'right', mb: 2 }}>
+              <Link
+                component="button"
+                type="button"
+                variant="body2"
+                onClick={() => navigate('/forgot-password')}
+                sx={{ 
+                  color: 'primary.main',
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' }
+                }}
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </Box>
+
             <Button
               type="submit"
               variant="contained"

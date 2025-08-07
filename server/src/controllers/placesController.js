@@ -1,33 +1,24 @@
-const fs = require('fs')
-const path = require('path')
 const { GoogleGenAI } = require('@google/genai')
 const ChatHistory = require('../models/chatHistoryModel')
+const Place = require('../models/placeModel')
 
 const ai = new GoogleGenAI({})
 
 class PlacesController {
-  
-  static loadPlaces() {
-    try {
-      const placesPath = path.join(__dirname, '../../places.json')
-      const data = fs.readFileSync(placesPath, 'utf8')
-      return JSON.parse(data)
-    } catch (error) {
-      console.error('Error loading places:', error)
-      return []
-    }
-  }
 
-  static getPlaces(req, res) {
+  static async getPlaces(req, res) {
     try {
       const { type } = req.query
-      let places = PlacesController.loadPlaces()
-
+      
+      const query = { status: 'active' }
       if (type) {
-        places = places.filter(place => 
-          place.type.toLowerCase().includes(type.toLowerCase())
-        )
+        query.type = new RegExp(type, 'i')
       }
+
+      const places = await Place.find(query)
+        .select('-__v')
+        .sort({ 'rating.average': -1, 'metadata.views': -1 })
+        .lean()
 
       res.status(200).json(places)
     } catch (error) {
@@ -39,7 +30,7 @@ class PlacesController {
     }
   }
 
-  static searchPlaces(req, res) {
+  static async searchPlaces(req, res) {
     try {
       const { q } = req.query
       
@@ -50,17 +41,25 @@ class PlacesController {
         })
       }
 
-      const places = PlacesController.loadPlaces()
-      const queryLower = q.toLowerCase()
-      
-      const results = places.filter(place =>
-        place.key.toLowerCase().includes(queryLower) ||
-        place.description.toLowerCase().includes(queryLower) ||
-        place.type.toLowerCase().includes(queryLower) ||
-        place.address.toLowerCase().includes(queryLower)
-      )
+      // Búsqueda por texto o regex
+      const places = await Place.find({
+        $and: [
+          { status: 'active' },
+          {
+            $or: [
+              { name: new RegExp(q, 'i') },
+              { description: new RegExp(q, 'i') },
+              { type: new RegExp(q, 'i') },
+              { address: new RegExp(q, 'i') },
+              { tags: new RegExp(q, 'i') }
+            ]
+          }
+        ]
+      })
+      .select('-__v')
+      .lean()
 
-      res.status(200).json(results)
+      res.status(200).json(places)
     } catch (error) {
       res.status(500).json({
         status: 'error',
@@ -70,15 +69,19 @@ class PlacesController {
     }
   }
 
-  static getRandomPlaces(req, res) {
+  static async getRandomPlaces(req, res) {
     try {
       const { count = 3 } = req.query
-      const places = PlacesController.loadPlaces()
+      const numPlaces = parseInt(count)
       
-      const shuffled = [...places].sort(() => 0.5 - Math.random())
-      const selectedPlaces = shuffled.slice(0, parseInt(count))
+      // Usar agregación de MongoDB para obtener lugares aleatorios
+      const places = await Place.aggregate([
+        { $match: { status: 'active' } },
+        { $sample: { size: numPlaces } },
+        { $project: { __v: 0 } }
+      ])
 
-      res.status(200).json(selectedPlaces)
+      res.status(200).json(places)
     } catch (error) {
       res.status(500).json({
         status: 'error',
@@ -106,7 +109,7 @@ class PlacesController {
         })
       }
 
-      const localPlaces = PlacesController.loadPlaces()
+      const localPlaces = await Place.find({ status: 'active' }).lean()
       
       // Detectar si es una consulta de plan de viaje o una consulta simple
       const isTravelPlanQuery = PlacesController.detectTravelPlan(message)
