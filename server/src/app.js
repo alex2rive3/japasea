@@ -15,6 +15,16 @@ const favoritesRoutes = require('./routes/favoritesRoutes')
 
 const app = express()
 
+// Swagger (documentación)
+let swaggerUi, swaggerSpecV1, swaggerSpecV2
+try {
+  swaggerUi = require('swagger-ui-express')
+  swaggerSpecV1 = require('./docs/swagger.v1')
+  swaggerSpecV2 = require('./docs/swagger.v2')
+} catch (e) {
+  // Ignorar si no está instalado en el entorno actual
+}
+
 // Conectar a la base de datos
 connectDatabase()
 
@@ -42,6 +52,28 @@ app.use('/api/v2', apiRoutesV2)
 app.use('/api/auth', authRoutes)
 app.use('/api/favorites', favoritesRoutes)
 app.use('/api', apiRoutes)
+
+// Montar documentación Swagger
+if (swaggerUi && (swaggerSpecV1 || swaggerSpecV2)) {
+  const docsRouter = express.Router()
+  if (swaggerSpecV1) {
+    docsRouter.use('/v1', swaggerUi.serveFiles(swaggerSpecV1), swaggerUi.setup(swaggerSpecV1))
+  }
+  if (swaggerSpecV2) {
+    docsRouter.use('/v2', swaggerUi.serveFiles(swaggerSpecV2), swaggerUi.setup(swaggerSpecV2))
+  }
+  // Índice de documentación
+  docsRouter.get('/', (req, res) => {
+    res.json({
+      message: 'Documentación de la API',
+      versions: {
+        v1: '/api/docs/v1',
+        v2: '/api/docs/v2',
+      },
+    })
+  })
+  app.use('/api/docs', docsRouter)
+}
 
 app.get('/', (req, res) => {
   res.json({

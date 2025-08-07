@@ -44,6 +44,64 @@ const enhanceV2Response = (req, res, next) => {
 router.use(enhanceV2Response)
 
 // Rutas mejoradas de lugares con filtros avanzados
+/**
+ * @openapi
+ * /places:
+ *   get:
+ *     tags: [Places]
+ *     summary: Listar lugares (v2 con filtros y paginación)
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema: { type: string }
+ *       - in: query
+ *         name: rating
+ *         schema: { type: number }
+ *       - in: query
+ *         name: priceLevel
+ *         schema: { type: string }
+ *       - in: query
+ *         name: amenities
+ *         schema: { type: string }
+ *         description: Lista separada por comas
+ *       - in: query
+ *         name: isOpen
+ *         schema: { type: boolean }
+ *       - in: query
+ *         name: verified
+ *         schema: { type: boolean }
+ *       - in: query
+ *         name: featured
+ *         schema: { type: boolean }
+ *       - in: query
+ *         name: lat
+ *         schema: { type: number }
+ *       - in: query
+ *         name: lng
+ *         schema: { type: number }
+ *       - in: query
+ *         name: radius
+ *         schema: { type: number, default: 5000 }
+ *       - in: query
+ *         name: sortBy
+ *         schema: { type: string, enum: [rating, distance, views, name] }
+ *       - in: query
+ *         name: sortOrder
+ *         schema: { type: string, enum: [asc, desc], default: desc }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Lista paginada de lugares
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedPlaces'
+ */
 router.get('/', async (req, res, next) => {
   // Extraer filtros avanzados de v2
   const filters = {
@@ -71,6 +129,21 @@ router.get('/', async (req, res, next) => {
 })
 
 // Búsqueda mejorada con sugerencias
+/**
+ * @openapi
+ * /places/search:
+ *   get:
+ *     tags: [Places]
+ *     summary: Búsqueda mejorada con sugerencias (v2)
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Resultados y sugerencias
+ */
 router.get('/search', async (req, res, next) => {
   // En v2, agregar sugerencias de búsqueda
   const originalSearch = PlacesController.searchPlaces
@@ -100,6 +173,31 @@ router.get('/search', async (req, res, next) => {
 })
 
 // Nueva ruta: lugares cercanos con más opciones
+/**
+ * @openapi
+ * /places/nearby:
+ *   get:
+ *     tags: [Places]
+ *     summary: Lugares cercanos (v2)
+ *     parameters:
+ *       - in: query
+ *         name: lat
+ *         required: true
+ *         schema: { type: number }
+ *       - in: query
+ *         name: lng
+ *         required: true
+ *         schema: { type: number }
+ *       - in: query
+ *         name: radius
+ *         schema: { type: integer, default: 5000 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *     responses:
+ *       200:
+ *         description: Resultado con metadata
+ */
 router.get('/nearby', requireVersion('v2'), async (req, res) => {
   const { lat, lng, radius = 5000, limit = 10 } = req.query
   
@@ -123,6 +221,23 @@ router.get('/nearby', requireVersion('v2'), async (req, res) => {
 })
 
 // Nueva ruta: lugares trending
+/**
+ * @openapi
+ * /places/trending:
+ *   get:
+ *     tags: [Places]
+ *     summary: Lugares en tendencia (v2)
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema: { type: string, enum: [day, week, month], default: week }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *     responses:
+ *       200:
+ *         description: Lista de lugares trending
+ */
 router.get('/trending', requireVersion('v2'), async (req, res) => {
   const { period = 'week', limit = 10 } = req.query
   
