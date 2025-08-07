@@ -50,7 +50,7 @@ class FavoritesService {
 
   async getFavorites(): Promise<{ success: boolean; count: number; data: Favorite[] }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/favorites`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/favorites`, {
         headers: this.getAuthHeaders()
       })
 
@@ -67,7 +67,7 @@ class FavoritesService {
 
   async addFavorite(placeId: string): Promise<{ success: boolean; message: string; data: any }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/favorites/${placeId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/favorites/${placeId}`, {
         method: 'POST',
         headers: this.getAuthHeaders()
       })
@@ -87,7 +87,7 @@ class FavoritesService {
 
   async removeFavorite(placeId: string): Promise<{ success: boolean; message: string; data: any }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/favorites/${placeId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/favorites/${placeId}`, {
         method: 'DELETE',
         headers: this.getAuthHeaders()
       })
@@ -105,7 +105,7 @@ class FavoritesService {
 
   async checkFavorite(placeId: string): Promise<{ success: boolean; data: { placeId: string; isFavorite: boolean } }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/favorites/check/${placeId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/favorites/check/${placeId}`, {
         headers: this.getAuthHeaders()
       })
 
@@ -122,7 +122,7 @@ class FavoritesService {
 
   async checkMultipleFavorites(placeIds: string[]): Promise<{ success: boolean; data: Record<string, boolean> }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/favorites/check-multiple`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/favorites/check-multiple`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
         body: JSON.stringify({ placeIds })
@@ -141,7 +141,7 @@ class FavoritesService {
 
   async getFavoriteStats(): Promise<{ success: boolean; data: FavoriteStats }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/favorites/stats`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/favorites/stats`, {
         headers: this.getAuthHeaders()
       })
 
@@ -158,7 +158,7 @@ class FavoritesService {
 
   async syncFavorites(favorites: string[]): Promise<{ success: boolean; message: string; data: { synced: number; requested: number } }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/favorites/sync`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/favorites/sync`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
         body: JSON.stringify({ favorites })

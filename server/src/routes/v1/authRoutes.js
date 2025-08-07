@@ -133,6 +133,71 @@ router.post('/refresh-token',
 
 /**
  * @openapi
+ * /auth/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Solicitar recuperación de contraseña
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Email de recuperación enviado
+ */
+router.post('/forgot-password', authController.forgotPassword)
+
+/**
+ * @openapi
+ * /auth/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Restablecer contraseña
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, password]
+ *             properties:
+ *               token:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Contraseña restablecida
+ */
+router.post('/reset-password', authController.resetPassword)
+
+/**
+ * @openapi
+ * /auth/verify-email/{token}:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Verificar email con token
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Email verificado
+ */
+router.get('/verify-email/:token', authController.verifyEmail)
+
+/**
+ * @openapi
  * /auth/profile:
  *   get:
  *     tags: [Auth]
@@ -205,6 +270,40 @@ router.post('/change-password',
   validateChangePassword, 
   handleValidationErrors, 
   authController.changePassword
+)
+
+/**
+ * @openapi
+ * /auth/account:
+ *   delete:
+ *     tags: [Auth]
+ *     summary: Desactivar cuenta del usuario
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cuenta desactivada
+ */
+router.delete('/account', 
+  authenticateToken,
+  authController.deleteAccount
+)
+
+/**
+ * @openapi
+ * /auth/resend-verification:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Reenviar email de verificación
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Email de verificación reenviado
+ */
+router.post('/resend-verification', 
+  authenticateToken,
+  authController.resendVerificationEmail
 )
 
 module.exports = router

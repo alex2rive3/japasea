@@ -11,6 +11,7 @@
     "test:coverage": "jest --coverage --testEnvironment=node",
     "db:seed": "node scripts/seedDatabase.js seed",
     "db:clear": "node scripts/seedDatabase.js clear",
+    "db:stats": "node scripts/seedDatabase.js stats",
     "migrate:places": "node scripts/migratePlacesToMongoDB.js"
   },
   "keywords": [
@@ -32,7 +33,9 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.4",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",

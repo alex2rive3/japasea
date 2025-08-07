@@ -11,14 +11,14 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 const AUTH_ENDPOINTS = {
-  REGISTER: '/api/auth/register',
-  LOGIN: '/api/auth/login',
-  LOGOUT: '/api/auth/logout',
-  PROFILE: '/api/auth/profile',
-  UPDATE_PROFILE: '/api/auth/profile',
-  CHANGE_PASSWORD: '/api/auth/change-password',
-  REFRESH_TOKEN: '/api/auth/refresh-token',
-  DELETE_ACCOUNT: '/api/auth/account'
+  REGISTER: '/api/v1/auth/register',
+  LOGIN: '/api/v1/auth/login',
+  LOGOUT: '/api/v1/auth/logout',
+  PROFILE: '/api/v1/auth/profile',
+  UPDATE_PROFILE: '/api/v1/auth/profile',
+  CHANGE_PASSWORD: '/api/v1/auth/change-password',
+  REFRESH_TOKEN: '/api/v1/auth/refresh-token',
+  DELETE_ACCOUNT: '/api/v1/auth/account'
 }
 
 class AuthService {
@@ -242,7 +242,7 @@ class AuthService {
 
   async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -265,7 +265,7 @@ class AuthService {
 
   async resetPassword(token: string, password: string): Promise<LoginResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -288,7 +288,7 @@ class AuthService {
 
   async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/verify-email/${token}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify-email/${token}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -310,7 +310,7 @@ class AuthService {
 
   async resendVerificationEmail(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await this.api.post('/api/auth/resend-verification')
+      const response = await this.api.post('/api/v1/auth/resend-verification')
       
       if (!response.data.success) {
         throw new Error(response.data.message)

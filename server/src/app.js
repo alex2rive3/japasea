@@ -8,19 +8,14 @@ const config = require('./config/config')
 const connectDatabase = require('./config/database')
 const { extractVersion, apiVersionInfo } = require('./middleware/apiVersioning')
 const apiRoutesV1 = require('./routes/v1')
-const apiRoutesV2 = require('./routes/v2')
-const apiRoutes = require('./routes/apiRoutes')
-const authRoutes = require('./routes/authRoutes')
-const favoritesRoutes = require('./routes/favoritesRoutes')
 
 const app = express()
 
 // Swagger (documentación)
-let swaggerUi, swaggerSpecV1, swaggerSpecV2
+let swaggerUi, swaggerSpecV1
 try {
   swaggerUi = require('swagger-ui-express')
   swaggerSpecV1 = require('./docs/swagger.v1')
-  swaggerSpecV2 = require('./docs/swagger.v2')
 } catch (e) {
   // Ignorar si no está instalado en el entorno actual
 }
@@ -46,33 +41,36 @@ app.get('/api/versions', apiVersionInfo)
 
 // Rutas versionadas
 app.use('/api/v1', apiRoutesV1)
-app.use('/api/v2', apiRoutesV2)
 
-// Rutas legacy (sin versión explícita - redirigir a v1)
-app.use('/api/auth', authRoutes)
-app.use('/api/favorites', favoritesRoutes)
-app.use('/api', apiRoutes)
+// Redirigir rutas sin versión a v1
+app.use('/api/auth', (req, res, next) => {
+  req.url = `/v1/auth${req.url}`
+  next()
+}, apiRoutesV1)
+
+app.use('/api/places', (req, res, next) => {
+  req.url = `/v1/places${req.url}`
+  next()
+}, apiRoutesV1)
+
+app.use('/api/favorites', (req, res, next) => {
+  req.url = `/v1/favorites${req.url}`
+  next()
+}, apiRoutesV1)
+
+app.use('/api/chat', (req, res, next) => {
+  req.url = `/v1/chat${req.url}`
+  next()
+}, apiRoutesV1)
+
+app.use('/api/admin', (req, res, next) => {
+  req.url = `/v1/admin${req.url}`
+  next()
+}, apiRoutesV1)
 
 // Montar documentación Swagger
-if (swaggerUi && (swaggerSpecV1 || swaggerSpecV2)) {
-  const docsRouter = express.Router()
-  if (swaggerSpecV1) {
-    docsRouter.use('/v1', swaggerUi.serveFiles(swaggerSpecV1), swaggerUi.setup(swaggerSpecV1))
-  }
-  if (swaggerSpecV2) {
-    docsRouter.use('/v2', swaggerUi.serveFiles(swaggerSpecV2), swaggerUi.setup(swaggerSpecV2))
-  }
-  // Índice de documentación
-  docsRouter.get('/', (req, res) => {
-    res.json({
-      message: 'Documentación de la API',
-      versions: {
-        v1: '/api/docs/v1',
-        v2: '/api/docs/v2',
-      },
-    })
-  })
-  app.use('/api/docs', docsRouter)
+if (swaggerUi && swaggerSpecV1) {
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecV1))
 }
 
 app.get('/', (req, res) => {

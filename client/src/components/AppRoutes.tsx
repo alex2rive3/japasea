@@ -6,6 +6,7 @@ import { RegisterComponent } from './RegisterComponent'
 import { ProfileComponent } from './ProfileComponent'
 import { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute'
 import { MainContent } from './MainContent'
+import AdminPlacesComponent from './AdminPlacesComponent'
 
 interface AppRoutesProps {
   onSearch?: (query: string) => void
@@ -44,6 +45,13 @@ export function AppRoutes({ onSearch }: AppRoutesProps) {
         <Route path="/" element={
           <ProtectedRoute>
             <MainContent />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin */}
+        <Route path="/admin/places" element={
+          <ProtectedRoute requireAdmin>
+            <AdminPlacesComponent />
           </ProtectedRoute>
         } />
 

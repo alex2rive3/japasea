@@ -76,4 +76,97 @@ router.get('/search', PlacesController.searchPlaces)
  */
 router.get('/random', PlacesController.getRandomPlaces)
 
+/**
+ * @openapi
+ * /places/nearby:
+ *   get:
+ *     tags: [Places]
+ *     summary: Buscar lugares cercanos
+ *     parameters:
+ *       - in: query
+ *         name: lat
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Latitud
+ *       - in: query
+ *         name: lng
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Longitud
+ *       - in: query
+ *         name: radius
+ *         schema:
+ *           type: integer
+ *           default: 5000
+ *         description: Radio en metros
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Cantidad máxima de resultados
+ *     responses:
+ *       200:
+ *         description: Lugares cercanos encontrados
+ *       400:
+ *         description: Faltan parámetros de ubicación
+ */
+router.get('/nearby', async (req, res) => {
+  const { lat, lng, radius = 5000, limit = 10 } = req.query
+  
+  if (!lat || !lng) {
+    return res.status(400).json({
+      error: 'Ubicación requerida',
+      message: 'Debes proporcionar latitud (lat) y longitud (lng)'
+    })
+  }
+  
+  // TODO: Implementar búsqueda geoespacial real
+  res.json({
+    data: [],
+    metadata: {
+      center: { lat: parseFloat(lat), lng: parseFloat(lng) },
+      radius: parseInt(radius),
+      totalFound: 0
+    }
+  })
+})
+
+/**
+ * @openapi
+ * /places/trending:
+ *   get:
+ *     tags: [Places]
+ *     summary: Obtener lugares en tendencia
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month]
+ *           default: week
+ *         description: Período de tiempo
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Cantidad máxima de resultados
+ *     responses:
+ *       200:
+ *         description: Lista de lugares trending
+ */
+router.get('/trending', async (req, res) => {
+  const { period = 'week', limit = 10 } = req.query
+  
+  // TODO: Implementar lógica de trending real
+  res.json({
+    data: [],
+    period: period,
+    lastUpdated: new Date().toISOString()
+  })
+})
+
 module.exports = router

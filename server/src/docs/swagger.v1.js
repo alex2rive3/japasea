@@ -2,6 +2,7 @@
 // Usa swagger-jsdoc para generar el esquema desde anotaciones JSDoc
 
 let swaggerJSDoc
+const path = require('path')
 try {
   swaggerJSDoc = require('swagger-jsdoc')
 } catch (e) {
@@ -14,24 +15,24 @@ const options = {
   definition: {
     openapi: '3.0.3',
     info: {
-      title: 'Japasea API - v1',
+      title: 'Japasea API',
       version: '1.0.0',
       description:
-        'Documentación de la API v1 de Japasea. Incluye endpoints de autenticación, lugares, favoritos y chat.',
+        'API completa de Japasea para gestión de lugares turísticos en Encarnación, Paraguay. Incluye autenticación, lugares, favoritos, chat con IA y administración.',
       contact: {
         name: 'Japasea',
       },
     },
     servers: [
-      { url: 'http://localhost:3001/api/v1', description: 'Local v1' },
-      { url: 'http://localhost:3001/api', description: 'Legacy sin versión' },
+      { url: 'http://localhost:3001/api/v1', description: 'Servidor Local' },
+      { url: 'https://api.japasea.com/v1', description: 'Producción' }
     ],
     tags: [
       { name: 'Auth', description: 'Autenticación y usuario' },
       { name: 'Places', description: 'Lugares' },
       { name: 'Favorites', description: 'Favoritos' },
       { name: 'Chat', description: 'Chat e historial' },
-      { name: 'Legacy', description: 'Rutas legacy sin versión (redirigen a v1)' },
+      { name: 'Admin', description: 'Administración (requiere rol admin)' },
     ],
     components: {
       securitySchemes: {
@@ -82,24 +83,52 @@ const options = {
             id: { type: 'string' },
             name: { type: 'string' },
             description: { type: 'string' },
-            type: { type: 'string' },
+            type: { type: 'string', enum: ['Alojamiento', 'Gastronomía', 'Turístico', 'Compras', 'Entretenimiento', 'Desayunos y meriendas', 'Comida'] },
             address: { type: 'string' },
             location: {
               type: 'object',
               properties: {
                 lat: { type: 'number' },
                 lng: { type: 'number' },
+                coordinates: { type: 'array', items: { type: 'number' } }
               },
             },
+            status: { type: 'string', enum: ['active', 'inactive', 'pending', 'seasonal'] },
+            metadata: {
+              type: 'object',
+              properties: {
+                verified: { type: 'boolean' },
+                featured: { type: 'boolean' },
+                views: { type: 'integer' },
+                likes: { type: 'integer' }
+              }
+            }
           },
+        },
+        AdminPlaceInput: {
+          type: 'object',
+          required: ['key', 'name', 'description', 'type', 'address', 'lat', 'lng'],
+          properties: {
+            key: { type: 'string' },
+            name: { type: 'string' },
+            description: { type: 'string' },
+            type: { type: 'string', enum: ['Alojamiento', 'Gastronomía', 'Turístico', 'Compras', 'Entretenimiento', 'Desayunos y meriendas', 'Comida'] },
+            address: { type: 'string' },
+            lat: { type: 'number' },
+            lng: { type: 'number' },
+            status: { type: 'string', enum: ['active', 'inactive', 'pending', 'seasonal'] }
+          }
         },
       },
     },
   },
   // Archivos a escanear para anotaciones
   apis: [
-    'src/routes/v1/**/*.js',
-    'src/routes/*.js', // legacy
+    path.join(__dirname, '../routes/v1/authRoutes.js'),
+    path.join(__dirname, '../routes/v1/placesRoutes.js'),
+    path.join(__dirname, '../routes/v1/favoritesRoutes.js'),
+    path.join(__dirname, '../routes/v1/chatRoutes.js'),
+    path.join(__dirname, '../routes/v1/adminRoutes.js')
   ],
 }
 

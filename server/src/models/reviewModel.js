@@ -189,7 +189,7 @@ reviewSchema.statics.getPlaceStats = async function(placeId) {
   const stats = await this.aggregate([
     { 
       $match: { 
-        place: mongoose.Types.ObjectId(placeId),
+        place: new mongoose.Types.ObjectId(placeId),
         status: 'approved'
       }
     },
@@ -273,7 +273,7 @@ reviewSchema.statics.getUserStats = async function(userId) {
   const stats = await this.aggregate([
     { 
       $match: { 
-        user: mongoose.Types.ObjectId(userId),
+        user: new mongoose.Types.ObjectId(userId),
         status: 'approved'
       }
     },
@@ -298,7 +298,7 @@ reviewSchema.statics.getUserStats = async function(userId) {
 
 // Métodos de instancia
 reviewSchema.methods.toggleHelpful = async function(userId) {
-  const userObjectId = mongoose.Types.ObjectId(userId)
+  const userObjectId = new mongoose.Types.ObjectId(userId)
   const index = this.helpful.users.findIndex(id => id.equals(userObjectId))
   
   if (index === -1) {
