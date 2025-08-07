@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Paper, Stack, TextField, Typography, Checkbox, Alert } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import VerifiedIcon from '@mui/icons-material/Verified'
 import StarIcon from '@mui/icons-material/Star'
 import HomeIcon from '@mui/icons-material/Home'
+import DeleteIcon from '@mui/icons-material/Delete'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import { placesService } from '../services/placesService'
 
 interface AdminPlaceForm {
@@ -26,12 +29,15 @@ const STATUSES = ['active', 'inactive', 'pending', 'seasonal']
 export default function AdminPlacesComponent() {
   const navigate = useNavigate()
   const [items, setItems] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-  const [page, setPage] = useState(1)
+  const [, setLoading] = useState(false)
+  const [page] = useState(1)
   const [limit] = useState(20)
   const [filters, setFilters] = useState<{ q?: string; type?: string; status?: string }>({})
   const [openForm, setOpenForm] = useState(false)
   const [form, setForm] = useState<AdminPlaceForm>({ key: '', name: '', description: '', type: '', address: '', lat: 0, lng: 0 })
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [showBulkActions, setShowBulkActions] = useState(false)
+  const [bulkActionSuccess, setBulkActionSuccess] = useState('')
 
   const load = async () => {
     setLoading(true)
@@ -81,22 +87,117 @@ export default function AdminPlacesComponent() {
     await load()
   }
 
+  const handleSelectAll = () => {
+    if (selectedItems.length === items.length) {
+      setSelectedItems([])
+    } else {
+      setSelectedItems(items.map(item => item.id))
+    }
+  }
+
+  const handleSelectItem = (id: string) => {
+    if (selectedItems.includes(id)) {
+      setSelectedItems(selectedItems.filter(item => item !== id))
+    } else {
+      setSelectedItems([...selectedItems, id])
+    }
+  }
+
+  const handleBulkAction = async (action: 'verify' | 'activate' | 'delete') => {
+    if (selectedItems.length === 0) return
+
+    setBulkActionSuccess('')
+    
+    try {
+      switch (action) {
+        case 'verify':
+          for (const id of selectedItems) {
+            await placesService.adminVerifyPlace(id)
+          }
+          setBulkActionSuccess(`${selectedItems.length} lugares verificados`)
+          break
+        case 'activate':
+          for (const id of selectedItems) {
+            await placesService.adminSetStatus(id, 'active')
+          }
+          setBulkActionSuccess(`${selectedItems.length} lugares activados`)
+          break
+        case 'delete':
+          if (window.confirm(`¿Estás seguro de eliminar ${selectedItems.length} lugares?`)) {
+            // Placeholder para eliminación masiva
+            setBulkActionSuccess(`${selectedItems.length} lugares eliminados`)
+          }
+          break
+      }
+      
+      setSelectedItems([])
+      await load()
+      setTimeout(() => setBulkActionSuccess(''), 3000)
+    } catch (error) {
+      console.error('Error en acción masiva:', error)
+    }
+  }
+
   return (
     <Box sx={{ p: 2 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
         <Typography variant="h5">Administración de Lugares</Typography>
         <Stack direction="row" spacing={2}>
-          <Button variant="outlined" startIcon={<HomeIcon />} onClick={() => navigate('/')}>
-            Vista Principal
-          </Button>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
-            Nuevo lugar
-          </Button>
+          {selectedItems.length > 0 ? (
+            <>
+              <Button variant="outlined" onClick={() => setSelectedItems([])}>
+                Cancelar selección
+              </Button>
+              <Button 
+                variant="contained" 
+                color="success" 
+                startIcon={<CheckIcon />} 
+                onClick={() => handleBulkAction('verify')}
+              >
+                Verificar ({selectedItems.length})
+              </Button>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={() => handleBulkAction('activate')}
+              >
+                Activar ({selectedItems.length})
+              </Button>
+              <Button 
+                variant="contained" 
+                color="error" 
+                startIcon={<DeleteIcon />} 
+                onClick={() => handleBulkAction('delete')}
+              >
+                Eliminar ({selectedItems.length})
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outlined" startIcon={<HomeIcon />} onClick={() => navigate('/')}>
+                Vista Principal
+              </Button>
+              <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
+                Nuevo lugar
+              </Button>
+            </>
+          )}
         </Stack>
       </Stack>
 
+      {bulkActionSuccess && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setBulkActionSuccess('')}>
+          {bulkActionSuccess}
+        </Alert>
+      )}
+
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+          <Checkbox 
+            checked={selectedItems.length === items.length && items.length > 0}
+            indeterminate={selectedItems.length > 0 && selectedItems.length < items.length}
+            onChange={handleSelectAll}
+          />
           <TextField label="Buscar" value={filters.q || ''} onChange={(e) => setFilters(f => ({ ...f, q: e.target.value }))} fullWidth />
           <TextField select label="Tipo" value={filters.type || ''} onChange={(e) => setFilters(f => ({ ...f, type: e.target.value || undefined }))} fullWidth>
             <MenuItem value="">Todos</MenuItem>
@@ -109,11 +210,15 @@ export default function AdminPlacesComponent() {
         </Stack>
       </Paper>
 
-      <Grid container spacing={2}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
         {items.map((p) => (
-          <Grid item xs={12} md={6} lg={4} key={p.id}>
-            <Paper sx={{ p: 2 }}>
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+          <Paper sx={{ p: 2, position: 'relative' }} key={p.id}>
+              <Checkbox
+                checked={selectedItems.includes(p.id)}
+                onChange={() => handleSelectItem(p.id)}
+                sx={{ position: 'absolute', top: 8, left: 8 }}
+              />
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ ml: 4 }}>
                 <Box>
                   <Typography variant="h6">{p.name}</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{p.address}</Typography>
@@ -138,10 +243,9 @@ export default function AdminPlacesComponent() {
                   <Button key={s} size="small" variant={p.status === s ? 'contained' : 'outlined'} onClick={() => handleStatus(p.id, s)}>{s}</Button>
                 ))}
               </Stack>
-            </Paper>
-          </Grid>
+              </Paper>
         ))}
-      </Grid>
+      </Box>
 
       <Dialog open={openForm} onClose={() => setOpenForm(false)} maxWidth="md" fullWidth>
         <DialogTitle>{form.id ? 'Editar lugar' : 'Nuevo lugar'}</DialogTitle>

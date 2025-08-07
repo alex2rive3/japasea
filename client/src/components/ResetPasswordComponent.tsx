@@ -94,11 +94,10 @@ export const ResetPasswordComponent: React.FC = () => {
       const response = await authService.resetPassword(token, formData.password)
       
       // Login automático después de resetear la contraseña
-      if (response.token && response.refreshToken && response.user) {
+      if (response.data?.accessToken && response.data?.user) {
         await login({
-          token: response.token,
-          refreshToken: response.refreshToken,
-          user: response.user
+          email: response.data.user.email,
+          password: formData.password
         })
       }
       

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Controller } from 'react-hook-form'
 import {
@@ -30,10 +30,22 @@ interface LoginFormData {
 
 export function LoginComponent() {
   const navigate = useNavigate()
-  const { login, isLoading } = useAuth()
+  const { login, isLoading, user, isAuthenticated } = useAuth()
   
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+
+  // Si el usuario ya está autenticado, redirigir según su rol
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('LoginComponent - Usuario ya autenticado, redirigiendo...') // Debug
+      if (user.role === 'admin') {
+        navigate('/admin/places', { replace: true })
+      } else {
+        navigate('/', { replace: true })
+      }
+    }
+  }, [isAuthenticated, user, navigate])
 
   const {
     control,
@@ -57,12 +69,14 @@ export function LoginComponent() {
       setError('')
       const user = await login(loginData)
       
-      // Redirigir según el rol del usuario
-      if (user.role === 'admin') {
-        navigate('/admin/places', { replace: true })
-      } else {
-        navigate('/', { replace: true })
-      }
+      console.log('Usuario logueado:', user) // Debug
+      console.log('Rol del usuario:', user.role) // Debug
+      
+      // Definir ruta preferida según rol y navegar inmediatamente
+      const preferredPath = user.role === 'admin' ? '/admin' : '/'
+      sessionStorage.setItem('preferredPathAfterLogin', preferredPath)
+      navigate(preferredPath, { replace: true })
+      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
       setError(errorMessage)
@@ -178,10 +192,9 @@ export function LoginComponent() {
             />
 
             <Box sx={{ textAlign: 'right', mb: 2 }}>
-              <Link
-                component="button"
-                type="button"
-                variant="body2"
+              <Button
+                variant="text"
+                size="small"
                 onClick={() => navigate('/forgot-password')}
                 sx={{ 
                   color: 'primary.main',
@@ -190,7 +203,7 @@ export function LoginComponent() {
                 }}
               >
                 ¿Olvidaste tu contraseña?
-              </Link>
+              </Button>
             </Box>
 
             <Button

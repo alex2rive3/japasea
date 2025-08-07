@@ -263,7 +263,7 @@ class AuthService {
     }
   }
 
-  async resetPassword(token: string, password: string): Promise<LoginResponse> {
+  async resetPassword(token: string, password: string): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/reset-password`, {
         method: 'POST',

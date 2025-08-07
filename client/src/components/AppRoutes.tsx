@@ -5,9 +5,12 @@ import LoginComponent from './LoginComponent'
 import { RegisterComponent } from './RegisterComponent'
 import { ProfileComponent } from './ProfileComponent'
 import { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute'
-import { MainContent } from './MainContent'
+// import { MainContent } from './MainContent'
 import AdminPlacesComponent from './AdminPlacesComponent'
-import { useAuth } from '../hooks/useAuth'
+import AdminLayout from './admin/AdminLayout'
+import AdminDashboard from './admin/AdminDashboard'
+import AdminStats from './admin/AdminStats'
+// import { useAuth } from '../hooks/useAuth'
 import { HomeRedirect } from './HomeRedirect'
 
 interface AppRoutesProps {
@@ -51,9 +54,25 @@ export function AppRoutes({ onSearch }: AppRoutesProps) {
         } />
 
         {/* Admin */}
+        <Route path="/admin" element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminDashboard />
+            </AdminLayout>
+          </ProtectedRoute>
+        } />
         <Route path="/admin/places" element={
           <ProtectedRoute requireAdmin>
-            <AdminPlacesComponent />
+            <AdminLayout>
+              <AdminPlacesComponent />
+            </AdminLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/stats" element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminStats />
+            </AdminLayout>
           </ProtectedRoute>
         } />
 

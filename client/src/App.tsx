@@ -11,6 +11,14 @@ import { ResetPasswordComponent } from './components/ResetPasswordComponent'
 import { VerifyEmailComponent } from './components/VerifyEmailComponent'
 import { FavoritesComponent } from './components/FavoritesComponent'
 import { Layout } from './components/Layout'
+import AdminPlacesComponent from './components/AdminPlacesComponent'
+import AdminLayout from './components/admin/AdminLayout'
+import AdminDashboard from './components/admin/AdminDashboard'
+import AdminStats from './components/admin/AdminStats'
+import AdminUsers from './components/admin/AdminUsers'
+import AdminReviews from './components/admin/AdminReviews'
+import AdminAudit from './components/admin/AdminAudit'
+import AdminSettings from './components/admin/AdminSettings'
 
 // Componente interno para manejar la navegación
 function AppContent() {
@@ -51,6 +59,78 @@ function AppContent() {
             <Layout>
               <FavoritesComponent />
             </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin routes */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminDashboard />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/places"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminPlacesComponent />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/stats"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminStats />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminUsers />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/reviews"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminReviews />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/audit"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminAudit />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminSettings />
+            </AdminLayout>
           </ProtectedRoute>
         }
       />
