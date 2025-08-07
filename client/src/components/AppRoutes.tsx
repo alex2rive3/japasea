@@ -7,6 +7,8 @@ import { ProfileComponent } from './ProfileComponent'
 import { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute'
 import { MainContent } from './MainContent'
 import AdminPlacesComponent from './AdminPlacesComponent'
+import { useAuth } from '../hooks/useAuth'
+import { HomeRedirect } from './HomeRedirect'
 
 interface AppRoutesProps {
   onSearch?: (query: string) => void
@@ -44,7 +46,7 @@ export function AppRoutes({ onSearch }: AppRoutesProps) {
         {/* Ruta principal */}
         <Route path="/" element={
           <ProtectedRoute>
-            <MainContent />
+            <HomeRedirect />
           </ProtectedRoute>
         } />
 

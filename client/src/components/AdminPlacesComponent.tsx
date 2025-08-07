@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import VerifiedIcon from '@mui/icons-material/Verified'
 import StarIcon from '@mui/icons-material/Star'
+import HomeIcon from '@mui/icons-material/Home'
 import { placesService } from '../services/placesService'
 
 interface AdminPlaceForm {
@@ -22,6 +24,7 @@ const PLACE_TYPES = ['Alojamiento', 'Gastronomía', 'Turístico', 'Compras', 'En
 const STATUSES = ['active', 'inactive', 'pending', 'seasonal']
 
 export default function AdminPlacesComponent() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
@@ -82,7 +85,14 @@ export default function AdminPlacesComponent() {
     <Box sx={{ p: 2 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
         <Typography variant="h5">Administración de Lugares</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>Nuevo lugar</Button>
+        <Stack direction="row" spacing={2}>
+          <Button variant="outlined" startIcon={<HomeIcon />} onClick={() => navigate('/')}>
+            Vista Principal
+          </Button>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
+            Nuevo lugar
+          </Button>
+        </Stack>
       </Stack>
 
       <Paper sx={{ p: 2, mb: 2 }}>

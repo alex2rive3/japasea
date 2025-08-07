@@ -239,6 +239,15 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
                   <ListItemText>Mi Perfil</ListItemText>
                 </MenuItem>
                 
+                {user.role === 'admin' && (
+                  <MenuItem onClick={() => { navigate('/admin/places'); handleMenuClose(); }}>
+                    <ListItemIcon>
+                      <AdminIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Panel de Administración</ListItemText>
+                  </MenuItem>
+                )}
+                
                 <MenuItem onClick={handleMenuClose}>
                   <ListItemIcon>
                     <SettingsIcon fontSize="small" />

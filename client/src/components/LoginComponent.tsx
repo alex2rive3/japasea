@@ -55,8 +55,14 @@ export function LoginComponent() {
     
     try {
       setError('')
-      await login(loginData)
-      navigate('/', { replace: true })
+      const user = await login(loginData)
+      
+      // Redirigir según el rol del usuario
+      if (user.role === 'admin') {
+        navigate('/admin/places', { replace: true })
+      } else {
+        navigate('/', { replace: true })
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
       setError(errorMessage)
