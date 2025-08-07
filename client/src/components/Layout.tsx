@@ -14,37 +14,23 @@ import {
   Button,
   Badge,
   Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
-  Chip,
-  TextField,
-  Alert,
-  CircularProgress,
+  Menu,
+  MenuItem,
+  Divider,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
   Home as HomeIcon,
-  Explore as ExploreIcon,
   FavoriteBorder as WishlistIcon,
-  CardTravel as TripsIcon,
-  Inbox as InboxIcon,
   Add as AddIcon,
   Search as SearchIcon,
   Notifications as NotificationsIcon,
   Person as PersonIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  Lock as LockIcon,
-  Save as SaveIcon,
-  Close as CloseIcon,
   AccountCircle as AccountCircleIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
 import { useAuth } from '../hooks/useAuth'
-import type { UpdateProfileData } from '../types/auth'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -61,18 +47,11 @@ export const Layout = ({
 }: LayoutProps) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, updateProfile, logout } = useAuth()
+  const { user, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(true) // Desktop sidebar state
   const [searchQuery, setSearchQuery] = useState('')
-  const [profileModalOpen, setProfileModalOpen] = useState(false)
-  const [profileData, setProfileData] = useState<UpdateProfileData>({
-    name: user?.name || '',
-    phone: user?.phone || ''
-  })
-  const [isUpdating, setIsUpdating] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null)
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -90,57 +69,26 @@ export const Layout = ({
     }
   }
 
-  const handleProfileModalOpen = () => {
-    setProfileModalOpen(true)
-    setProfileData({
-      name: user?.name || '',
-      phone: user?.phone || ''
-    })
-    setMessage('')
-    setError('')
-  }
-
-  const handleProfileModalClose = () => {
-    setProfileModalOpen(false)
-  }
-
-  const handleProfileChange = (field: keyof UpdateProfileData) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setProfileData(prev => ({
-      ...prev,
-      [field]: event.target.value
-    }))
-    if (message || error) {
-      setMessage('')
-      setError('')
-    }
-  }
-
-  const handleUpdateProfile = async () => {
-    if (!profileData.name?.trim()) {
-      setError('El nombre es requerido')
-      return
-    }
-
-    try {
-      setIsUpdating(true)
-      setError('')
-      await updateProfile(profileData)
-      setMessage('Perfil actualizado exitosamente')
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error actualizando perfil'
-      setError(errorMessage)
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
   const handleLogout = async () => {
     try {
       await logout()
-      setProfileModalOpen(false)
+      setAvatarMenuAnchor(null)
     } catch (error) {
       console.error('Error durante logout:', error)
     }
+  }
+
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAvatarMenuAnchor(event.currentTarget)
+  }
+
+  const handleAvatarMenuClose = () => {
+    setAvatarMenuAnchor(null)
+  }
+
+  const handleViewProfile = () => {
+    navigate('/profile')
+    setAvatarMenuAnchor(null)
   }
 
   const handleSearchSubmit = (event: React.FormEvent) => {
@@ -152,10 +100,7 @@ export const Layout = ({
 
   const menuItems = [
     { text: 'Inicio', icon: <HomeIcon />, path: '/' },
-    { text: 'Explorar', icon: <ExploreIcon />, path: '/explore' },
     { text: 'Favoritos', icon: <WishlistIcon />, path: '/favorites' },
-    { text: 'Viajes', icon: <TripsIcon />, path: '/trips' },
-    { text: 'Mensajes', icon: <InboxIcon />, path: '/messages' },
     { text: 'Mi Perfil', icon: <AccountCircleIcon />, path: '/profile' },
   ]
 
@@ -204,12 +149,13 @@ export const Layout = ({
         </List>
       </Box>
 
-      {/* Create Plan Button */}
+      {/* Quick Actions */}
       <Box sx={{ p: 2 }}>
         <Button
           variant="contained"
           fullWidth
           startIcon={<AddIcon />}
+          onClick={() => navigate('/favorites')}
           sx={{
             borderRadius: 2,
             py: 1.5,
@@ -218,7 +164,7 @@ export const Layout = ({
             fontSize: '0.95rem'
           }}
         >
-          Crear Plan
+          Ver Favoritos
         </Button>
       </Box>
     </Box>
@@ -352,7 +298,7 @@ export const Layout = ({
 
             {/* Profile Avatar */}
             <IconButton
-              onClick={() => navigate('/profile')}
+              onClick={handleAvatarClick}
               sx={{ p: 0.5, ml: 1 }}
             >
               <Avatar 
@@ -370,6 +316,57 @@ export const Layout = ({
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </Avatar>
             </IconButton>
+
+            {/* Avatar Menu */}
+            <Menu
+              anchorEl={avatarMenuAnchor}
+              open={Boolean(avatarMenuAnchor)}
+              onClose={handleAvatarMenuClose}
+              onClick={handleAvatarMenuClose}
+              PaperProps={{
+                elevation: 3,
+                sx: {
+                  overflow: 'visible',
+                  filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                  mt: 1.5,
+                  minWidth: 180,
+                  '& .MuiAvatar-root': {
+                    width: 32,
+                    height: 32,
+                    ml: -0.5,
+                    mr: 1,
+                  },
+                  '&:before': {
+                    content: '""',
+                    display: 'block',
+                    position: 'absolute',
+                    top: 0,
+                    right: 14,
+                    width: 10,
+                    height: 10,
+                    bgcolor: 'background.paper',
+                    transform: 'translateY(-50%) rotate(45deg)',
+                    zIndex: 0,
+                  },
+                },
+              }}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem onClick={handleViewProfile}>
+                <ListItemIcon>
+                  <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                Ver Perfil
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" />
+                </ListItemIcon>
+                Cerrar Sesión
+              </MenuItem>
+            </Menu>
           </Box>
         </Toolbar>
       </AppBar>
@@ -447,119 +444,6 @@ export const Layout = ({
       >
         {children}
       </Box>
-      
-      {/* Profile Modal */}
-      <Dialog 
-        open={profileModalOpen} 
-        onClose={handleProfileModalClose}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar
-              sx={{
-                width: 60,
-                height: 60,
-                bgcolor: 'primary.main',
-                fontSize: '1.5rem',
-                fontWeight: 'bold'
-              }}
-            >
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-            </Avatar>
-            <Box>
-              <Typography variant="h6">Mi Perfil</Typography>
-              <Chip
-                label={user?.role === 'admin' ? 'Administrador' : 'Usuario'}
-                color={user?.role === 'admin' ? 'secondary' : 'primary'}
-                size="small"
-              />
-            </Box>
-          </Box>
-        </DialogTitle>
-        
-        <DialogContent>
-          {(message || error) && (
-            <Alert 
-              severity={message ? 'success' : 'error'} 
-              sx={{ mb: 2 }}
-              onClose={() => {
-                setMessage('')
-                setError('')
-              }}
-            >
-              {message || error}
-            </Alert>
-          )}
-          
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
-            <TextField
-              fullWidth
-              label="Nombre completo"
-              value={profileData.name}
-              onChange={handleProfileChange('name')}
-              disabled={isUpdating}
-              InputProps={{
-                startAdornment: <PersonIcon sx={{ mr: 1, color: 'text.secondary' }} />
-              }}
-            />
-
-            <TextField
-              fullWidth
-              label="Email"
-              value={user?.email}
-              disabled
-              InputProps={{
-                startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary' }} />
-              }}
-              helperText="El email no se puede cambiar"
-            />
-
-            <TextField
-              fullWidth
-              label="Teléfono (opcional)"
-              value={profileData.phone}
-              onChange={handleProfileChange('phone')}
-              disabled={isUpdating}
-              placeholder="+595 987 654 321"
-              InputProps={{
-                startAdornment: <PhoneIcon sx={{ mr: 1, color: 'text.secondary' }} />
-              }}
-            />
-
-            {user?.createdAt && (
-              <Typography variant="body2" color="text.secondary">
-                Miembro desde: {new Date(user.createdAt).toLocaleDateString('es-ES')}
-              </Typography>
-            )}
-          </Box>
-        </DialogContent>
-        
-        <DialogActions>
-          <Button 
-            onClick={handleLogout}
-            color="error"
-            startIcon={<LockIcon />}
-          >
-            Cerrar Sesión
-          </Button>
-          <Button 
-            onClick={handleProfileModalClose}
-            startIcon={<CloseIcon />}
-          >
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleUpdateProfile}
-            variant="contained"
-            disabled={isUpdating}
-            startIcon={isUpdating ? <CircularProgress size={20} /> : <SaveIcon />}
-          >
-            {isUpdating ? 'Guardando...' : 'Guardar'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   )
 }

@@ -116,10 +116,10 @@ export const FavoritesComponent = () => {
               No tienes favoritos aún
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Explora lugares y marca los que más te gusten como favoritos
+              Descubre lugares desde el chat y marca los que más te gusten como favoritos
             </Typography>
-            <Button variant="contained" href="/explore">
-              Explorar Lugares
+            <Button variant="contained" href="/">
+              Ir al Inicio
             </Button>
           </CardContent>
         </Card>

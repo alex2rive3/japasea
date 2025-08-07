@@ -118,7 +118,9 @@ export const profileStyles = {
   container: {
     display: 'flex',
     justifyContent: 'center',
-    p: 4
+    p: 4,
+    overflow: 'auto',
+    maxHeight: 'calc(100vh - 64px)' // Altura total menos la navbar
   },
   paper: {
     maxWidth: 600,

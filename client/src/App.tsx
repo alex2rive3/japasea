@@ -9,10 +9,7 @@ import { HomeComponent } from './components/HomeComponent'
 import { ForgotPasswordComponent } from './components/ForgotPasswordComponent'
 import { ResetPasswordComponent } from './components/ResetPasswordComponent'
 import { VerifyEmailComponent } from './components/VerifyEmailComponent'
-import { ExploreComponent } from './components/ExploreComponent'
 import { FavoritesComponent } from './components/FavoritesComponent'
-import { TripsComponent } from './components/TripsComponent'
-import { MessagesComponent } from './components/MessagesComponent'
 import { Layout } from './components/Layout'
 
 // Componente interno para manejar la navegación
@@ -48,41 +45,11 @@ function AppContent() {
         }
       />
       <Route
-        path="/explore"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <ExploreComponent />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/favorites"
         element={
           <ProtectedRoute>
             <Layout>
               <FavoritesComponent />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/trips"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <TripsComponent />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/messages"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <MessagesComponent />
             </Layout>
           </ProtectedRoute>
         }
