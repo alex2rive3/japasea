@@ -18,19 +18,17 @@ import {
   Button,
   TextField,
   MenuItem,
-  Chip,
-  Divider,
+
   Alert
 } from '@mui/material'
 import {
   Notifications as NotificationIcon,
-  NotificationsOff as NotificationOffIcon,
   Send as SendIcon,
   Delete as DeleteIcon,
   CheckCircle as ReadIcon,
   Info as InfoIcon,
   Warning as WarningIcon,
-  Campaign as CampaignIcon
+  CheckCircle
 } from '@mui/icons-material'
 import { adminService } from '../../services/adminService'
 

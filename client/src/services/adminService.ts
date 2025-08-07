@@ -1,6 +1,4 @@
-import axios from 'axios'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+import api from './apiConfig'
 
 interface AdminStats {
   totalUsers: number
@@ -34,31 +32,11 @@ interface UserManagement {
 }
 
 class AdminService {
-  private api = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  constructor() {
-    // Interceptor para agregar token
-    this.api.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('accessToken')
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-      },
-      (error) => Promise.reject(error)
-    )
-  }
 
   // === ESTADÍSTICAS ===
   async getAdminStats(): Promise<AdminStats> {
     try {
-      const response = await this.api.get('/api/v1/admin/stats')
+      const response = await api.get('/api/v1/admin/stats')
       return response.data.data
     } catch (error) {
       console.error('Error obteniendo estadísticas:', error)
@@ -72,7 +50,7 @@ class AdminService {
         startDate: timeRange.start.toISOString(),
         endDate: timeRange.end.toISOString()
       } : {}
-      const response = await this.api.get('/api/v1/admin/stats/places', { params })
+      const response = await api.get('/api/v1/admin/stats/places', { params })
       return response.data.data
     } catch (error) {
       console.error('Error obteniendo estadísticas de lugares:', error)
@@ -89,7 +67,7 @@ class AdminService {
     status?: string 
   }) {
     try {
-      const response = await this.api.get('/api/v1/admin/users', { params })
+      const response = await api.get('/api/v1/admin/users', { params })
       return response.data
     } catch (error) {
       console.error('Error obteniendo usuarios:', error)
@@ -99,7 +77,7 @@ class AdminService {
 
   async getUserById(userId: string): Promise<UserManagement> {
     try {
-      const response = await this.api.get(`/api/v1/admin/users/${userId}`)
+      const response = await api.get(`/api/v1/admin/users/${userId}`)
       return response.data.data
     } catch (error) {
       console.error('Error obteniendo usuario:', error)
@@ -109,7 +87,7 @@ class AdminService {
 
   async updateUserRole(userId: string, role: 'user' | 'admin') {
     try {
-      const response = await this.api.patch(`/api/v1/admin/users/${userId}/role`, { role })
+      const response = await api.patch(`/api/v1/admin/users/${userId}/role`, { role })
       return response.data
     } catch (error) {
       console.error('Error actualizando rol de usuario:', error)
@@ -119,7 +97,7 @@ class AdminService {
 
   async suspendUser(userId: string, reason?: string) {
     try {
-      const response = await this.api.patch(`/api/v1/admin/users/${userId}/suspend`, { reason })
+      const response = await api.patch(`/api/v1/admin/users/${userId}/suspend`, { reason })
       return response.data
     } catch (error) {
       console.error('Error suspendiendo usuario:', error)
@@ -129,7 +107,7 @@ class AdminService {
 
   async activateUser(userId: string) {
     try {
-      const response = await this.api.patch(`/api/v1/admin/users/${userId}/activate`)
+      const response = await api.patch(`/api/v1/admin/users/${userId}/activate`)
       return response.data
     } catch (error) {
       console.error('Error activando usuario:', error)
@@ -139,7 +117,7 @@ class AdminService {
 
   async deleteUser(userId: string) {
     try {
-      const response = await this.api.delete(`/api/v1/admin/users/${userId}`)
+      const response = await api.delete(`/api/v1/admin/users/${userId}`)
       return response.data
     } catch (error) {
       console.error('Error eliminando usuario:', error)
@@ -156,7 +134,7 @@ class AdminService {
     status?: 'pending' | 'approved' | 'rejected'
   }) {
     try {
-      const response = await this.api.get('/api/v1/admin/reviews', { params })
+      const response = await api.get('/api/v1/admin/reviews', { params })
       return response.data
     } catch (error) {
       console.error('Error obteniendo reviews:', error)
@@ -166,7 +144,7 @@ class AdminService {
 
   async approveReview(reviewId: string) {
     try {
-      const response = await this.api.patch(`/api/v1/admin/reviews/${reviewId}/approve`)
+      const response = await api.patch(`/api/v1/admin/reviews/${reviewId}/approve`)
       return response.data
     } catch (error) {
       console.error('Error aprobando review:', error)
@@ -176,7 +154,7 @@ class AdminService {
 
   async rejectReview(reviewId: string, reason?: string) {
     try {
-      const response = await this.api.patch(`/api/v1/admin/reviews/${reviewId}/reject`, { reason })
+      const response = await api.patch(`/api/v1/admin/reviews/${reviewId}/reject`, { reason })
       return response.data
     } catch (error) {
       console.error('Error rechazando review:', error)
@@ -186,7 +164,7 @@ class AdminService {
 
   async deleteReview(reviewId: string) {
     try {
-      const response = await this.api.delete(`/api/v1/admin/reviews/${reviewId}`)
+      const response = await api.delete(`/api/v1/admin/reviews/${reviewId}`)
       return response.data
     } catch (error) {
       console.error('Error eliminando review:', error)
@@ -205,7 +183,7 @@ class AdminService {
     endDate?: string
   }) {
     try {
-      const response = await this.api.get('/api/v1/admin/audit/logs', { params })
+      const response = await api.get('/api/v1/admin/audit/logs', { params })
       return response.data
     } catch (error) {
       console.error('Error obteniendo logs de auditoría:', error)
@@ -215,7 +193,7 @@ class AdminService {
 
   async exportActivityLogs(format: 'csv' | 'json', filters?: any) {
     try {
-      const response = await this.api.post('/api/v1/admin/audit/export', {
+      const response = await api.post('/api/v1/admin/audit/export', {
         format,
         filters
       }, {
@@ -231,7 +209,7 @@ class AdminService {
   // === CONFIGURACIÓN ===
   async getSystemSettings() {
     try {
-      const response = await this.api.get('/api/v1/admin/settings')
+      const response = await api.get('/api/v1/admin/settings')
       return response.data.data
     } catch (error) {
       console.error('Error obteniendo configuración:', error)
@@ -241,7 +219,7 @@ class AdminService {
 
   async updateSystemSettings(settings: any) {
     try {
-      const response = await this.api.put('/api/v1/admin/settings', settings)
+      const response = await api.put('/api/v1/admin/settings', settings)
       return response.data
     } catch (error) {
       console.error('Error actualizando configuración:', error)
@@ -257,7 +235,7 @@ class AdminService {
     type: 'info' | 'warning' | 'promotion'
   }) {
     try {
-      const response = await this.api.post('/api/v1/admin/notifications/bulk', params)
+      const response = await api.post('/api/v1/admin/notifications/bulk', params)
       return response.data
     } catch (error) {
       console.error('Error enviando notificación masiva:', error)

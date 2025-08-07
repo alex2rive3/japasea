@@ -8,7 +8,7 @@ import StarIcon from '@mui/icons-material/Star'
 import HomeIcon from '@mui/icons-material/Home'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
-import CloseIcon from '@mui/icons-material/Close'
+
 import { placesService } from '../services/placesService'
 
 interface AdminPlaceForm {
@@ -36,7 +36,7 @@ export default function AdminPlacesComponent() {
   const [openForm, setOpenForm] = useState(false)
   const [form, setForm] = useState<AdminPlaceForm>({ key: '', name: '', description: '', type: '', address: '', lat: 0, lng: 0 })
   const [selectedItems, setSelectedItems] = useState<string[]>([])
-  const [showBulkActions, setShowBulkActions] = useState(false)
+
   const [bulkActionSuccess, setBulkActionSuccess] = useState('')
 
   const load = async () => {

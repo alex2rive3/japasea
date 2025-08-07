@@ -8,6 +8,7 @@ const config = require('./config/config')
 const connectDatabase = require('./config/database')
 const { extractVersion, apiVersionInfo } = require('./middleware/apiVersioning')
 const apiRoutesV1 = require('./routes/v1')
+const { auditMiddleware, auditErrorMiddleware } = require('./middleware/auditMiddleware')
 
 const app = express()
 
@@ -32,6 +33,9 @@ app.use(morgan('combined'))
 
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
+
+// Middleware de auditoría (antes de las rutas)
+app.use(auditMiddleware)
 
 // Middleware de versionado para todas las rutas /api
 app.use('/api', extractVersion)
@@ -92,11 +96,14 @@ app.use('*', (req, res) => {
   })
 })
 
+// Middleware de manejo de errores con auditoría
+app.use(auditErrorMiddleware)
+
 app.use((err, req, res, next) => {
   console.error(err.stack)
-  res.status(500).json({
+  res.status(err.statusCode || 500).json({
     error: 'Error interno del servidor',
-    message: 'Algo salió mal en el servidor'
+    message: err.message || 'Algo salió mal en el servidor'
   })
 })
 

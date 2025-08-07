@@ -9,6 +9,21 @@ import {
   TrendingUp as TrendingUpIcon,
   Warning as WarningIcon
 } from '@mui/icons-material'
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  Legend
+} from 'recharts'
 
 interface AdminStats {
   totalPlaces: number
@@ -25,6 +40,14 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // Colores para los gráficos
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
+  
+  // Datos para gráficos
+  const [placesByType, setPlacesByType] = useState<{name: string, value: number}[]>([])
+  const [activityData, setActivityData] = useState<{date: string, places: number, users: number, reviews: number}[]>([])
+  const [statusDistribution, setStatusDistribution] = useState<{name: string, value: number}[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -55,6 +78,41 @@ export default function AdminDashboard() {
           totalReviews: mockReviewStats.totalReviews,
           pendingReviews: mockReviewStats.pendingReviews
         })
+
+        // Procesar datos para gráficos
+        // 1. Lugares por tipo
+        const typeCount: Record<string, number> = {}
+        places.forEach((place: any) => {
+          const type = place.type || 'Otros'
+          typeCount[type] = (typeCount[type] || 0) + 1
+        })
+        setPlacesByType(
+          Object.entries(typeCount).map(([name, value]) => ({ name, value }))
+        )
+
+        // 2. Distribución de estados
+        const activeCount = places.filter((p: any) => p.status === 'active').length
+        const pendingCount = places.filter((p: any) => p.status === 'pending').length
+        const inactiveCount = places.filter((p: any) => p.status === 'inactive').length
+        setStatusDistribution([
+          { name: 'Activos', value: activeCount },
+          { name: 'Pendientes', value: pendingCount },
+          { name: 'Inactivos', value: inactiveCount }
+        ])
+
+        // 3. Actividad últimos 7 días (datos simulados)
+        const today = new Date()
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(today)
+          date.setDate(date.getDate() - (6 - i))
+          return {
+            date: date.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit' }),
+            places: Math.floor(Math.random() * 10) + 1,
+            users: Math.floor(Math.random() * 20) + 5,
+            reviews: Math.floor(Math.random() * 15) + 2
+          }
+        })
+        setActivityData(last7Days)
       } catch (e) {
         console.error('Error cargando estadísticas:', e)
         setStats(null)
@@ -198,6 +256,101 @@ export default function AdminDashboard() {
           <Chip label="Ver pendientes" onClick={() => navigate('/admin/places')}/>
           <Chip label="Ver destacados" onClick={() => navigate('/admin/places')}/>
         </Stack>
+      </Paper>
+
+      {/* Sección de Gráficos */}
+      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3, mt: 4 }}>
+        📊 Análisis y Tendencias
+      </Typography>
+
+      <Box sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+        gap: 3,
+        mb: 3
+      }}>
+        {/* Gráfico de Lugares por Tipo */}
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Distribución por Tipo de Lugar
+          </Typography>
+          {placesByType.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={placesByType}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {placesByType.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography color="text.secondary">Sin datos disponibles</Typography>
+            </Box>
+          )}
+        </Paper>
+
+        {/* Gráfico de Estado de Lugares */}
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Estado de los Lugares
+          </Typography>
+          {statusDistribution.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={statusDistribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#8884d8">
+                  {statusDistribution.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography color="text.secondary">Sin datos disponibles</Typography>
+            </Box>
+          )}
+        </Paper>
+      </Box>
+
+      {/* Gráfico de Actividad */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Actividad de los Últimos 7 Días
+        </Typography>
+        {activityData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={activityData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="places" stroke="#8884d8" name="Lugares" strokeWidth={2} />
+              <Line type="monotone" dataKey="users" stroke="#82ca9d" name="Usuarios" strokeWidth={2} />
+              <Line type="monotone" dataKey="reviews" stroke="#ffc658" name="Reseñas" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography color="text.secondary">Sin datos disponibles</Typography>
+          </Box>
+        )}
       </Paper>
     </Box>
   )

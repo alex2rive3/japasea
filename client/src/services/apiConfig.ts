@@ -229,6 +229,9 @@ export class ApiClient {
 // Instancia por defecto del cliente API
 export const apiClient = new ApiClient()
 
+// Export default para compatibilidad
+export default apiClient
+
 // Función helper para actualizar el token en todas las instancias
 export const updateGlobalAuthToken = (token: string | null) => {
   apiClient.updateAuthToken(token)

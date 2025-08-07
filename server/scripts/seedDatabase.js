@@ -27,12 +27,28 @@ const log = {
 const seedUsers = async () => {
   log.info('Iniciando seed de usuarios...')
   
+  // Actualizar usuarios existentes sin campo status
+  try {
+    const usersWithoutStatus = await User.find({ status: { $exists: false } })
+    if (usersWithoutStatus.length > 0) {
+      log.warning(`Encontrados ${usersWithoutStatus.length} usuarios sin campo status. Actualizando...`)
+      await User.updateMany(
+        { status: { $exists: false } },
+        { $set: { status: 'active' } }
+      )
+      log.success('Usuarios actualizados con status activo')
+    }
+  } catch (error) {
+    log.error(`Error actualizando usuarios: ${error.message}`)
+  }
+  
   const testUsers = [
     {
       name: 'Admin Japasea',
       email: 'admin@japasea.com',
       password: 'Admin123!',
       role: 'admin',
+      status: 'active',
       phone: '+595971234567',
       isEmailVerified: true,
       emailVerified: true,
@@ -51,6 +67,7 @@ const seedUsers = async () => {
       email: 'carlos@ejemplo.com',
       password: 'Carlos123!',
       role: 'user',
+      status: 'active',
       phone: '+595972345678',
       isEmailVerified: true,
       emailVerified: true,
@@ -64,6 +81,7 @@ const seedUsers = async () => {
       email: 'ana@ejemplo.com',
       password: 'Ana123!',
       role: 'user',
+      status: 'active',
       phone: '+595973456789',
       isEmailVerified: true,
       emailVerified: true,
@@ -77,6 +95,7 @@ const seedUsers = async () => {
       email: 'roberto@ejemplo.com',
       password: 'Roberto123!',
       role: 'user',
+      status: 'active',
       phone: '+595974567890',
       isEmailVerified: false,
       emailVerified: false
@@ -86,6 +105,7 @@ const seedUsers = async () => {
       email: 'laura@ejemplo.com',
       password: 'Laura123!',
       role: 'user',
+      status: 'active',
       phone: '+595975678901',
       isEmailVerified: true,
       emailVerified: true,
@@ -138,6 +158,28 @@ const seedReviews = async (users, places) => {
     return []
   }
   
+  // Limpiar reseñas antiguas con esquema incorrecto
+  try {
+    const oldReviews = await Review.find({ 
+      $or: [
+        { userId: { $exists: false } },
+        { placeId: { $exists: false } }
+      ]
+    })
+    if (oldReviews.length > 0) {
+      log.warning(`Encontradas ${oldReviews.length} reseñas con esquema antiguo. Eliminando...`)
+      await Review.deleteMany({ 
+        $or: [
+          { userId: { $exists: false } },
+          { placeId: { $exists: false } }
+        ]
+      })
+      log.success('Reseñas antiguas eliminadas')
+    }
+  } catch (error) {
+    log.error(`Error limpiando reseñas antiguas: ${error.message}`)
+  }
+  
   const reviews = []
   const reviewTexts = [
     {
@@ -173,40 +215,51 @@ const seedReviews = async (users, places) => {
   ]
   
   // Crear reseñas para algunos lugares
-  const placesToReview = places.slice(0, Math.min(10, places.length))
+  const placesToReview = places.slice(0, Math.min(15, places.length))
+  const userIndexTracker = {} // Para evitar que un usuario revise el mismo lugar dos veces
   
   for (let i = 0; i < placesToReview.length; i++) {
     const place = placesToReview[i]
-    const numReviews = Math.floor(Math.random() * 3) + 1 // 1-3 reseñas por lugar
+    const numReviews = Math.floor(Math.random() * 2) + 1 // 1-2 reseñas por lugar
     
     for (let j = 0; j < numReviews; j++) {
-      const userIndex = Math.floor(Math.random() * (users.length - 1)) + 1 // Excluir admin
-      const user = users[userIndex]
+      // Encontrar un usuario que no haya revisado este lugar
+      let user = null
+      let attempts = 0
+      while (!user && attempts < 10) {
+        const userIndex = Math.floor(Math.random() * (users.length - 1)) + 1 // Excluir admin
+        const candidateUser = users[userIndex]
+        const key = `${candidateUser._id}-${place._id}`
+        
+        if (!userIndexTracker[key]) {
+          user = candidateUser
+          userIndexTracker[key] = true
+        }
+        attempts++
+      }
+      
+      if (!user) continue // Si no encontramos un usuario disponible, saltar
+      
       const reviewData = reviewTexts[Math.floor(Math.random() * reviewTexts.length)]
       
       try {
         const review = await Review.create({
-          place: place._id,
-          user: user._id,
+          userId: user._id,
+          placeId: place._id,
           rating: reviewData.rating,
-          title: reviewData.title,
           comment: reviewData.comment,
-          visitDate: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000), // Últimos 90 días
-          visitType: reviewData.visitType,
-          aspects: {
-            service: reviewData.rating + (Math.random() > 0.5 ? 0 : -1),
-            quality: reviewData.rating,
-            ambience: reviewData.rating + (Math.random() > 0.5 ? 0 : -1),
-            value: reviewData.rating + (Math.random() > 0.5 ? -1 : 0),
-            cleanliness: reviewData.rating
-          },
-          status: 'approved'
+          status: 'approved',
+          helpful: Math.floor(Math.random() * 10),
+          images: [],
+          helpfulVotes: []
         })
         
         reviews.push(review)
+        log.info(`Reseña creada para ${place.name} por ${user.name}`)
       } catch (error) {
-        // Ignorar si ya existe una reseña de este usuario para este lugar
-        if (error.code !== 11000) {
+        if (error.code === 11000) {
+          log.warning(`Usuario ${user.name} ya tiene una reseña para ${place.name}`)
+        } else {
           log.error(`Error creando reseña: ${error.message}`)
         }
       }

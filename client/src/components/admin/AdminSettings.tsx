@@ -18,7 +18,8 @@ import {
   InputLabel,
   FormControl,
   Tabs,
-  Tab
+  Tab,
+  CircularProgress
 } from '@mui/material'
 import {
   Save as SaveIcon,
@@ -71,6 +72,7 @@ interface SystemSettings {
 
 export default function AdminSettings() {
   const [activeTab, setActiveTab] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
   const [settings, setSettings] = useState<SystemSettings>({
     general: {
       siteName: 'Japasea',
@@ -116,11 +118,54 @@ export default function AdminSettings() {
   }, [])
 
   const loadSettings = async () => {
+    setIsLoading(true)
     try {
       const data = await adminService.getSystemSettings()
-      setSettings(data)
+      // Mapear los datos del backend al formato esperado por el frontend
+      if (data) {
+        setSettings({
+          general: {
+            siteName: data.general?.siteName || 'Japasea',
+            siteDescription: data.general?.siteDescription || 'Descubre los mejores lugares de Paraguay',
+            contactEmail: data.general?.contactEmail || 'contacto@japasea.com',
+            supportPhone: data.general?.supportPhone || '+595 21 123 456',
+            defaultLanguage: data.general?.defaultLanguage || 'es',
+            timezone: data.general?.timezone || 'America/Asuncion'
+          },
+          features: {
+            enableRegistration: data.features?.registration ?? true,
+            requireEmailVerification: data.features?.emailVerification ?? true,
+            enableReviews: data.features?.reviews ?? true,
+            moderateReviews: true, // No está en el backend
+            enableFavorites: data.features?.favorites ?? true,
+            enableChat: data.features?.chat ?? true
+          },
+          notifications: {
+            emailNotifications: data.notifications?.email?.enabled ?? true,
+            pushNotifications: data.notifications?.push?.enabled ?? false,
+            smsNotifications: data.notifications?.sms?.enabled ?? false,
+            notificationEmail: data.general?.contactEmail || 'noreply@japasea.com'
+          },
+          security: {
+            maxLoginAttempts: data.security?.maxLoginAttempts || 5,
+            sessionTimeout: data.security?.sessionTimeout || 3600,
+            passwordMinLength: data.security?.passwordMinLength || 8,
+            requireStrongPassword: true, // No está en el backend
+            enable2FA: data.security?.require2FA ?? false
+          },
+          payment: {
+            enablePayments: data.payments?.enabled ?? false,
+            paymentGateway: data.payments?.gateway || 'mercadopago',
+            currency: data.payments?.currency || 'PYG',
+            commission: data.payments?.commission || 10
+          }
+        })
+      }
     } catch (error) {
       console.error('Error cargando configuración:', error)
+      // Si hay error, mantener los valores por defecto
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -146,6 +191,14 @@ export default function AdminSettings() {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue)
+  }
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    )
   }
 
   return (

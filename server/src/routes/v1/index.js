@@ -7,6 +7,7 @@ const authRoutes = require('./authRoutes')
 const favoritesRoutes = require('./favoritesRoutes')
 const chatRoutes = require('./chatRoutes')
 const adminRoutes = require('./adminRoutes')
+const reviewsRoutes = require('./reviewsRoutes')
 
 // Información de la versión
 router.get('/', (req, res) => {
@@ -30,5 +31,6 @@ router.use('/places', placesRoutes)
 router.use('/favorites', favoritesRoutes)
 router.use('/chat', chatRoutes)
 router.use('/admin', adminRoutes)
+router.use('/reviews', reviewsRoutes)
 
 module.exports = router
