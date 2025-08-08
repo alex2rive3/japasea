@@ -111,14 +111,28 @@ class PlacesController {
 
       const localPlaces = await Place.find({ status: 'active' }).lean()
       
+      // Asegurar que todos los lugares de la BD tengan tanto key como name
+      const normalizedPlaces = localPlaces.map(place => {
+        if (!place.name && place.key) {
+          place.name = place.key
+        } else if (place.name && !place.key) {
+          place.key = place.name
+        } else if (!place.name && !place.key && place.title) {
+          // Si viene con 'title' en lugar de 'name' o 'key'
+          place.name = place.title
+          place.key = place.title
+        }
+        return place
+      })
+      
       // Detectar si es una consulta de plan de viaje o una consulta simple
       const isTravelPlanQuery = PlacesController.detectTravelPlan(message)
       
       let response
       if (isTravelPlanQuery) {
-        response = await PlacesController.generateTravelPlan(message, context, localPlaces)
+        response = await PlacesController.generateTravelPlan(message, context, normalizedPlaces)
       } else {
-        response = await PlacesController.generateSimpleRecommendation(message, context, localPlaces)
+        response = await PlacesController.generateSimpleRecommendation(message, context, normalizedPlaces)
       }
 
       // Guardar en el historial si el usuario está autenticado
@@ -147,6 +161,67 @@ class PlacesController {
           console.error('Error saving chat history:', historyError)
           // No fallar la respuesta si hay error al guardar el historial
         }
+      }
+
+      // Asegurar que todos los lugares tengan tanto 'key' como 'name'
+      if (response.travelPlan && response.travelPlan.days) {
+        response.travelPlan.days.forEach(day => {
+          if (day.activities) {
+            day.activities.forEach(activity => {
+              if (activity.place) {
+                // Asegurar que siempre haya un nombre
+                if (!activity.place.name && activity.place.key) {
+                  activity.place.name = activity.place.key
+                } else if (activity.place.name && !activity.place.key) {
+                  activity.place.key = activity.place.name
+                } else if (!activity.place.name && !activity.place.key) {
+                  console.error('Lugar sin nombre detectado:', activity.place)
+                  activity.place.name = 'Lugar por definir'
+                  activity.place.key = 'Lugar por definir'
+                }
+                
+                // Asegurar otros campos críticos
+                if (!activity.place.description) {
+                  activity.place.description = 'Descripción no disponible'
+                }
+                if (!activity.place.address) {
+                  activity.place.address = 'Dirección por confirmar'
+                }
+                if (!activity.place.location || typeof activity.place.location.lat !== 'number') {
+                  activity.place.location = { lat: -27.3309, lng: -55.8663 } // Centro de Encarnación
+                }
+              }
+            })
+          }
+        })
+      }
+
+      // También para places simples
+      if (response.places) {
+        response.places = response.places.map(place => {
+          if (!place.name && place.key) {
+            place.name = place.key
+          } else if (place.name && !place.key) {
+            place.key = place.name
+          } else if (!place.name && !place.key) {
+            console.error('Lugar sin nombre detectado:', place)
+            place.name = 'Lugar por definir'
+            place.key = 'Lugar por definir'
+          }
+          
+          // Asegurar otros campos críticos
+          if (!place.description) {
+            place.description = 'Descripción no disponible'
+          }
+          if (!place.address) {
+            place.address = 'Dirección por confirmar'
+          }
+          if (!place.location || typeof place.location.lat !== 'number') {
+            place.location = { lat: -27.3309, lng: -55.8663 } // Centro de Encarnación
+          }
+          
+          return place
+        })
       }
 
       res.status(200).json(response)
@@ -240,6 +315,7 @@ Analiza la consulta para identificar:
             "category": "Desayuno",
             "place": {
               "key": "Nombre exacto del establecimiento",
+              "name": "Nombre exacto del establecimiento",
               "type": "Desayunos y meriendas",
               "description": "Descripción específica: tipo de comida, especialidades, ambiente, por qué es ideal para esta parte del plan",
               "address": "Dirección completa con calle y número específico",
@@ -251,6 +327,7 @@ Analiza la consulta para identificar:
             "category": "Entretenimiento",
             "place": {
               "key": "Nombre exacto del bar/discoteca",
+              "name": "Nombre exacto del bar/discoteca",
               "type": "Entretenimiento",
               "description": "Tipo de música, ambiente, horarios, por qué es ideal para terminar la noche",
               "address": "Dirección específica",
@@ -267,6 +344,7 @@ Analiza la consulta para identificar:
             "category": "Turismo",
             "place": {
               "key": "Nombre exacto del lugar turístico",
+              "name": "Nombre exacto del lugar turístico",
               "type": "Turístico",
               "description": "Descripción detallada: qué se puede ver/hacer, tiempo recomendado, por qué es imperdible",
               "address": "Dirección específica",
@@ -281,6 +359,7 @@ Analiza la consulta para identificar:
             "category": "Almuerzo",
             "place": {
               "key": "Nombre exacto del restaurante",
+              "name": "Nombre exacto del restaurante",
               "type": "Gastronomía",
               "description": "Especialidades, tipo de cocina, ambiente, rango de precios, por qué encaja con el plan",
               "address": "Dirección específica",
@@ -295,6 +374,7 @@ Analiza la consulta para identificar:
             "category": "Turismo",
             "place": {
               "key": "Segundo lugar turístico",
+              "name": "Segundo lugar turístico",
               "type": "Turístico",
               "description": "Actividad complementaria, diferente al primer sitio turístico",
               "address": "Dirección específica",
@@ -309,6 +389,7 @@ Analiza la consulta para identificar:
             "category": "Cena",
             "place": {
               "key": "Nombre exacto del restaurante para cena",
+              "name": "Nombre exacto del restaurante para cena",
               "type": "Gastronomía",
               "description": "Ambiente nocturno, especialidades, por qué cierra bien el día",
               "address": "Dirección específica",
@@ -398,6 +479,7 @@ ${context || 'Primera consulta'}
             "category": "Recomendación",
             "place": {
               "key": "Nombre exacto del establecimiento",
+              "name": "Nombre exacto del establecimiento",
               "type": "Categoría específica (ej: pizzería, restaurante, café)",
               "description": "Breve descripción específica del lugar y por qué es ideal para esta consulta (máximo 30 palabras)",
               "address": "Dirección completa con nombre de calle y número",
@@ -411,6 +493,7 @@ ${context || 'Primera consulta'}
             "category": "Recomendación",
             "place": {
               "key": "Nombre exacto del establecimiento 2",
+              "name": "Nombre exacto del establecimiento 2",
               "type": "Categoría específica",
               "description": "Descripción breve y específica (máximo 30 palabras)",
               "address": "Dirección completa",
@@ -424,6 +507,7 @@ ${context || 'Primera consulta'}
             "category": "Recomendación",
             "place": {
               "key": "Nombre exacto del establecimiento 3",
+              "name": "Nombre exacto del establecimiento 3",
               "type": "Categoría específica",
               "description": "Descripción breve y específica (máximo 30 palabras)",
               "address": "Dirección completa",
@@ -528,6 +612,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Desayuno",
                 place: {
                   key: "Café Central Encarnación",
+                  name: "Café Central Encarnación",
                   type: "Desayunos y meriendas",
                   description: "Café céntrico perfecto para comenzar el día con un buen desayuno paraguayo",
                   address: "Avda. Dr. Francia c/ 14 de Mayo",
@@ -539,6 +624,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Turismo",
                 place: {
                   key: "Plaza de Armas",
+                  name: "Plaza de Armas",
                   type: "Turístico",
                   description: "Plaza central histórica con monumentos y ambiente tradicional",
                   address: "14 de Mayo c/ Mcal. Estigarribia",
@@ -550,6 +636,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Almuerzo",
                 place: {
                   key: "Restaurante La Costanera",
+                  name: "Restaurante La Costanera",
                   type: "Gastronomía",
                   description: "Restaurante con vista al río y especialidades locales",
                   address: "Avda. Costanera",
@@ -561,6 +648,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Turismo",
                 place: {
                   key: "Costanera de Encarnación",
+                  name: "Costanera de Encarnación",
                   type: "Turístico",
                   description: "Hermoso paseo junto al río Paraná con vistas panorámicas",
                   address: "Avda. Costanera",
@@ -572,6 +660,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Cena",
                 place: {
                   key: "Paseo Gastronómico",
+                  name: "Paseo Gastronómico",
                   type: "Gastronomía",
                   description: "Zona gastronómica con variedad de restaurantes y ambiente nocturno",
                   address: "Avda. Francia",
@@ -590,6 +679,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
     const places = localPlaces.length > 0 ? localPlaces.slice(0, 3) : [
       {
         key: "Costanera de Encarnación",
+        name: "Costanera de Encarnación",
         type: "Turístico",
         description: "Hermosa costanera con vista al río Paraná, ideal para pasear y disfrutar",
         address: "Avda. Costanera",
@@ -597,6 +687,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       },
       {
         key: "Paseo Gastronómico",
+        name: "Paseo Gastronómico",
         type: "Gastronomía",
         description: "Zona gastronómica con variedad de restaurantes y opciones culinarias",
         address: "Avda. Francia",
@@ -604,6 +695,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       },
       {
         key: "Shopping Costanera",
+        name: "Shopping Costanera",
         type: "Compras",
         description: "Centro comercial moderno con tiendas, restaurantes y entretenimiento",
         address: "Avda. Costanera",

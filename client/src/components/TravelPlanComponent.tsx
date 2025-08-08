@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Card,
   CardContent,
@@ -17,7 +17,8 @@ import {
   LocationOn,
   Phone
 } from '@mui/icons-material'
-import type { TravelPlan, TravelActivity } from '../types/places'
+import type { TravelPlan, TravelActivity, Place } from '../types/places'
+import PlaceDetailsModal from './PlaceDetailsModal'
 
 interface TravelPlanComponentProps {
   travelPlan: TravelPlan
@@ -29,6 +30,59 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
   travelPlan,
   onPlaceClick
 }) => {
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+
+  const handlePlaceClick = (place: TravelActivity['place']) => {
+    // Validar que el lugar tenga los datos mínimos necesarios
+    if (!place) {
+      console.error('Lugar inválido:', place)
+      return
+    }
+    
+    // Obtener el nombre del lugar (puede venir como 'key' o 'name')
+    const placeName = place.key || place.name || 'Lugar sin nombre'
+    
+    // Primero, marcar en el mapa
+    onPlaceClick(place)
+    
+    // Luego, abrir el modal con los detalles
+    // Convertir el formato de TravelActivity place a Place
+    // Generar un ID temporal si no existe
+    const tempId = place.id || place._id || `temp-${placeName.toLowerCase().replace(/\s+/g, '-')}`
+    
+    const placeData: Place = {
+      _id: tempId,
+      id: tempId,
+      key: place.key,
+      name: placeName,
+      description: place.description || '',
+      address: place.address || 'Dirección no disponible',
+      type: place.type || 'restaurant', // Default más específico
+      location: place.location || { lat: 0, lng: 0 },
+      // Datos adicionales que pueden venir del backend
+      phone: place.phone || (place.description ? extractPhoneNumber(place.description) : null),
+      email: place.email,
+      website: place.website,
+      rating: place.rating,
+      images: place.images || [],
+      openingHours: place.openingHours,
+      features: place.features || [],
+      tags: place.tags || [],
+      status: place.status || 'active',
+      city: place.city || 'Encarnación',
+      priceRange: place.priceRange
+    }
+    
+    setSelectedPlace(placeData)
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setSelectedPlace(null)
+  }
+
   const getCategoryIcon = (category: string | undefined) => {
     if (!category) return <PlaceIcon sx={{ fontSize: 16 }} />
     
@@ -113,7 +167,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                 {/* Compact Activities */}
                 <Box sx={{ p: 1.5, maxWidth: '100%', overflow: 'hidden' }}>
                   {day.activities.map((activity, activityIndex) => (
-                    <Box key={`activity-${dayIndex}-${activityIndex}-${activity.place.key}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+                    <Box key={`activity-${dayIndex}-${activityIndex}-${activity.place.key || activity.place.name || activityIndex}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
                       <Box
                         sx={{
                           display: 'flex',
@@ -131,7 +185,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                           }
                         }}
-                        onClick={() => onPlaceClick(activity.place)}
+                        onClick={() => handlePlaceClick(activity.place)}
                       >
                         {/* Compact Time and Icon */}
                         <Box sx={{ 
@@ -204,7 +258,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
                           }}>
-                            {activity.place.key}
+                            {activity.place.key || activity.place.name || 'Lugar sin nombre'}
                           </Typography>
 
                           <Typography variant="caption" sx={{ 
@@ -301,6 +355,13 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
           en {travelPlan.totalDays} día{travelPlan.totalDays > 1 ? 's' : ''}
         </Typography>
       </Paper>
+
+      {/* Modal de detalles del lugar */}
+      <PlaceDetailsModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        place={selectedPlace}
+      />
     </Box>
   )
 }

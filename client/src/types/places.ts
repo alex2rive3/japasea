@@ -1,6 +1,8 @@
 export interface Place {
   _id?: string // ID de MongoDB
-  key: string
+  id?: string // ID alternativo
+  key?: string // Hacer opcional ya que puede venir como 'name' del backend
+  name?: string // Nombre alternativo al key
   description: string
   location: {
     lat: number
@@ -8,6 +10,21 @@ export interface Place {
   }
   type?: string // Hacer opcional para manejar casos donde no esté definido
   address: string
+  // Campos adicionales opcionales
+  phone?: string
+  email?: string
+  website?: string
+  rating?: {
+    average: number
+    count: number
+  }
+  images?: Array<{ url: string; caption?: string }>
+  openingHours?: any
+  features?: string[]
+  tags?: string[]
+  status?: string
+  city?: string
+  priceRange?: number
 }
 
 export interface PlacesResponse {

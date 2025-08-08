@@ -30,6 +30,22 @@ export const placesService = {
     return res.json()
   },
 
+  async getPlaceById(id: string): Promise<Place> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/places/${id}`)
+      
+      if (!response.ok) {
+        throw new Error('Error al obtener lugar')
+      }
+
+      const data = await response.json()
+      return data.data || data
+    } catch (error) {
+      console.error('Error fetching place by id:', error)
+      throw error
+    }
+  },
+
   async adminCreatePlace(payload: any) {
     const token = localStorage.getItem('accessToken')
     if (!token) throw new Error('No autenticado')

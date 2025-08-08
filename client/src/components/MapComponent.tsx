@@ -143,12 +143,13 @@ export const MapComponent = ({
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          {places.map((place) => {
+          {places.map((place, index) => {
             const phone = extractPhone(place.description)
+            const uniqueKey = place.id || place._id || `${place.key}-${index}`
             
             return (
               <Marker 
-                key={place.key} 
+                key={uniqueKey} 
                 position={[place.location.lat, place.location.lng]}
               >
                 <Popup>
