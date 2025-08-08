@@ -38,7 +38,6 @@ export function LoginComponent() {
   // Si el usuario ya está autenticado, redirigir según su rol
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log('LoginComponent - Usuario ya autenticado, redirigiendo...') // Debug
       if (user.role === 'admin') {
         navigate('/admin/places', { replace: true })
       } else {
@@ -68,9 +67,6 @@ export function LoginComponent() {
     try {
       setError('')
       const user = await login(loginData)
-      
-      console.log('Usuario logueado:', user) // Debug
-      console.log('Rol del usuario:', user.role) // Debug
       
       // Definir ruta preferida según rol y navegar inmediatamente
       const preferredPath = user.role === 'admin' ? '/admin' : '/'

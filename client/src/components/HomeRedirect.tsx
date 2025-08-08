@@ -6,9 +6,6 @@ import { MainContent } from './MainContent'
 export function HomeRedirect() {
   const { user, isLoading } = useAuth()
 
-  console.log('HomeRedirect - user:', user) // Debug
-  console.log('HomeRedirect - isLoading:', isLoading) // Debug
-
   if (isLoading) {
     return (
       <Box 
@@ -26,11 +23,9 @@ export function HomeRedirect() {
 
   // Si es admin, redirigir a panel de administración
   if (user?.role === 'admin') {
-    console.log('HomeRedirect - Usuario es admin, redirigiendo a /admin') // Debug
     return <Navigate to="/admin" replace />
   }
 
   // Si es usuario regular, mostrar el contenido principal
-  console.log('HomeRedirect - Usuario regular, mostrando MainContent') // Debug
   return <MainContent />
 }

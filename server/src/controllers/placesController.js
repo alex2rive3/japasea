@@ -158,24 +158,7 @@ class PlacesController {
             response: response
           }
 
-          if (process.env.CHAT_DEBUG_LOG === '1') {
-            try {
-              console.log('\n[CHAT_DEBUG] Pre-save BOT message (normalizado):')
-              console.log(JSON.stringify(botMessageData, null, 2))
-              const namesFromPlan = botMessageData?.response?.travelPlan?.days?.flatMap(d => d?.activities || [])
-                .map(a => a?.place?.name || a?.place?.key)
-                .filter(Boolean)
-              if (namesFromPlan?.length) {
-                console.log('[CHAT_DEBUG] Nombres en travelPlan:', namesFromPlan)
-              }
-              const namesFromSimple = botMessageData?.response?.places?.map(p => p?.name || p?.key).filter(Boolean)
-              if (namesFromSimple?.length) {
-                console.log('[CHAT_DEBUG] Nombres en places:', namesFromSimple)
-              }
-            } catch (e) {
-              console.log('[CHAT_DEBUG] Error imprimiendo BOT message:', e.message)
-            }
-          }
+
 
           await chatHistory.addMessage(botMessageData)
           
