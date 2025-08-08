@@ -81,8 +81,21 @@ export default function AdminAudit() {
         endDate
       })
       
-      setLogs(response.data || [])
-      setTotalLogs(response.pagination?.total || 0)
+      // Si la respuesta es directamente un array
+      if (Array.isArray(response)) {
+        setLogs(response)
+        setTotalLogs(response.length)
+      } 
+      // Si la respuesta es un objeto con estructura { success, data, pagination }
+      else if (response && response.data) {
+        setLogs(response.data)
+        setTotalLogs(response.pagination?.total || response.data.length)
+      } 
+      // Caso por defecto
+      else {
+        setLogs([])
+        setTotalLogs(0)
+      }
     } catch (error) {
       console.error('Error cargando logs:', error)
     } finally {

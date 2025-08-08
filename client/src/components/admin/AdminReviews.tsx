@@ -71,8 +71,22 @@ export default function AdminReviews() {
         limit: rowsPerPage,
         status: statusFilter as any
       })
-      setReviews(response.data || [])
-      setTotalReviews(response.pagination?.total || 0)
+      
+      // Si la respuesta es directamente un array
+      if (Array.isArray(response)) {
+        setReviews(response)
+        setTotalReviews(response.length)
+      } 
+      // Si la respuesta es un objeto con estructura { success, data, pagination }
+      else if (response && response.data) {
+        setReviews(response.data)
+        setTotalReviews(response.pagination?.total || response.data.length)
+      } 
+      // Caso por defecto
+      else {
+        setReviews([])
+        setTotalReviews(0)
+      }
     } catch (error) {
       console.error('Error cargando reviews:', error)
     } finally {

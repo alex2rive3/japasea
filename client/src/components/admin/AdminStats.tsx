@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Box, Paper, Typography, Stack, Chip } from '@mui/material'
-import { placesService } from '../../services/placesService'
+import { adminService } from '../../services/adminService'
 import {
   AreaChart,
   Area,
@@ -40,23 +40,53 @@ export default function AdminStats() {
     const load = async () => {
       setLoading(true)
       try {
-        const res = await placesService.adminListPlaces({ limit: 500 })
-        const items: any[] = res.data || []
+        // Obtener estadísticas generales del backend
+        const statsResponse = await adminService.getAdminStats()
+        const statsData = statsResponse.data || statsResponse
+        
+        // Obtener estadísticas de lugares
+        const placeStatsResponse = await adminService.getPlaceStats()
+        const placeStats = placeStatsResponse.data || placeStatsResponse
         
         // Estadísticas básicas
-        const byType: Record<string, number> = {}
-        items.forEach(p => { byType[p.type] = (byType[p.type] || 0) + 1 })
-        setStats({ 
-          total: items.length, 
-          activos: items.filter(p => p.status === 'active').length, 
-          pendientes: items.filter(p => p.status === 'pending').length, 
-          verificados: items.filter(p => p.metadata?.verified).length,
-          destacados: items.filter(p => p.metadata?.featured).length,
-          ...byType 
-        })
-
-        // Datos para gráfico de tipos
-        setTypeData(Object.entries(byType).map(([name, value]) => ({ name, value })))
+        if (statsData) {
+          const basicStats: any = {
+            total: statsData.places?.total || 0,
+            activos: statsData.places?.active || 0,
+            pendientes: statsData.places?.pending || 0,
+            verificados: statsData.places?.verified || 0,
+            destacados: statsData.places?.featured || 0
+          }
+          
+          // Agregar tipos si están disponibles
+          if (statsData.places?.byType) {
+            statsData.places.byType.forEach((item: any) => {
+              basicStats[item.type || 'Otros'] = item.count
+            })
+          }
+          
+          setStats(basicStats)
+          
+          // Datos para gráfico de tipos
+          if (statsData.places?.byType) {
+            setTypeData(
+              statsData.places.byType.map((item: any) => ({
+                name: item.type || 'Otros',
+                value: item.count
+              }))
+            )
+          }
+        }
+        
+        // Si tenemos estadísticas específicas de lugares, usarlas también
+        if (placeStats?.byType) {
+          setTypeData(
+            placeStats.byType.map((item: any) => ({
+              name: item._id || 'Otros',
+              value: item.count
+            }))
+          )
+        }
 
         // Datos mensuales simulados
         const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun']

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Box, Paper, Stack, Typography, Button, Chip } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import { placesService } from '../../services/placesService'
+import { adminService } from '../../services/adminService'
 import {
   Place as PlaceIcon,
   People as PeopleIcon,
@@ -53,66 +53,74 @@ export default function AdminDashboard() {
     const load = async () => {
       setLoading(true)
       try {
-        // Obtener estadísticas de lugares
-        const placesRes = await placesService.adminListPlaces({ limit: 100 })
-        const places = placesRes.data || []
+        // Obtener estadísticas reales del backend
+        const response = await adminService.getAdminStats()
         
-        // Simular estadísticas de usuarios y reviews (en producción vendría del backend)
-        const mockUserStats = {
-          totalUsers: 156,
-          activeUsers: 142
-        }
+        // Manejar diferentes estructuras de respuesta
+        const statsData = response.data || response
         
-        const mockReviewStats = {
-          totalReviews: 89,
-          pendingReviews: 12
-        }
-        
-        setStats({
-          totalPlaces: places.length,
-          activePlaces: places.filter((p: any) => p.status === 'active').length,
-          pendingPlaces: places.filter((p: any) => p.status === 'pending').length,
-          featuredPlaces: places.filter((p: any) => p?.metadata?.featured).length,
-          totalUsers: mockUserStats.totalUsers,
-          activeUsers: mockUserStats.activeUsers,
-          totalReviews: mockReviewStats.totalReviews,
-          pendingReviews: mockReviewStats.pendingReviews
-        })
+        if (statsData) {
+          // Mapear los datos del backend al formato esperado
+          setStats({
+            totalUsers: statsData.users?.total || 0,
+            activeUsers: statsData.users?.active || 0,
+            totalPlaces: statsData.places?.total || 0,
+            activePlaces: statsData.places?.active || 0,
+            pendingPlaces: statsData.places?.pending || 0,
+            featuredPlaces: statsData.places?.featured || 0,
+            totalReviews: 0, // TODO: Implementar en backend
+            pendingReviews: 0 // TODO: Implementar en backend
+          })
 
-        // Procesar datos para gráficos
-        // 1. Lugares por tipo
-        const typeCount: Record<string, number> = {}
-        places.forEach((place: any) => {
-          const type = place.type || 'Otros'
-          typeCount[type] = (typeCount[type] || 0) + 1
-        })
-        setPlacesByType(
-          Object.entries(typeCount).map(([name, value]) => ({ name, value }))
-        )
-
-        // 2. Distribución de estados
-        const activeCount = places.filter((p: any) => p.status === 'active').length
-        const pendingCount = places.filter((p: any) => p.status === 'pending').length
-        const inactiveCount = places.filter((p: any) => p.status === 'inactive').length
-        setStatusDistribution([
-          { name: 'Activos', value: activeCount },
-          { name: 'Pendientes', value: pendingCount },
-          { name: 'Inactivos', value: inactiveCount }
-        ])
-
-        // 3. Actividad últimos 7 días (datos simulados)
-        const today = new Date()
-        const last7Days = Array.from({ length: 7 }, (_, i) => {
-          const date = new Date(today)
-          date.setDate(date.getDate() - (6 - i))
-          return {
-            date: date.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit' }),
-            places: Math.floor(Math.random() * 10) + 1,
-            users: Math.floor(Math.random() * 20) + 5,
-            reviews: Math.floor(Math.random() * 15) + 2
+          // 1. Lugares por tipo - usar datos reales del backend
+          if (statsData.places?.byType && Array.isArray(statsData.places.byType)) {
+            setPlacesByType(
+              statsData.places.byType.map((item: any) => ({
+                name: item.type || 'Otros',
+                value: item.count
+              }))
+            )
           }
-        })
-        setActivityData(last7Days)
+
+          // 2. Distribución de estados - calcular desde los totales
+          const activeCount = statsData.places?.active || 0
+          const pendingCount = statsData.places?.pending || 0
+          const totalCount = statsData.places?.total || 0
+          const inactiveCount = Math.max(0, totalCount - activeCount - pendingCount)
+          
+          setStatusDistribution([
+            { name: 'Activos', value: activeCount },
+            { name: 'Pendientes', value: pendingCount },
+            { name: 'Inactivos', value: inactiveCount }
+          ])
+
+          // 3. Actividad últimos 7 días
+          const activity = statsData.activity?.last7Days
+          const today = new Date()
+          const last7Days = Array.from({ length: 7 }, (_, i) => {
+            const date = new Date(today)
+            date.setDate(date.getDate() - (6 - i))
+            
+            // Para el último día, usar datos reales si están disponibles
+            if (i === 6 && activity) {
+              return {
+                date: date.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit' }),
+                places: activity.newPlaces || 0,
+                users: activity.newUsers || 0,
+                reviews: 0 // TODO: Implementar en backend
+              }
+            }
+            
+            // Para otros días, usar datos simulados por ahora
+            return {
+              date: date.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit' }),
+              places: Math.floor(Math.random() * 5) + 1,
+              users: Math.floor(Math.random() * 10) + 2,
+              reviews: Math.floor(Math.random() * 8) + 1
+            }
+          })
+          setActivityData(last7Days)
+        }
       } catch (e) {
         console.error('Error cargando estadísticas:', e)
         setStats(null)

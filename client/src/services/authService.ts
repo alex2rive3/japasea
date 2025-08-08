@@ -1,4 +1,5 @@
 import axios, { type AxiosResponse } from 'axios'
+import { updateGlobalAuthToken } from './apiConfig'
 import type { 
   LoginCredentials, 
   RegisterData, 
@@ -32,6 +33,11 @@ class AuthService {
 
   constructor() {
     this.setupInterceptors()
+    // Si hay un token guardado, configurarlo en el apiClient global
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      updateGlobalAuthToken(token)
+    }
   }
 
   private setupInterceptors(): void {
@@ -210,11 +216,15 @@ class AuthService {
   private setTokens(accessToken: string, refreshToken: string): void {
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
+    // Actualizar el token en el apiClient global
+    updateGlobalAuthToken(accessToken)
   }
 
   private clearTokens(): void {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    // Limpiar el token del apiClient global
+    updateGlobalAuthToken(null)
   }
 
   getAccessToken(): string | null {

@@ -72,8 +72,22 @@ export default function AdminUsers() {
         role: roleFilter,
         status: statusFilter
       })
-      setUsers(response.data || [])
-      setTotalUsers(response.pagination?.total || 0)
+      
+      // Si la respuesta es directamente un array
+      if (Array.isArray(response)) {
+        setUsers(response)
+        setTotalUsers(response.length)
+      } 
+      // Si la respuesta es un objeto con estructura { success, data, pagination }
+      else if (response && response.data) {
+        setUsers(response.data)
+        setTotalUsers(response.pagination?.total || response.data.length)
+      } 
+      // Caso por defecto
+      else {
+        setUsers([])
+        setTotalUsers(0)
+      }
     } catch (error) {
       console.error('Error cargando usuarios:', error)
     } finally {

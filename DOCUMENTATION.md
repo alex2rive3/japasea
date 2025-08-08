@@ -1,364 +1,501 @@
-# Documentación Técnica - Japasea
+# 📚 Documentación Técnica - Japasea
 
-## Índice
-1. [Descripción General](#descripción-general)
-2. [Arquitectura](#arquitectura)
+## 📋 Tabla de Contenidos
+
+1. [Arquitectura del Sistema](#arquitectura-del-sistema)
+2. [Stack Tecnológico](#stack-tecnológico)
 3. [Estructura del Proyecto](#estructura-del-proyecto)
-4. [Sistema de Autenticación](#sistema-de-autenticación)
-5. [Panel de Administración](#panel-de-administración)
-6. [Funcionalidades de Usuario](#funcionalidades-de-usuario)
-7. [Servicios y APIs](#servicios-y-apis)
-8. [Componentes Principales](#componentes-principales)
-9. [Guía de Instalación](#guía-de-instalación)
-10. [Variables de Entorno](#variables-de-entorno)
+4. [Modelos de Datos](#modelos-de-datos)
+5. [Flujos de Autenticación](#flujos-de-autenticación)
+6. [Servicios y APIs](#servicios-y-apis)
+7. [Componentes Frontend](#componentes-frontend)
+8. [Seguridad](#seguridad)
+9. [Performance](#performance)
+10. [Deployment](#deployment)
 
-## Descripción General
+## 🏗️ Arquitectura del Sistema
 
-Japasea es una plataforma web para descubrir lugares en Paraguay. El sistema incluye:
-- Portal de usuarios para explorar lugares
-- Chat con IA para recomendaciones personalizadas
-- Sistema de favoritos
-- Panel de administración completo
-- Sistema de autenticación con JWT
-- Gestión de lugares, usuarios y reseñas
+### Visión General
 
-## Arquitectura
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│                 │     │                 │     │                 │
+│   Cliente Web   │────▶│   API Server    │────▶│    MongoDB      │
+│   (React/TS)    │     │   (Node/Express)│     │                 │
+│                 │     │                 │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │                       │                        │
+         │                       │                        │
+    ┌────▼──────┐         ┌─────▼─────┐          ┌──────▼──────┐
+    │  Vite Dev │         │   JWT     │          │   Mongoose  │
+    │  Server   │         │   Auth    │          │     ODM     │
+    └───────────┘         └───────────┘          └─────────────┘
+```
+
+### Arquitectura en Capas
+
+1. **Capa de Presentación** (Frontend)
+   - React con TypeScript
+   - Material-UI para componentes
+   - Context API para estado global
+   - React Router para navegación
+
+2. **Capa de Aplicación** (Backend)
+   - Express.js como framework
+   - Controladores para lógica de negocio
+   - Middleware para funciones transversales
+   - Servicios para operaciones específicas
+
+3. **Capa de Datos**
+   - MongoDB como base de datos
+   - Mongoose para modelado
+   - Índices para optimización
+   - Agregaciones para consultas complejas
+
+## 💻 Stack Tecnológico
 
 ### Frontend
-- **Framework**: React 18 con TypeScript
-- **Bundler**: Vite
-- **UI Library**: Material-UI (MUI)
-- **Routing**: React Router v6
-- **Estado**: Context API
-- **Formularios**: React Hook Form con Yup
-- **HTTP Client**: Axios
-- **Mapas**: Leaflet
+```json
+{
+  "core": {
+    "react": "^18.3.1",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5"
+  },
+  "ui": {
+    "@mui/material": "^6.3.1",
+    "@mui/icons-material": "^6.3.1",
+    "@emotion/react": "^11.14.0"
+  },
+  "routing": {
+    "react-router-dom": "^7.1.1"
+  },
+  "state": {
+    "context-api": "built-in",
+    "local-storage": "for-persistence"
+  },
+  "http": {
+    "axios": "^1.7.9"
+  },
+  "maps": {
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1"
+  },
+  "charts": {
+    "recharts": "^2.15.0"
+  }
+}
+```
 
 ### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Base de Datos**: MongoDB con Mongoose
-- **Autenticación**: JWT (Access + Refresh tokens)
-- **Validación**: Express Validator
-- **Email**: Nodemailer
-- **Documentación API**: Swagger
-
-## Estructura del Proyecto
-
-```
-japasea/
-├── client/                      # Frontend React
-│   ├── src/
-│   │   ├── components/         # Componentes React
-│   │   │   ├── admin/         # Componentes exclusivos de admin
-│   │   │   └── ...           # Componentes de usuario
-│   │   ├── contexts/         # Context API providers
-│   │   ├── hooks/           # Custom hooks
-│   │   ├── services/        # Servicios API
-│   │   ├── styles/         # Estilos y temas
-│   │   └── types/         # Definiciones TypeScript
-│   └── public/           # Archivos estáticos
-│
-├── server/                    # Backend Node.js
-│   ├── src/
-│   │   ├── controllers/     # Controladores de rutas
-│   │   ├── middleware/     # Middleware Express
-│   │   ├── models/        # Modelos Mongoose
-│   │   ├── routes/       # Definición de rutas
-│   │   ├── services/    # Lógica de negocio
-│   │   └── utils/      # Utilidades
-│   └── scripts/       # Scripts de migración
-│
-└── docs/            # Documentación adicional
+```json
+{
+  "core": {
+    "node": "^18.0.0",
+    "express": "^4.21.2",
+    "typescript": "not-used"
+  },
+  "database": {
+    "mongodb": "^6.0.0",
+    "mongoose": "^8.9.2"
+  },
+  "auth": {
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3"
+  },
+  "validation": {
+    "express-validator": "^7.2.1"
+  },
+  "security": {
+    "helmet": "^8.0.0",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.5.0"
+  },
+  "email": {
+    "nodemailer": "^6.9.17"
+  },
+  "utilities": {
+    "dotenv": "^16.4.7",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "for-image-processing"
+  }
+}
 ```
 
-## Sistema de Autenticación
+## 📁 Estructura del Proyecto
 
-### Características
-- Registro con verificación de email
-- Login con JWT (access + refresh tokens)
-- Recuperación de contraseña
-- Cambio de contraseña
-- Actualización de perfil
-- Logout con invalidación de tokens
-- Roles: `user` y `admin`
-
-### Flujo de Autenticación
-1. Usuario se registra → Email de verificación
-2. Usuario verifica email → Cuenta activa
-3. Login → Recibe access token (15min) + refresh token (7días)
-4. Token expira → Auto-refresh con refresh token
-5. Logout → Tokens invalidados
-
-### Endpoints de Auth
+### Frontend (`/client`)
 ```
-POST   /api/v1/auth/register
-POST   /api/v1/auth/login
-POST   /api/v1/auth/logout
-GET    /api/v1/auth/profile
-PUT    /api/v1/auth/profile
-PUT    /api/v1/auth/change-password
-POST   /api/v1/auth/forgot-password
-POST   /api/v1/auth/reset-password
-GET    /api/v1/auth/verify-email/:token
-POST   /api/v1/auth/resend-verification
-POST   /api/v1/auth/refresh-token
-DELETE /api/v1/auth/account
+client/
+├── src/
+│   ├── components/          # Componentes React
+│   │   ├── admin/          # Componentes del panel admin
+│   │   │   ├── AdminDashboard.tsx
+│   │   │   ├── AdminLayout.tsx
+│   │   │   ├── AdminUsers.tsx
+│   │   │   ├── AdminReviews.tsx
+│   │   │   ├── AdminStats.tsx
+│   │   │   ├── AdminAudit.tsx
+│   │   │   └── AdminSettings.tsx
+│   │   ├── auth/           # Componentes de autenticación
+│   │   ├── places/         # Componentes de lugares
+│   │   └── shared/         # Componentes compartidos
+│   ├── services/           # Servicios API
+│   │   ├── apiConfig.ts    # Configuración axios
+│   │   ├── authService.ts  # Servicio de auth
+│   │   ├── adminService.ts # Servicio admin
+│   │   └── placesService.ts
+│   ├── contexts/           # Context providers
+│   │   └── AuthContext.tsx
+│   ├── hooks/              # Custom hooks
+│   │   ├── useAuth.ts
+│   │   └── useFavorites.ts
+│   ├── types/              # TypeScript types
+│   │   ├── auth.ts
+│   │   ├── places.ts
+│   │   └── admin.ts
+│   └── styles/             # Estilos globales
+│       └── theme.ts
+├── public/                 # Assets estáticos
+└── index.html             # Entry point HTML
 ```
 
-## Panel de Administración
+### Backend (`/server`)
+```
+server/
+├── src/
+│   ├── controllers/        # Controladores
+│   │   ├── authController.js
+│   │   ├── placesController.js
+│   │   ├── adminController.js
+│   │   └── reviewsController.js
+│   ├── models/            # Modelos Mongoose
+│   │   ├── userModel.js
+│   │   ├── placeModel.js
+│   │   ├── reviewModel.js
+│   │   ├── auditModel.js
+│   │   └── settingsModel.js
+│   ├── routes/            # Definición de rutas
+│   │   └── v1/           # API v1
+│   │       ├── index.js
+│   │       ├── authRoutes.js
+│   │       ├── placesRoutes.js
+│   │       ├── adminRoutes.js
+│   │       └── reviewsRoutes.js
+│   ├── middleware/        # Middleware
+│   │   ├── authMiddleware.js
+│   │   ├── adminValidation.js
+│   │   ├── auditMiddleware.js
+│   │   └── errorHandler.js
+│   ├── services/          # Servicios
+│   │   └── emailService.js
+│   ├── config/            # Configuración
+│   │   ├── config.js
+│   │   └── database.js
+│   └── app.js            # App principal
+├── scripts/              # Scripts útiles
+│   └── seedDatabase.js
+└── tests/               # Tests
+```
 
-### Acceso
-- Solo usuarios con rol `admin`
-- Ruta base: `/admin`
-- Layout exclusivo sin acceso a funciones de usuario
+## 🗃️ Modelos de Datos
 
-### Módulos Implementados
-
-#### 1. Dashboard (`/admin`)
-- KPIs principales (usuarios, lugares, reseñas)
-- Alertas de acciones pendientes
-- Accesos rápidos
-- Estadísticas generales
-
-#### 2. Gestión de Lugares (`/admin/places`)
-- CRUD completo de lugares
-- Filtros por tipo y estado
-- Verificación de lugares
-- Destacar lugares (featured)
-- Cambio de estado (active/inactive/pending)
-- **Operaciones masivas**:
-  - Selección múltiple
-  - Verificación masiva
-  - Activación masiva
-  - Eliminación masiva
-
-#### 3. Gestión de Usuarios (`/admin/users`)
-- Listado con filtros
-- Cambio de roles (user/admin)
-- Suspender/activar usuarios
-- Eliminación de usuarios
-- Búsqueda por nombre/email
-- Vista de último acceso
-
-#### 4. Gestión de Reseñas (`/admin/reviews`)
-- Moderación de reseñas
-- Aprobación/rechazo con razones
-- Vista detallada
-- Filtros por estado
-- Eliminación de contenido
-
-#### 5. Registro de Auditoría (`/admin/audit`)
-- Log de todas las acciones
-- Filtros por fecha, acción, recurso
-- Exportación CSV
-- Seguimiento de IP
-- Historial detallado
-
-#### 6. Estadísticas (`/admin/stats`)
-- Métricas por tipo de lugar
-- Estados de recursos
-- Análisis de datos
-- Visualización de tendencias
-
-#### 7. Configuración (`/admin/settings`)
-- **General**: Nombre, descripción, contacto
-- **Características**: Habilitar/deshabilitar funciones
-- **Notificaciones**: Canales de comunicación
-- **Seguridad**: Políticas de contraseñas, 2FA
-- **Pagos**: Pasarelas y comisiones
-
-#### 8. Sistema de Notificaciones
-- Panel en el header de admin
-- Notificaciones en tiempo real
-- Envío masivo a usuarios
-- Diferentes tipos y prioridades
-- Marcado como leído
-
-### Servicios Admin
+### User Model
 ```javascript
-// adminService.ts
-- getAdminStats()
-- getUsers()
-- updateUserRole()
-- suspendUser()
-- getReviews()
-- approveReview()
-- getActivityLogs()
-- exportActivityLogs()
-- getSystemSettings()
-- updateSystemSettings()
-- sendBulkNotification()
+{
+  name: String,
+  email: String (unique, indexed),
+  password: String (hashed),
+  phone: String,
+  role: ['user', 'admin'],
+  status: ['active', 'suspended', 'deleted'],
+  emailVerified: Boolean,
+  emailVerificationToken: String,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  refreshToken: String,
+  lastLogin: Date,
+  createdAt: Date,
+  updatedAt: Date
+}
 ```
 
-## Funcionalidades de Usuario
+### Place Model
+```javascript
+{
+  name: String (required),
+  type: String (indexed),
+  description: String,
+  address: String,
+  location: {
+    type: 'Point',
+    coordinates: [longitude, latitude]
+  },
+  city: String,
+  phone: String,
+  email: String,
+  website: String,
+  images: [{
+    url: String,
+    caption: String
+  }],
+  openingHours: {
+    monday: { open: String, close: String },
+    // ... otros días
+  },
+  features: [String],
+  tags: [String],
+  priceRange: Number,
+  rating: {
+    average: Number,
+    count: Number
+  },
+  status: ['active', 'inactive', 'pending'],
+  metadata: {
+    featured: Boolean,
+    verified: Boolean,
+    featuredUntil: Date,
+    verifiedAt: Date
+  },
+  createdBy: ObjectId,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-### 1. Exploración de Lugares
-- Mapa interactivo con Leaflet
-- Búsqueda por nombre/tipo
-- Filtros por categoría
-- Vista de detalles
+### Review Model
+```javascript
+{
+  userId: ObjectId (ref: 'User'),
+  placeId: ObjectId (ref: 'Place'),
+  rating: Number (1-5),
+  comment: String,
+  status: ['pending', 'approved', 'rejected'],
+  rejectionReason: String,
+  approvedBy: ObjectId,
+  rejectedBy: ObjectId,
+  helpful: [ObjectId], // usuarios que marcaron útil
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-### 2. Chat con IA
-- Recomendaciones personalizadas
-- Planificación de viajes
-- Historial de conversaciones
-- Contexto de lugares
+### Audit Model
+```javascript
+{
+  userId: ObjectId,
+  action: String,
+  resource: String,
+  resourceId: ObjectId,
+  description: String,
+  previousData: Object,
+  metadata: {
+    ip: String,
+    userAgent: String,
+    endpoint: String
+  },
+  createdAt: Date
+}
+```
 
-### 3. Sistema de Favoritos
-- Agregar/quitar favoritos
-- Lista personal
-- Sincronización con cuenta
+## 🔐 Flujos de Autenticación
 
-### 4. Perfil de Usuario
-- Información personal
-- Cambio de contraseña
-- Preferencias
-- Historial de actividad
+### Registro de Usuario
+```
+1. Cliente → POST /api/v1/auth/register
+2. Server valida datos
+3. Server hashea password con bcrypt
+4. Server crea usuario en DB
+5. Server genera token de verificación
+6. Server envía email de verificación
+7. Server responde con success
+```
 
-### 5. Autenticación
-- Login/Registro
+### Login
+```
+1. Cliente → POST /api/v1/auth/login
+2. Server valida credenciales
+3. Server verifica password con bcrypt
+4. Server genera JWT access token (15min)
+5. Server genera refresh token (7d)
+6. Server actualiza lastLogin
+7. Cliente guarda tokens
+```
+
+### Refresh Token
+```
+1. Cliente detecta token expirado
+2. Cliente → POST /api/v1/auth/refresh-token
+3. Server valida refresh token
+4. Server genera nuevo access token
+5. Cliente actualiza token
+6. Request original se reintenta
+```
+
+## 🌐 Servicios y APIs
+
+### API REST Structure
+```
+BASE_URL: http://localhost:3001/api/v1
+
+Headers requeridos:
+- Content-Type: application/json
+- Authorization: Bearer {token} (rutas protegidas)
+
+Respuesta estándar:
+{
+  "success": true/false,
+  "data": {} | [],
+  "message": "string",
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 100,
+    "totalPages": 5
+  }
+}
+```
+
+### Servicios Frontend
+
+#### ApiConfig
+- Instancia global de axios
+- Interceptores para auth
+- Manejo de errores centralizado
+- Retry logic para tokens expirados
+
+#### AuthService
+- Login/logout
+- Registro
+- Refresh tokens
+- Gestión de sesión
 - Verificación de email
-- Recuperación de contraseña
-- Sesión persistente
 
-## Servicios y APIs
+#### AdminService
+- Estadísticas
+- Gestión de usuarios
+- Moderación de contenido
+- Configuración del sistema
+- Auditoría
 
-### Frontend Services
+## 🎨 Componentes Frontend
 
-#### authService.ts
+### Componentes de Layout
+- **Layout**: Wrapper principal con navbar y footer
+- **AdminLayout**: Layout específico para admin con sidebar
+- **ProtectedRoute**: HOC para rutas autenticadas
+- **PublicOnlyRoute**: HOC para rutas solo públicas
+
+### Componentes de Autenticación
+- **LoginComponent**: Formulario de login
+- **RegisterComponent**: Registro con validación
+- **ForgotPasswordComponent**: Recuperación de contraseña
+- **EmailVerificationBanner**: Banner para verificar email
+
+### Componentes Admin
+- **AdminDashboard**: Panel principal con métricas
+- **AdminUsers**: Gestión completa de usuarios
+- **AdminPlaces**: CRUD de lugares
+- **AdminReviews**: Moderación de reseñas
+- **AdminStats**: Estadísticas avanzadas con gráficos
+- **AdminAudit**: Logs de auditoría
+- **AdminSettings**: Configuración del sistema
+
+### Hooks Personalizados
+
+#### useAuth
 ```typescript
-- login(credentials)
-- register(userData)
-- logout()
-- getProfile()
-- updateProfile(data)
-- changePassword(data)
-- forgotPassword(email)
-- resetPassword(token, password)
-- verifyEmail(token)
-- refreshToken()
+const { user, isAuthenticated, isLoading, login, logout } = useAuth()
 ```
 
-#### placesService.ts
+#### useFavorites
 ```typescript
-- getPlacesByType(type)
-- searchPlaces(query)
-- getRandomPlaces(count)
-- processChatMessage(message, context)
-- getChatHistory()
-- adminListPlaces(params)
-- adminCreatePlace(data)
-- adminUpdatePlace(id, data)
-- adminVerifyPlace(id)
-- adminFeaturePlace(id, featured)
+const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
 ```
 
-#### favoritesService.ts
+#### useForm
 ```typescript
-- getFavorites()
-- addFavorite(placeId)
-- removeFavorite(placeId)
-- checkIsFavorite(placeId)
+const { values, errors, handleChange, handleSubmit } = useForm(initialValues, validate)
 ```
 
-### Backend APIs
+## 🔒 Seguridad
 
-#### Places API
-```
-GET    /api/v1/places
-GET    /api/v1/places/:id
-GET    /api/v1/places/search
-GET    /api/v1/places/random
-POST   /api/v1/places/:id/review
-```
+### Medidas Implementadas
 
-#### Admin API
-```
-GET    /api/v1/admin/places
-POST   /api/v1/admin/places
-PUT    /api/v1/admin/places/:id
-PATCH  /api/v1/admin/places/:id/status
-POST   /api/v1/admin/places/:id/verify
-POST   /api/v1/admin/places/:id/feature
-```
+1. **Autenticación y Autorización**
+   - JWT con expiración corta
+   - Refresh tokens seguros
+   - Roles y permisos granulares
+   - Sesiones con timeout
 
-## Componentes Principales
+2. **Validación y Sanitización**
+   - Express-validator en todos los endpoints
+   - Sanitización de HTML/scripts
+   - Validación de tipos TypeScript
+   - Límites de longitud
 
-### Layout Components
-- `Layout.tsx` - Layout principal para usuarios
-- `AdminLayout.tsx` - Layout exclusivo para admin
-- `AuthNavbar.tsx` - Navbar para usuarios autenticados
-- `ProtectedRoute.tsx` - Protección de rutas
+3. **Protección contra Ataques**
+   - Rate limiting por IP
+   - CORS configurado
+   - Helmet.js headers
+   - CSRF protection
+   - XSS prevention
+   - SQL injection prevention (usando ODM)
 
-### User Components
-- `HomeComponent.tsx` - Página principal
-- `MapComponent.tsx` - Mapa interactivo
-- `ChatComponent.tsx` - Chat con IA
-- `PlaceCards.tsx` - Tarjetas de lugares
-- `FavoritesComponent.tsx` - Gestión de favoritos
-- `ProfileComponent.tsx` - Perfil de usuario
+4. **Encriptación**
+   - Passwords con bcrypt (10 rounds)
+   - HTTPS en producción
+   - Tokens seguros con crypto
 
-### Auth Components
-- `LoginComponent.tsx` - Formulario de login
-- `RegisterComponent.tsx` - Formulario de registro
-- `ForgotPasswordComponent.tsx` - Recuperación de contraseña
-- `ResetPasswordComponent.tsx` - Restablecer contraseña
-- `VerifyEmailComponent.tsx` - Verificación de email
+5. **Auditoría y Monitoreo**
+   - Logging de acciones sensibles
+   - Tracking de IPs
+   - Alertas de actividad sospechosa
 
-### Admin Components
-- `AdminDashboard.tsx` - Panel principal
-- `AdminPlacesComponent.tsx` - Gestión de lugares
-- `AdminUsers.tsx` - Gestión de usuarios
-- `AdminReviews.tsx` - Moderación de reseñas
-- `AdminAudit.tsx` - Registro de auditoría
-- `AdminStats.tsx` - Estadísticas
-- `AdminSettings.tsx` - Configuración del sistema
-- `AdminNotifications.tsx` - Sistema de notificaciones
+## ⚡ Performance
 
-## Guía de Instalación
+### Optimizaciones Frontend
+- Code splitting por rutas
+- Lazy loading de componentes
+- Imágenes optimizadas con lazy load
+- Bundle size < 500KB
+- Service worker para cache
+- Debounce en búsquedas
 
-### Requisitos
-- Node.js v16+
-- MongoDB 4.4+
-- NPM o Yarn
+### Optimizaciones Backend
+- Índices en campos frecuentes
+- Paginación con cursor
+- Caché de respuestas frecuentes
+- Compresión gzip
+- Connection pooling MongoDB
+- Agregaciones optimizadas
 
-### Instalación Backend
-```bash
-cd server
-npm install
-cp .env.example .env
-# Configurar variables de entorno
-npm run dev
-```
+### Métricas Objetivo
+- First Contentful Paint: < 1.5s
+- Time to Interactive: < 3.5s
+- API response time: < 200ms
+- Lighthouse score: > 90
 
-### Instalación Frontend
-```bash
-cd client
-npm install
-npm run dev
-```
+## 🚀 Deployment
 
-### Scripts de Base de Datos
-```bash
-cd server/scripts
-node seedDatabase.js        # Crear datos de prueba
-node migratePlacesToMongoDB.js  # Migrar lugares
-```
+### Requisitos de Producción
+- Node.js 18+ LTS
+- MongoDB 6.0+
+- 2GB RAM mínimo
+- SSL certificado
+- Dominio configurado
 
-## Variables de Entorno
-
-### Backend (.env)
+### Variables de Entorno
 ```env
 # Server
+NODE_ENV=production
 PORT=3001
-NODE_ENV=development
 
 # Database
 MONGODB_URI=mongodb://localhost:27017/japasea
 
-# JWT
-JWT_SECRET=your-secret-key
+# Auth
+JWT_SECRET=your-super-secret-key
 JWT_REFRESH_SECRET=your-refresh-secret
 JWT_EXPIRE=15m
 JWT_REFRESH_EXPIRE=7d
@@ -366,59 +503,68 @@ JWT_REFRESH_EXPIRE=7d
 # Email
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
-EMAIL_FROM=noreply@japasea.com
+EMAIL_USER=your-email
+EMAIL_PASS=your-password
 
-# Frontend URL
-FRONTEND_URL=http://localhost:5173
+# Frontend
+FRONTEND_URL=https://japasea.com
+
+# Storage
+UPLOAD_PATH=/uploads
+MAX_FILE_SIZE=5MB
 ```
 
-### Frontend (.env)
-```env
-VITE_API_BASE_URL=http://localhost:3001
+### Proceso de Deploy
+
+1. **Build Frontend**
+```bash
+cd client
+npm run build
+# Archivos en dist/
 ```
 
-## Estados y Tipos
+2. **Configurar Backend**
+```bash
+cd server
+npm install --production
+pm2 start src/app.js --name japasea-api
+```
 
-### User States
-- `active` - Usuario activo
-- `suspended` - Usuario suspendido
-- `deleted` - Usuario eliminado
+3. **Configurar Nginx**
+```nginx
+server {
+    listen 80;
+    server_name japasea.com;
+    
+    # Frontend
+    location / {
+        root /var/www/japasea/client/dist;
+        try_files $uri /index.html;
+    }
+    
+    # API
+    location /api {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+    }
+}
+```
 
-### Place States
-- `active` - Lugar activo y visible
-- `inactive` - Lugar inactivo
-- `pending` - Pendiente de aprobación
-- `seasonal` - Lugar estacional
+4. **Configurar MongoDB**
+- Habilitar autenticación
+- Crear usuario específico
+- Configurar réplicas para HA
+- Backups automáticos
 
-### Review States
-- `pending` - Pendiente de moderación
-- `approved` - Aprobada y visible
-- `rejected` - Rechazada
+5. **Monitoreo**
+- PM2 para process management
+- Logs con Winston
+- Métricas con Prometheus
+- Alertas con email/Slack
 
-## Seguridad Implementada
+---
 
-1. **Autenticación JWT** con refresh tokens
-2. **Validación de entrada** en todos los endpoints
-3. **Rate limiting** para prevenir ataques
-4. **CORS** configurado
-5. **Bcrypt** para hash de contraseñas
-6. **Verificación de email** obligatoria
-7. **Roles y permisos** (user/admin)
-8. **Sanitización** de datos
-9. **HTTPS** en producción (configurar)
-10. **Tokens seguros** con expiración
-
-## Próximos Pasos
-
-1. **Implementar gráficos** en el dashboard admin
-2. **Sistema de pagos** con MercadoPago
-3. **Notificaciones push** para móvil
-4. **API de terceros** para clima/eventos
-5. **Sistema de reservas** para lugares
-6. **Multi-idioma** (español/guaraní/inglés)
-7. **App móvil** con React Native
-8. **Analytics avanzado** con métricas
-9. **Sistema de afiliados** para negocios
-10. **Optimización SEO** y performance
+**Última actualización**: Enero 2025
+**Versión**: 2.0

@@ -1,218 +1,312 @@
-# Lista de Endpoints API - Japasea
+# 📚 Documentación de API Endpoints - Japasea
 
-Base URL: `http://localhost:3001`
+## 📊 Resumen de Estado
+
+| Dominio | Total | Implementados | Pendientes |
+|---------|-------|---------------|------------|
+| Autenticación | 11 | 11 | 0 |
+| Lugares | 11 | 11 | 0 |
+| Favoritos | 4 | 4 | 0 |
+| Chat | 2 | 2 | 0 |
+| Admin - Usuarios | 7 | 7 | 0 |
+| Admin - Lugares | 5 | 5 | 0 |
+| Admin - Estadísticas | 2 | 2 | 0 |
+| Admin - Reseñas | 5 | 5 | 0 |
+| Admin - Auditoría | 2 | 2 | 0 |
+| Admin - Configuración | 2 | 2 | 0 |
+| Admin - Notificaciones | 1 | 1 | 0 |
+| Reseñas Públicas | 6 | 6 | 0 |
+| **TOTAL** | **58** | **58** | **0** |
+
+✅ **100% de endpoints implementados**
 
 ## 🔐 Autenticación (`/api/v1/auth`)
 
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| POST | `/register` | Registrar nuevo usuario | No |
-| POST | `/login` | Iniciar sesión | No |
-| POST | `/logout` | Cerrar sesión | Sí |
-| POST | `/refresh-token` | Renovar tokens | No |
-| POST | `/forgot-password` | Solicitar recuperación de contraseña | No |
-| POST | `/reset-password` | Restablecer contraseña con token | No |
-| GET | `/verify-email/:token` | Verificar email con token | No |
-| GET | `/profile` | Obtener perfil del usuario | Sí |
-| PUT | `/profile` | Actualizar perfil del usuario | Sí |
-| POST | `/change-password` | Cambiar contraseña | Sí |
-| DELETE | `/account` | Desactivar cuenta del usuario | Sí |
-| POST | `/resend-verification` | Reenviar email de verificación | Sí |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| POST | `/register` | Registro de nuevo usuario | ✅ IMPLEMENTADO |
+| POST | `/login` | Inicio de sesión | ✅ IMPLEMENTADO |
+| POST | `/logout` | Cerrar sesión | ✅ IMPLEMENTADO |
+| POST | `/refresh-token` | Renovar token de acceso | ✅ IMPLEMENTADO |
+| POST | `/forgot-password` | Solicitar recuperación de contraseña | ✅ IMPLEMENTADO |
+| POST | `/reset-password` | Restablecer contraseña | ✅ IMPLEMENTADO |
+| POST | `/verify-email` | Verificar email con token | ✅ IMPLEMENTADO |
+| POST | `/resend-verification` | Reenviar email de verificación | ✅ IMPLEMENTADO |
+| GET | `/me` | Obtener perfil del usuario actual | ✅ IMPLEMENTADO |
+| PUT | `/me` | Actualizar perfil | ✅ IMPLEMENTADO |
+| POST | `/change-password` | Cambiar contraseña | ✅ IMPLEMENTADO |
+
+### Ejemplos de Uso
+
+#### Registro
+```bash
+POST /api/v1/auth/register
+{
+  "name": "Juan Pérez",
+  "email": "juan@ejemplo.com",
+  "password": "password123",
+  "phone": "+595981234567"
+}
+```
+
+#### Login
+```bash
+POST /api/v1/auth/login
+{
+  "email": "juan@ejemplo.com",
+  "password": "password123"
+}
+```
 
 ## 📍 Lugares (`/api/v1/places`)
 
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/` | Listar todos los lugares | No |
-| GET | `/search?q=query` | Buscar lugares por texto | No |
-| GET | `/random?count=3` | Obtener lugares aleatorios | No |
-| GET | `/nearby?lat=x&lng=y&radius=5000` | Buscar lugares cercanos | No |
-| GET | `/trending?period=week&limit=10` | Obtener lugares en tendencia | No |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/` | Listar lugares con filtros | ✅ IMPLEMENTADO |
+| GET | `/:id` | Obtener detalle de lugar | ✅ IMPLEMENTADO |
+| GET | `/search` | Buscar lugares | ✅ IMPLEMENTADO |
+| GET | `/featured` | Lugares destacados | ✅ IMPLEMENTADO |
+| GET | `/nearby` | Lugares cercanos | ✅ IMPLEMENTADO |
+| GET | `/types` | Listar tipos disponibles | ✅ IMPLEMENTADO |
+| POST | `/` | Crear lugar (admin) | ✅ IMPLEMENTADO |
+| PUT | `/:id` | Actualizar lugar (admin) | ✅ IMPLEMENTADO |
+| DELETE | `/:id` | Eliminar lugar (admin) | ✅ IMPLEMENTADO |
+| POST | `/:id/photos` | Subir fotos (admin) | ✅ IMPLEMENTADO |
+| DELETE | `/:id/photos/:photoId` | Eliminar foto (admin) | ✅ IMPLEMENTADO |
 
-## ❤️ Favoritos (`/api/v1/favorites`)
+### Parámetros de Consulta
 
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/` | Listar favoritos del usuario | Sí |
-| GET | `/stats` | Obtener estadísticas de favoritos | Sí |
-| GET | `/check/:placeId` | Verificar si un lugar es favorito | Sí |
-| POST | `/check-multiple` | Verificar múltiples lugares | Sí |
-| POST | `/:placeId` | Agregar lugar a favoritos | Sí |
-| DELETE | `/:placeId` | Eliminar lugar de favoritos | Sí |
-| POST | `/sync` | Sincronizar favoritos (PWA) | Sí |
+- `type`: Filtrar por tipo (restaurant, hotel, etc.)
+- `city`: Filtrar por ciudad
+- `q`: Búsqueda por texto
+- `lat`, `lng`, `radius`: Búsqueda por proximidad
+- `page`, `limit`: Paginación
+- `sort`: Ordenamiento (name, rating, created)
+
+## ⭐ Favoritos (`/api/v1/favorites`)
+
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/` | Listar favoritos del usuario | ✅ IMPLEMENTADO |
+| POST | `/` | Agregar a favoritos | ✅ IMPLEMENTADO |
+| DELETE | `/:placeId` | Quitar de favoritos | ✅ IMPLEMENTADO |
+| GET | `/check/:placeId` | Verificar si es favorito | ✅ IMPLEMENTADO |
 
 ## 💬 Chat (`/api/v1/chat`)
 
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| POST | `/` | Procesar mensaje de chat con IA | Opcional |
-| GET | `/history?limit=10` | Obtener historial del chat | Sí |
-| GET | `/session/:sessionId` | Obtener sesión específica | Sí |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| POST | `/message` | Enviar mensaje al chat | ✅ IMPLEMENTADO |
+| GET | `/history` | Obtener historial | ✅ IMPLEMENTADO |
 
-## ⭐ Reseñas (`/api/v1/reviews`)
+## 👨‍💼 Admin - Gestión de Usuarios (`/api/v1/admin/users`)
 
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/places/:placeId` | Obtener reseñas de un lugar | Opcional |
-| POST | `/places/:placeId` | Crear nueva reseña | Sí |
-| GET | `/user` | Obtener mis reseñas | Sí |
-| PUT | `/:reviewId` | Actualizar reseña propia | Sí |
-| DELETE | `/:reviewId` | Eliminar reseña propia | Sí |
-| POST | `/:reviewId/vote` | Votar si reseña es útil | Sí |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/` | Listar usuarios | ✅ IMPLEMENTADO |
+| GET | `/:id` | Detalle de usuario | ✅ IMPLEMENTADO |
+| PATCH | `/:id/role` | Cambiar rol | ✅ IMPLEMENTADO |
+| PATCH | `/:id/suspend` | Suspender usuario | ✅ IMPLEMENTADO |
+| PATCH | `/:id/activate` | Activar usuario | ✅ IMPLEMENTADO |
+| DELETE | `/:id` | Eliminar usuario | ✅ IMPLEMENTADO |
+| GET | `/export` | Exportar usuarios | ✅ IMPLEMENTADO |
 
-## 🛡️ Administración (`/api/v1/admin`)
+### Parámetros de Consulta
+- `search`: Buscar por nombre o email
+- `role`: Filtrar por rol (user, admin)
+- `status`: Filtrar por estado (active, suspended)
+- `page`, `limit`: Paginación
 
-### Lugares (Admin)
+## 📍 Admin - Gestión de Lugares (`/api/v1/admin/places`)
 
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/places` | Listar lugares con filtros avanzados | Admin |
-| POST | `/places` | Crear nuevo lugar | Admin |
-| GET | `/places/:id` | Obtener detalle de lugar | Admin |
-| PUT | `/places/:id` | Actualizar lugar | Admin |
-| DELETE | `/places/:id` | Desactivar lugar | Admin |
-| PATCH | `/places/:id/status` | Cambiar estado del lugar | Admin |
-| POST | `/places/:id/verify` | Verificar lugar | Admin |
-| POST | `/places/:id/feature` | Destacar lugar | Admin |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/` | Listar lugares (admin) | ✅ IMPLEMENTADO |
+| PATCH | `/:id/status` | Cambiar estado | ✅ IMPLEMENTADO |
+| PATCH | `/:id/verify` | Verificar lugar | ✅ IMPLEMENTADO |
+| PATCH | `/:id/feature` | Destacar lugar | ✅ IMPLEMENTADO |
+| POST | `/bulk-action` | Acciones masivas | ✅ IMPLEMENTADO |
 
-### Usuarios (Admin)
+## 📊 Admin - Estadísticas (`/api/v1/admin/stats`)
 
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/users` | Listar usuarios | Admin |
-| GET | `/users/:id` | Obtener detalle de usuario | Admin |
-| PATCH | `/users/:id/role` | Cambiar rol de usuario | Admin |
-| PATCH | `/users/:id/suspend` | Suspender usuario | Admin |
-| PATCH | `/users/:id/activate` | Activar usuario | Admin |
-| DELETE | `/users/:id` | Eliminar usuario | Admin |
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/` | Estadísticas generales | ✅ IMPLEMENTADO |
+| GET | `/places` | Estadísticas de lugares | ✅ IMPLEMENTADO |
 
-### Estadísticas (Admin)
-
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/stats` | Obtener estadísticas generales | Admin |
-| GET | `/stats/places` | Estadísticas de lugares | Admin |
-
-### Reseñas (Admin)
-
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/reviews` | Listar reseñas | Admin |
-| PATCH | `/reviews/:id/approve` | Aprobar reseña | Admin |
-| PATCH | `/reviews/:id/reject` | Rechazar reseña | Admin |
-| DELETE | `/reviews/:id` | Eliminar reseña | Admin |
-
-### Auditoría (Admin)
-
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/audit/logs` | Obtener logs de auditoría | Admin |
-| POST | `/audit/export` | Exportar logs | Admin |
-
-### Configuración (Admin)
-
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/settings` | Obtener configuración del sistema | Admin |
-| PUT | `/settings` | Actualizar configuración | Admin |
-
-### Notificaciones (Admin)
-
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| POST | `/notifications/bulk` | Enviar notificación masiva | Admin |
-
-## 🔧 Sistema y Salud
-
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| GET | `/` | Información del servidor | No |
-| GET | `/api/` | Información de la API | No |
-| GET | `/api/health` | Estado de salud del servidor | No |
-| GET | `/api/status` | Estado detallado del sistema | No |
-| GET | `/api/v1/` | Información de la versión v1 | No |
-
-## 📝 Notas
-
-### Estados de Autenticación
-- **No**: Endpoint público, no requiere autenticación
-- **Sí**: Requiere token JWT válido (Bearer token)
-- **Admin**: Requiere token JWT válido y rol de administrador
-- **Opcional**: Funciona sin auth pero con funcionalidad limitada
-
-### Headers Requeridos
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-### Respuestas Estándar
-
-#### Éxito
+### Respuesta de Estadísticas Generales
 ```json
 {
   "success": true,
-  "data": { ... },
-  "message": "Operación exitosa"
-}
-```
-
-#### Error
-```json
-{
-  "success": false,
-  "error": "Código de error",
-  "message": "Descripción del error"
-}
-```
-
-#### Paginación
-```json
-{
-  "success": true,
-  "data": [ ... ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "totalPages": 5
+  "data": {
+    "users": {
+      "total": 156,
+      "active": 142,
+      "inactive": 14
+    },
+    "places": {
+      "total": 89,
+      "active": 75,
+      "pending": 8,
+      "verified": 65,
+      "featured": 12,
+      "byType": [
+        { "type": "restaurant", "count": 35 },
+        { "type": "hotel", "count": 20 }
+      ]
+    },
+    "activity": {
+      "last7Days": {
+        "newUsers": 12,
+        "newPlaces": 5
+      }
+    }
   }
 }
 ```
 
-### Rate Limits
-- Login: 5 intentos por minuto
-- Registro: 3 intentos por minuto
-- API general: 100 requests por minuto
+## 📝 Admin - Gestión de Reseñas (`/api/v1/admin/reviews`)
 
-### Estado de Implementación
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/` | Listar reseñas | ✅ IMPLEMENTADO |
+| PATCH | `/:id/approve` | Aprobar reseña | ✅ IMPLEMENTADO |
+| PATCH | `/:id/reject` | Rechazar reseña | ✅ IMPLEMENTADO |
+| DELETE | `/:id` | Eliminar reseña | ✅ IMPLEMENTADO |
+| GET | `/export` | Exportar reseñas | ✅ IMPLEMENTADO |
 
-✅ **Endpoints Completados (100%)**
-- Autenticación completa (12 endpoints)
-- Lugares públicos (5 endpoints)
-- Favoritos (7 endpoints)
-- Chat con IA (3 endpoints)
-- Reseñas públicas (6 endpoints)
-- Admin - Lugares (8 endpoints)
-- Admin - Usuarios (6 endpoints)
-- Admin - Estadísticas (2 endpoints)
-- Admin - Reseñas (4 endpoints)
-- Admin - Auditoría (2 endpoints)
-- Admin - Configuración (2 endpoints)
-- Admin - Notificaciones (1 endpoint)
-- Sistema y Salud (5 endpoints)
+### Parámetros de Consulta
+- `status`: pending, approved, rejected
+- `placeId`: Filtrar por lugar
+- `userId`: Filtrar por usuario
+- `page`, `limit`: Paginación
 
-**Total: 63 endpoints implementados**
+## 🔍 Admin - Auditoría (`/api/v1/admin/audit`)
 
-### Próximas Características
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/logs` | Obtener logs | ✅ IMPLEMENTADO |
+| GET | `/logs/export` | Exportar logs | ✅ IMPLEMENTADO |
 
-1. **Notificaciones Push** - Para web y móvil
-2. **Sistema de Pagos** - Integración con MercadoPago
-3. **API Pública v2** - Con GraphQL
-4. **Webhooks** - Para integraciones externas
-5. **Sistema de Reservas** - Para lugares y servicios
+### Parámetros de Consulta
+- `action`: Tipo de acción
+- `resource`: Tipo de recurso
+- `userId`: Filtrar por usuario
+- `startDate`, `endDate`: Rango de fechas
+- `page`, `limit`: Paginación
+
+## ⚙️ Admin - Configuración (`/api/v1/admin/settings`)
+
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/` | Obtener configuración | ✅ IMPLEMENTADO |
+| PUT | `/` | Actualizar configuración | ✅ IMPLEMENTADO |
+
+### Estructura de Configuración
+```json
+{
+  "general": {
+    "siteName": "Japasea",
+    "siteDescription": "Descubre los mejores lugares de Paraguay",
+    "contactEmail": "contacto@japasea.com",
+    "supportPhone": "+595 21 123 456"
+  },
+  "features": {
+    "enableRegistration": true,
+    "enableReviews": true,
+    "requireEmailVerification": true,
+    "enableChat": true
+  },
+  "notifications": {
+    "emailNotifications": true,
+    "newUserNotification": true,
+    "newReviewNotification": true
+  },
+  "security": {
+    "maxLoginAttempts": 5,
+    "sessionTimeout": 30,
+    "passwordMinLength": 8,
+    "require2FA": false
+  }
+}
+```
+
+## 📣 Admin - Notificaciones (`/api/v1/admin/notifications`)
+
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| POST | `/bulk` | Enviar notificación masiva | ✅ IMPLEMENTADO |
+
+## ⭐ Reseñas Públicas (`/api/v1/reviews`)
+
+| Método | Endpoint | Descripción | Estado |
+|--------|----------|-------------|--------|
+| GET | `/places/:placeId` | Reseñas de un lugar | ✅ IMPLEMENTADO |
+| POST | `/places/:placeId` | Crear reseña | ✅ IMPLEMENTADO |
+| GET | `/user` | Mis reseñas | ✅ IMPLEMENTADO |
+| PUT | `/:reviewId` | Actualizar mi reseña | ✅ IMPLEMENTADO |
+| DELETE | `/:reviewId` | Eliminar mi reseña | ✅ IMPLEMENTADO |
+| POST | `/:reviewId/vote` | Votar reseña útil | ✅ IMPLEMENTADO |
+
+### Crear Reseña
+```bash
+POST /api/v1/reviews/places/:placeId
+{
+  "rating": 4,
+  "comment": "Excelente lugar, muy recomendado"
+}
+```
+
+## 🔒 Autenticación y Autorización
+
+### Headers Requeridos
+```http
+Authorization: Bearer <jwt_token>
+```
+
+### Roles y Permisos
+- **guest**: Acceso público (búsqueda, ver lugares)
+- **user**: Usuario registrado (favoritos, reseñas)
+- **admin**: Administrador (gestión completa)
+
+## 🚦 Códigos de Estado
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | Éxito |
+| 201 | Creado exitosamente |
+| 400 | Error en la solicitud |
+| 401 | No autorizado |
+| 403 | Prohibido |
+| 404 | No encontrado |
+| 422 | Error de validación |
+| 429 | Demasiadas solicitudes |
+| 500 | Error del servidor |
+
+## 🔄 Rate Limiting
+
+- **Autenticación**: 5 intentos por IP cada 15 minutos
+- **API General**: 100 solicitudes por IP cada 15 minutos
+- **Búsqueda**: 30 solicitudes por IP cada minuto
+
+## 📝 Validación
+
+Todos los endpoints tienen validación automática con `express-validator`:
+- Sanitización de inputs
+- Validación de tipos
+- Límites de longitud
+- Formatos específicos (email, teléfono, etc.)
+
+## 🔧 Middleware Aplicado
+
+1. **Autenticación JWT**: Verifica tokens en rutas protegidas
+2. **Autorización por Rol**: Valida permisos según el rol
+3. **Rate Limiting**: Previene abuso de API
+4. **Validación**: Valida y sanitiza inputs
+5. **Auditoría**: Registra acciones importantes
+6. **CORS**: Configurado para el frontend
+7. **Compresión**: Respuestas comprimidas con gzip
 
 ---
 
-**Última actualización**: Enero 2025  
-**Versión API**: v1.0.0
+**Última actualización**: Enero 2025
