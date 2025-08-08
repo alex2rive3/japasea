@@ -135,6 +135,9 @@ class PlacesController {
         response = await PlacesController.generateSimpleRecommendation(message, context, normalizedPlaces)
       }
 
+      // Normalizar SIEMPRE la respuesta antes de guardarla en historial o retornarla
+      response = PlacesController.normalizeResponse(response)
+
       // Guardar en el historial si el usuario está autenticado
       if (req.user && req.user._id) {
         try {
@@ -149,11 +152,32 @@ class PlacesController {
           })
           
           // Añadir respuesta del bot
-          await chatHistory.addMessage({
+          const botMessageData = {
             text: response.message || 'Respuesta generada',
             sender: 'bot',
             response: response
-          })
+          }
+
+          if (process.env.CHAT_DEBUG_LOG === '1') {
+            try {
+              console.log('\n[CHAT_DEBUG] Pre-save BOT message (normalizado):')
+              console.log(JSON.stringify(botMessageData, null, 2))
+              const namesFromPlan = botMessageData?.response?.travelPlan?.days?.flatMap(d => d?.activities || [])
+                .map(a => a?.place?.name || a?.place?.key)
+                .filter(Boolean)
+              if (namesFromPlan?.length) {
+                console.log('[CHAT_DEBUG] Nombres en travelPlan:', namesFromPlan)
+              }
+              const namesFromSimple = botMessageData?.response?.places?.map(p => p?.name || p?.key).filter(Boolean)
+              if (namesFromSimple?.length) {
+                console.log('[CHAT_DEBUG] Nombres en places:', namesFromSimple)
+              }
+            } catch (e) {
+              console.log('[CHAT_DEBUG] Error imprimiendo BOT message:', e.message)
+            }
+          }
+
+          await chatHistory.addMessage(botMessageData)
           
           // Añadir sessionId a la respuesta
           response.sessionId = chatSessionId
@@ -162,68 +186,6 @@ class PlacesController {
           // No fallar la respuesta si hay error al guardar el historial
         }
       }
-
-      // Asegurar que todos los lugares tengan tanto 'key' como 'name'
-      if (response.travelPlan && response.travelPlan.days) {
-        response.travelPlan.days.forEach(day => {
-          if (day.activities) {
-            day.activities.forEach(activity => {
-              if (activity.place) {
-                // Asegurar que siempre haya un nombre
-                if (!activity.place.name && activity.place.key) {
-                  activity.place.name = activity.place.key
-                } else if (activity.place.name && !activity.place.key) {
-                  activity.place.key = activity.place.name
-                } else if (!activity.place.name && !activity.place.key) {
-                  console.error('Lugar sin nombre detectado:', activity.place)
-                  activity.place.name = 'Lugar por definir'
-                  activity.place.key = 'Lugar por definir'
-                }
-                
-                // Asegurar otros campos críticos
-                if (!activity.place.description) {
-                  activity.place.description = 'Descripción no disponible'
-                }
-                if (!activity.place.address) {
-                  activity.place.address = 'Dirección por confirmar'
-                }
-                if (!activity.place.location || typeof activity.place.location.lat !== 'number') {
-                  activity.place.location = { lat: -27.3309, lng: -55.8663 } // Centro de Encarnación
-                }
-              }
-            })
-          }
-        })
-      }
-
-      // También para places simples
-      if (response.places) {
-        response.places = response.places.map(place => {
-          if (!place.name && place.key) {
-            place.name = place.key
-          } else if (place.name && !place.key) {
-            place.key = place.name
-          } else if (!place.name && !place.key) {
-            console.error('Lugar sin nombre detectado:', place)
-            place.name = 'Lugar por definir'
-            place.key = 'Lugar por definir'
-          }
-          
-          // Asegurar otros campos críticos
-          if (!place.description) {
-            place.description = 'Descripción no disponible'
-          }
-          if (!place.address) {
-            place.address = 'Dirección por confirmar'
-          }
-          if (!place.location || typeof place.location.lat !== 'number') {
-            place.location = { lat: -27.3309, lng: -55.8663 } // Centro de Encarnación
-          }
-          
-          return place
-        })
-      }
-
       res.status(200).json(response)
 
     } catch (error) {
@@ -261,6 +223,54 @@ class PlacesController {
     )
     
     return hasTravelKeywords || hasMultipleActivities
+  }
+
+  static normalizePlace(rawPlace) {
+    if (!rawPlace || typeof rawPlace !== 'object') return rawPlace
+    const place = { ...rawPlace }
+    if (!place.name && place.key) {
+      place.name = place.key
+    } else if (place.name && !place.key) {
+      place.key = place.name
+    } else if (!place.name && !place.key) {
+      place.name = 'Lugar por definir'
+      place.key = 'Lugar por definir'
+    }
+    if (!place.category && place.type) {
+      place.category = place.type
+    }
+    if (!place.description) {
+      place.description = 'Descripción no disponible'
+    }
+    if (!place.address) {
+      place.address = 'Dirección por confirmar'
+    }
+    if (!place.location || typeof place.location.lat !== 'number' || typeof place.location.lng !== 'number') {
+      place.location = { lat: -27.3309, lng: -55.8663 }
+    }
+    return place
+  }
+
+  static normalizeResponse(response) {
+    if (!response || typeof response !== 'object') return response
+    const normalized = { ...response }
+    if (normalized.places && Array.isArray(normalized.places)) {
+      normalized.places = normalized.places.map(PlacesController.normalizePlace)
+    }
+    if (normalized.travelPlan && normalized.travelPlan.days) {
+      normalized.travelPlan = { ...normalized.travelPlan }
+      normalized.travelPlan.days = normalized.travelPlan.days.map(day => {
+        if (!day || !day.activities) return day
+        return {
+          ...day,
+          activities: day.activities.map(activity => ({
+            ...activity,
+            place: PlacesController.normalizePlace(activity.place)
+          }))
+        }
+      })
+    }
+    return normalized
   }
 
   static async generateTravelPlan(message, context, localPlaces) {
@@ -735,9 +745,19 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       const { limit = 10 } = req.query
       const history = await ChatHistory.getUserHistory(req.user._id, parseInt(limit))
 
+      // Normalizar nombres de lugares en el historial ya guardado
+      const normalizedHistory = history.map((h) => {
+        const obj = typeof h.toObject === 'function' ? h.toObject() : h
+        obj.messages = (obj.messages || []).map((m) => ({
+          ...m,
+          response: PlacesController.normalizeResponse(m.response)
+        }))
+        return obj
+      })
+
       res.status(200).json({
         status: 'success',
-        data: history
+        data: normalizedHistory
       })
     } catch (error) {
       console.error('Error getting chat history:', error)
@@ -773,9 +793,15 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
         })
       }
 
+      const obj = typeof history.toObject === 'function' ? history.toObject() : history
+      obj.messages = (obj.messages || []).map((m) => ({
+        ...m,
+        response: PlacesController.normalizeResponse(m.response)
+      }))
+
       res.status(200).json({
         status: 'success',
-        data: history
+        data: obj
       })
     } catch (error) {
       console.error('Error getting chat session:', error)

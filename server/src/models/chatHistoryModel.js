@@ -28,7 +28,8 @@ const chatHistorySchema = new mongoose.Schema({
       message: String,
       places: [{
         id: String,
-        name: String,
+        key: String,
+        name: { type: String, default: 'Lugar por definir' },
         category: String,
         description: String,
         location: {
@@ -58,7 +59,8 @@ const chatHistorySchema = new mongoose.Schema({
             activity: String,
             place: {
               id: String,
-              name: String,
+              key: String,
+              name: { type: String, default: 'Lugar por definir' },
               category: String,
               description: String,
               location: {
