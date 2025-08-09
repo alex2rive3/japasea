@@ -909,23 +909,20 @@ class AdminController {
         action: req.query.action,
         resource: req.query.resource,
         startDate: req.query.startDate,
-        endDate: req.query.endDate
-      }
-
-      const options = {
+        endDate: req.query.endDate,
         page: parseInt(req.query.page) || 1,
         limit: parseInt(req.query.limit) || 50
       }
 
-      const result = await Audit.getLogs(filters, options)
+      const result = await Audit.getLogs(filters)
 
       return res.status(200).json({
         success: true,
-        data: result.data.map(log => ({
+        data: result.logs.map(log => ({
           id: log._id,
-          userId: log.userId,
-          userName: log.user?.name,
-          userEmail: log.user?.email,
+          userId: log.userId?._id || log.userId,
+          userName: log.userId?.name,
+          userEmail: log.userId?.email,
           action: log.action,
           resource: log.resource,
           resourceId: log.resourceId,
@@ -944,14 +941,14 @@ class AdminController {
   static async exportAuditLogs(req, res) {
     try {
       const { format = 'csv', ...filters } = req.body
-
-      const result = await Audit.getLogs(filters, { limit: 10000 })
+      
+      const result = await Audit.getLogs({ ...filters, page: 1, limit: 10000 })
       
       if (format === 'csv') {
         const csv = [
           'ID,Usuario,Email,Acción,Recurso,Descripción,IP,Fecha',
-          ...result.data.map(log => 
-            `${log._id},${log.user?.name || ''},${log.user?.email || ''},${log.action},${log.resource},${log.description || ''},${log.metadata?.ipAddress || ''},${log.createdAt}`
+          ...result.logs.map(log => 
+            `${log._id},${log.userId?.name || ''},${log.userId?.email || ''},${log.action},${log.resource},${log.description || ''},${log.metadata?.ipAddress || ''},${log.createdAt}`
           )
         ].join('\n')
 
@@ -961,7 +958,7 @@ class AdminController {
       } else {
         res.setHeader('Content-Type', 'application/json')
         res.setHeader('Content-Disposition', 'attachment; filename=audit-logs.json')
-        return res.json(result.data)
+        return res.json(result.logs)
       }
     } catch (error) {
       console.error('Error exportando logs:', error)
