@@ -18,7 +18,7 @@ export interface ApiConfig {
 
 // Headers por defecto
 const getDefaultHeaders = (): HeadersInit => {
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   }
@@ -112,6 +112,19 @@ export class ApiClient {
   }
 
   /**
+   * Realiza una petición PATCH
+   */
+  async patch<T>(endpoint: string, data?: any, options: RequestInit = {}): Promise<T> {
+    const url = this.buildUrl(endpoint)
+    const response = await this.request<T>(url, {
+      ...options,
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined
+    })
+    return response
+  }
+
+  /**
    * Realiza una petición DELETE
    */
   async delete<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -198,11 +211,11 @@ export class ApiClient {
   updateAuthToken(token: string | null): void {
     if (token) {
       this.config.headers = {
-        ...this.config.headers,
+        ...(this.config.headers as Record<string, string>),
         'Authorization': `Bearer ${token}`
       }
     } else {
-      const headers = { ...this.config.headers }
+      const headers = { ...(this.config.headers as Record<string, string>) }
       delete headers['Authorization']
       this.config.headers = headers
     }

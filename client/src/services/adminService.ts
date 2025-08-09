@@ -47,12 +47,16 @@ class AdminService {
 
   async getPlaceStats(timeRange?: { start: Date; end: Date }) {
     try {
-      const params = timeRange ? {
-        startDate: timeRange.start.toISOString(),
-        endDate: timeRange.end.toISOString()
-      } : {}
-      const response = await api.get<any>('/api/v1/admin/stats/places', { params })
-      return response.data
+      const query = new URLSearchParams(
+        timeRange
+          ? {
+              startDate: timeRange.start.toISOString(),
+              endDate: timeRange.end.toISOString()
+            }
+          : {}
+      ).toString()
+      const response = await api.get<any>(`/api/v1/admin/stats/places${query ? `?${query}` : ''}`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error obteniendo estadísticas de lugares:', error)
       throw error
@@ -68,8 +72,14 @@ class AdminService {
     status?: string 
   }) {
     try {
-      const response = await api.get('/api/v1/admin/users', { params })
-      return response.data
+      const query = new URLSearchParams(
+        Object.entries(params || {}).reduce((acc, [k, v]) => {
+          if (v !== undefined && v !== null && String(v).length > 0) acc[k] = String(v)
+          return acc
+        }, {} as Record<string, string>)
+      ).toString()
+      const response = await api.get<any>(`/api/v1/admin/users${query ? `?${query}` : ''}`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error obteniendo usuarios:', error)
       throw error
@@ -78,8 +88,8 @@ class AdminService {
 
   async getUserById(userId: string): Promise<UserManagement> {
     try {
-      const response = await api.get(`/api/v1/admin/users/${userId}`)
-      return response.data.data
+      const response = await api.get<any>(`/api/v1/admin/users/${userId}`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error obteniendo usuario:', error)
       throw error
@@ -118,8 +128,8 @@ class AdminService {
 
   async deleteUser(userId: string) {
     try {
-      const response = await api.delete(`/api/v1/admin/users/${userId}`)
-      return response.data
+      const response = await api.delete<any>(`/api/v1/admin/users/${userId}`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error eliminando usuario:', error)
       throw error
@@ -135,8 +145,14 @@ class AdminService {
     status?: 'pending' | 'approved' | 'rejected'
   }) {
     try {
-      const response = await api.get('/api/v1/admin/reviews', { params })
-      return response.data
+      const query = new URLSearchParams(
+        Object.entries(params || {}).reduce((acc, [k, v]) => {
+          if (v !== undefined && v !== null && String(v).length > 0) acc[k] = String(v)
+          return acc
+        }, {} as Record<string, string>)
+      ).toString()
+      const response = await api.get<any>(`/api/v1/admin/reviews${query ? `?${query}` : ''}`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error obteniendo reviews:', error)
       throw error
@@ -145,8 +161,8 @@ class AdminService {
 
   async approveReview(reviewId: string) {
     try {
-      const response = await api.patch(`/api/v1/admin/reviews/${reviewId}/approve`)
-      return response.data
+      const response = await api.patch<any>(`/api/v1/admin/reviews/${reviewId}/approve`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error aprobando review:', error)
       throw error
@@ -155,8 +171,8 @@ class AdminService {
 
   async rejectReview(reviewId: string, reason?: string) {
     try {
-      const response = await api.patch(`/api/v1/admin/reviews/${reviewId}/reject`, { reason })
-      return response.data
+      const response = await api.patch<any>(`/api/v1/admin/reviews/${reviewId}/reject`, { reason })
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error rechazando review:', error)
       throw error
@@ -165,8 +181,8 @@ class AdminService {
 
   async deleteReview(reviewId: string) {
     try {
-      const response = await api.delete(`/api/v1/admin/reviews/${reviewId}`)
-      return response.data
+      const response = await api.delete<any>(`/api/v1/admin/reviews/${reviewId}`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error eliminando review:', error)
       throw error
@@ -184,8 +200,14 @@ class AdminService {
     endDate?: string
   }) {
     try {
-      const response = await api.get('/api/v1/admin/audit/logs', { params })
-      return response.data
+      const query = new URLSearchParams(
+        Object.entries(params || {}).reduce((acc, [k, v]) => {
+          if (v !== undefined && v !== null && String(v).length > 0) acc[k] = String(v)
+          return acc
+        }, {} as Record<string, string>)
+      ).toString()
+      const response = await api.get<any>(`/api/v1/admin/audit/logs${query ? `?${query}` : ''}`)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error obteniendo logs de auditoría:', error)
       throw error
@@ -194,13 +216,8 @@ class AdminService {
 
   async exportActivityLogs(format: 'csv' | 'json', filters?: any) {
     try {
-      const response = await api.post('/api/v1/admin/audit/export', {
-        format,
-        filters
-      }, {
-        responseType: 'blob'
-      })
-      return response.data
+      const response = await api.post<any>('/api/v1/admin/audit/export', { format, filters })
+      return response
     } catch (error) {
       console.error('Error exportando logs:', error)
       throw error
@@ -210,8 +227,8 @@ class AdminService {
   // === CONFIGURACIÓN ===
   async getSystemSettings() {
     try {
-      const response = await api.get('/api/v1/admin/settings')
-      return response.data.data
+      const response = await api.get<any>('/api/v1/admin/settings')
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error obteniendo configuración:', error)
       throw error
@@ -220,8 +237,8 @@ class AdminService {
 
   async updateSystemSettings(settings: any) {
     try {
-      const response = await api.put('/api/v1/admin/settings', settings)
-      return response.data
+      const response = await api.put<any>('/api/v1/admin/settings', settings)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error actualizando configuración:', error)
       throw error
@@ -236,8 +253,8 @@ class AdminService {
     type: 'info' | 'warning' | 'promotion'
   }) {
     try {
-      const response = await api.post('/api/v1/admin/notifications/bulk', params)
-      return response.data
+      const response = await api.post<any>('/api/v1/admin/notifications/bulk', params)
+      return (response as any)?.data ?? response
     } catch (error) {
       console.error('Error enviando notificación masiva:', error)
       throw error
