@@ -1,0 +1,29 @@
+{
+  "title": "Meus Favoritos",
+  "subtitle": {
+    "withFavorites": "Você tem {{count}} lugar{{plural}} favorito{{plural}}",
+    "noFavorites": "Você ainda não tem lugares favoritos"
+  },
+  "actions": {
+    "refresh": "Atualizar favoritos",
+    "remove": "Remover dos favoritos",
+    "goToHome": "Ir ao Início"
+  },
+  "empty": {
+    "title": "Você não tem favoritos ainda",
+    "description": "Descubra lugares no chat e marque os que mais gostar como favoritos"
+  },
+  "addedOn": "Adicionado: {{date}}",
+  "place": {
+    "type": "Tipo",
+    "rating": "Avaliação",
+    "location": "Localização",
+    "description": "Descrição",
+    "noDescription": "Nenhuma descrição disponível",
+    "noRating": "Sem avaliação"
+  },
+  "loading": "Carregando favoritos...",
+  "error": "Erro ao carregar favoritos",
+  "removeSuccess": "Lugar removido dos favoritos",
+  "removeError": "Erro ao remover dos favoritos"
+}

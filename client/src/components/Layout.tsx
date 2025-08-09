@@ -31,6 +31,7 @@ import {
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
 import { useAuth } from '../hooks/useAuth'
+import { useTranslation } from 'react-i18next'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -45,6 +46,7 @@ export const Layout = ({
   onNotificationClick, 
   onSearch 
 }: LayoutProps) => {
+  const { t } = useTranslation('common')
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
@@ -99,9 +101,9 @@ export const Layout = ({
   }
 
   const menuItems = [
-    { text: 'Inicio', icon: <HomeIcon />, path: '/' },
-    { text: 'Favoritos', icon: <WishlistIcon />, path: '/favorites' },
-    { text: 'Mi Perfil', icon: <AccountCircleIcon />, path: '/profile' },
+    { text: t('navigation.home'), icon: <HomeIcon />, path: '/' },
+    { text: t('navigation.favorites'), icon: <WishlistIcon />, path: '/favorites' },
+    { text: t('navigation.myProfile'), icon: <AccountCircleIcon />, path: '/profile' },
   ]
 
   const drawer = (
@@ -164,7 +166,7 @@ export const Layout = ({
             fontSize: '0.95rem'
           }}
         >
-          Ver Favoritos
+          {t('navigation.viewFavorites')}
         </Button>
       </Box>
     </Box>
@@ -357,14 +359,14 @@ export const Layout = ({
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
-                Ver Perfil
+                {t('userMenu.viewProfile')}
               </MenuItem>
               <Divider />
               <MenuItem onClick={handleLogout}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
-                Cerrar Sesión
+                {t('navigation.logout')}
               </MenuItem>
             </Menu>
           </Box>

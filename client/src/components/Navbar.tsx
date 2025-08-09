@@ -14,6 +14,8 @@ import {
   Notifications as NotificationsIcon,
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
+import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from './LanguageSwitcher'
 
 interface NavbarProps {
   onProfileClick?: () => void
@@ -26,6 +28,7 @@ export const Navbar = ({
   onNotificationClick, 
   onSearch 
 }: NavbarProps) => {
+  const { t } = useTranslation('common')
   const [searchQuery, setSearchQuery] = useState('')
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +82,7 @@ export const Navbar = ({
               display: { xs: 'none', sm: 'block' }
             }}
           >
-            Sophia's Travel
+            {t('appName')}
           </Typography>
         </Box>
 
@@ -119,7 +122,7 @@ export const Navbar = ({
             <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
             <input
               type="text"
-              placeholder="Planifica tu próxima aventura"
+              placeholder={t('search.placeholder')}
               value={searchQuery}
               onChange={handleSearchChange}
               style={{
@@ -134,8 +137,11 @@ export const Navbar = ({
           </Paper>
         </Box>
 
-        {/* Right Section - Notifications and Profile */}
+        {/* Right Section - Language, Notifications and Profile */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+          
           {/* Notifications */}
           <IconButton
             onClick={onNotificationClick}

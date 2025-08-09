@@ -27,12 +27,14 @@ import {
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
 import { useAuth } from '../hooks/useAuth'
+import { useTranslation } from 'react-i18next'
 
 interface AuthNavbarProps {
   onSearch?: (query: string) => void
 }
 
 export function AuthNavbar({ onSearch }: AuthNavbarProps) {
+  const { t } = useTranslation('common')
   const navigate = useNavigate()
   const { user, logout, isAuthenticated } = useAuth()
   
@@ -225,7 +227,7 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
                       <PersonIcon sx={{ fontSize: 16, color: 'primary.main' }} />
                     )}
                     <Typography variant="caption" color="primary.main">
-                      {user.role === 'admin' ? 'Administrador' : 'Usuario'}
+                      {user.role === 'admin' ? t('userRoles.admin') : t('userRoles.user')}
                     </Typography>
                   </Box>
                 </Box>
@@ -236,7 +238,7 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
                   <ListItemIcon>
                     <AccountCircleIcon fontSize="small" />
                   </ListItemIcon>
-                  <ListItemText>Mi Perfil</ListItemText>
+                  <ListItemText>{t('userMenu.viewProfile')}</ListItemText>
                 </MenuItem>
                 
                 {user.role === 'admin' && (
@@ -244,7 +246,7 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
                     <ListItemIcon>
                       <AdminIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Panel de Administración</ListItemText>
+                    <ListItemText>{t('userMenu.adminPanel')}</ListItemText>
                   </MenuItem>
                 )}
                 
@@ -252,7 +254,7 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
                   <ListItemIcon>
                     <SettingsIcon fontSize="small" />
                   </ListItemIcon>
-                  <ListItemText>Configuración</ListItemText>
+                  <ListItemText>{t('userMenu.settings')}</ListItemText>
                 </MenuItem>
                 
                 <Divider />
@@ -261,7 +263,7 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
                   <ListItemIcon>
                     <LogoutIcon fontSize="small" color="error" />
                   </ListItemIcon>
-                  <ListItemText>Cerrar Sesión</ListItemText>
+                  <ListItemText>{t('navigation.logout')}</ListItemText>
                 </MenuItem>
               </Menu>
             </>
@@ -274,14 +276,14 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
                 onClick={handleLoginClick}
                 sx={{ display: { xs: 'none', sm: 'flex' } }}
               >
-                Iniciar Sesión
+                {t('navigation.login')}
               </Button>
               <Button
                 variant="contained"
                 size="small"
                 onClick={handleRegisterClick}
               >
-                Registrarse
+                {t('navigation.register')}
               </Button>
             </Box>
           )}

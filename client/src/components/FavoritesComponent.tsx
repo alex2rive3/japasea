@@ -20,9 +20,11 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material'
 import { useFavorites } from '../hooks/useFavorites'
+import { useTranslation } from 'react-i18next'
 
 export const FavoritesComponent = () => {
   const { favorites, loading, error, refreshFavorites, removeFavorite } = useFavorites()
+  const { t } = useTranslation('favorites')
 
   const handleRemoveFavorite = async (placeId: string) => {
     try {
@@ -63,16 +65,19 @@ export const FavoritesComponent = () => {
             }}
           >
             <FavoriteIcon color="primary" fontSize="large" />
-            Mis Favoritos
+            {t('title')}
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
             {favorites.length > 0 
-              ? `Tienes ${favorites.length} lugar${favorites.length !== 1 ? 'es' : ''} favorito${favorites.length !== 1 ? 's' : ''}`
-              : 'Aún no tienes lugares favoritos'
+              ? t('subtitle.withFavorites', { 
+                  count: favorites.length,
+                  plural: favorites.length !== 1 ? 's' : ''
+                })
+              : t('subtitle.noFavorites')
             }
           </Typography>
         </Box>
-        <Tooltip title="Actualizar favoritos">
+        <Tooltip title={t('actions.refresh')}>
           <IconButton onClick={handleRefresh} disabled={loading}>
             <RefreshIcon />
           </IconButton>
@@ -93,13 +98,13 @@ export const FavoritesComponent = () => {
           <CardContent sx={{ textAlign: 'center', py: 6 }}>
             <FavoriteIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              No tienes favoritos aún
+              {t('empty.title')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Descubre lugares desde el chat y marca los que más te gusten como favoritos
+              {t('empty.description')}
             </Typography>
             <Button variant="contained" href="/">
-              Ir al Inicio
+              {t('actions.goToHome')}
             </Button>
           </CardContent>
         </Card>
@@ -145,7 +150,7 @@ export const FavoritesComponent = () => {
                       textTransform: 'capitalize'
                     }}
                   />
-                  <Tooltip title="Eliminar de favoritos">
+                  <Tooltip title={t('actions.remove')}>
                     <IconButton 
                       size="small" 
                       onClick={() => handleRemoveFavorite(place._id)}
@@ -217,7 +222,7 @@ export const FavoritesComponent = () => {
                           fontSize: '0.875rem'
                         }}
                       >
-                        {place.rating.average.toFixed(1)} ⭐ ({place.rating.count} reseñas)
+                        {place.rating.average.toFixed(1)} ⭐ ({place.rating.count} {t('place.reviews', { ns: 'home' })})
                       </Typography>
                     </Box>
                   )}
@@ -231,7 +236,7 @@ export const FavoritesComponent = () => {
                         fontStyle: 'italic'
                       }}
                     >
-                      📅 Agregado: {new Date(place.favoritedAt).toLocaleDateString('es-ES')}
+                      📅 {t('addedOn', { date: new Date(place.favoritedAt).toLocaleDateString() })}
                     </Typography>
                   )}
                 </Box>

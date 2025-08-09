@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material'
 import type { TravelPlan, TravelActivity, Place } from '../types/places'
 import PlaceDetailsModal from './PlaceDetailsModal'
+import { useTranslation } from 'react-i18next'
 
 interface TravelPlanComponentProps {
   travelPlan: TravelPlan
@@ -30,6 +31,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
   travelPlan,
   onPlaceClick
 }) => {
+  const { t } = useTranslation('home')
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -61,7 +63,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
       type: place.type || 'restaurant', // Default más específico
       location: place.location || { lat: 0, lng: 0 },
       // Datos adicionales que pueden venir del backend
-      phone: place.phone || (place.description ? extractPhoneNumber(place.description) : null),
+      phone: place.phone || (place.description ? extractPhoneNumber(place.description) ?? undefined : undefined),
       email: place.email,
       website: place.website,
       rating: place.rating,
@@ -163,7 +165,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                     fontSize: '0.875rem',
                     wordBreak: 'break-word'
                   }}>
-                    Día {day.dayNumber} • {day.title}
+                    {t('travelPlan.day')} {day.dayNumber} • {day.title}
                   </Typography>
                 </Box>
 
@@ -368,7 +370,7 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
               fontSize: '0.75rem',
               wordBreak: 'break-word'
             }}>
-              ✨ {totalActivities} actividades en {totalDays} día{totalDays > 1 ? 's' : ''}
+              ✨ {t('travelPlan.activitiesSummary', { count: totalActivities, days: totalDays })}
             </Typography>
           </Paper>
         )

@@ -1,0 +1,66 @@
+{
+  "appName": "Japasea",
+  "navigation": {
+    "home": "Início",
+    "places": "Lugares",
+    "favorites": "Favoritos",
+    "profile": "Perfil",
+    "myProfile": "Meu Perfil",
+    "admin": "Administração",
+    "login": "Entrar",
+    "logout": "Sair",
+    "register": "Registrar",
+    "viewFavorites": "Ver Favoritos"
+  },
+  "userMenu": {
+    "viewProfile": "Ver Perfil",
+    "adminPanel": "Painel de Administração",
+    "settings": "Configurações"
+  },
+  "userRoles": {
+    "admin": "Administrador",
+    "user": "Usuário"
+  },
+  "buttons": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Deletar",
+    "edit": "Editar",
+    "add": "Adicionar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "submit": "Enviar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "close": "Fechar",
+    "confirm": "Confirmar"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação",
+    "yes": "Sim",
+    "no": "Não",
+    "name": "Nome",
+    "description": "Descrição",
+    "email": "Email",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "phone": "Telefone",
+    "address": "Endereço",
+    "city": "Cidade",
+    "country": "País",
+    "date": "Data",
+    "time": "Hora",
+    "price": "Preço",
+    "category": "Categoria",
+    "status": "Status",
+    "actions": "Ações"
+  },
+  "search": {
+    "placeholder": "Planeje sua próxima aventura"
+  }
+}

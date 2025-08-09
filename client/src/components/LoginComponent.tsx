@@ -22,6 +22,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useFormWithValidation, loginSchema } from '../hooks/useForm'
 import type { LoginCredentials } from '../types/auth'
 import { authStyles, fieldVariants, quickStyles } from '../styles'
+import { useTranslation } from 'react-i18next'
 
 interface LoginFormData {
   email: string
@@ -31,6 +32,7 @@ interface LoginFormData {
 export function LoginComponent() {
   const navigate = useNavigate()
   const { login, isLoading, user, isAuthenticated } = useAuth()
+  const { t } = useTranslation('auth')
   
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -74,7 +76,7 @@ export function LoginComponent() {
       navigate(preferredPath, { replace: true })
       
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+      const errorMessage = error instanceof Error ? error.message : t('errors.networkError')
       setError(errorMessage)
     }
   }
@@ -98,7 +100,7 @@ export function LoginComponent() {
                 fontSize: { xs: '2rem', sm: '2.5rem' }
               }}
             >
-              Japasea
+              {t('appName', { ns: 'common' })}
             </Typography>
             <Typography 
               variant="h6" 
@@ -108,7 +110,7 @@ export function LoginComponent() {
                 opacity: 0.8
               }}
             >
-              Bienvenido de vuelta
+              {t('login.subtitle')}
             </Typography>
           </Box>
 
@@ -135,7 +137,7 @@ export function LoginComponent() {
                   fullWidth
                   type="email"
                   label="Email"
-                  placeholder="tu@email.com"
+                  placeholder={t('login.emailPlaceholder')}
                   disabled={isLoading || isSubmitting}
                   error={!!errors.email}
                   helperText={errors.email?.message}
@@ -159,8 +161,8 @@ export function LoginComponent() {
                   {...field}
                   fullWidth
                   type={showPassword ? 'text' : 'password'}
-                  label="Contraseña"
-                  placeholder="Tu contraseña"
+                  label={t('common.password', { ns: 'common' })}
+                  placeholder={t('login.passwordPlaceholder')}
                   disabled={isLoading || isSubmitting}
                   error={!!errors.password}
                   helperText={errors.password?.message}
@@ -198,7 +200,7 @@ export function LoginComponent() {
                   '&:hover': { textDecoration: 'underline' }
                 }}
               >
-                ¿Olvidaste tu contraseña?
+                {t('login.forgotPassword')}
               </Button>
             </Box>
 
@@ -213,16 +215,16 @@ export function LoginComponent() {
               {(isLoading || isSubmitting) ? (
                 <>
                   <CircularProgress size={20} color="inherit" sx={quickStyles.loadingIcon} />
-                  Iniciando sesión...
+                  {t('login.submit')}...
                 </>
               ) : (
-                'Iniciar Sesión'
+                t('login.submit')
               )}
             </Button>
 
             <Box sx={authStyles.link}>
               <Typography variant="body2" color="text.secondary">
-                ¿No tienes una cuenta?{' '}
+                {t('login.noAccount')}{' '}
                 <Link
                   to="/register"
                   style={{
@@ -231,7 +233,7 @@ export function LoginComponent() {
                     fontWeight: 600
                   }}
                 >
-                  Regístrate
+                  {t('login.signUp')}
                 </Link>
               </Typography>
             </Box>

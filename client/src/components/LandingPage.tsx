@@ -8,9 +8,11 @@ import SecurityIcon from '@mui/icons-material/Security'
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch'
 import logo from '../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation('landing')
 
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
@@ -32,10 +34,10 @@ export default function LandingPage() {
                   <Typography variant="h5" fontWeight={700}>Japasea</Typography>
                 </Stack>
                 <Typography variant="h2" fontWeight={800} lineHeight={1.1}>
-                  Descubrí Paraguay con una plataforma moderna y simple
+                  {t('hero.title')}
                 </Typography>
                 <Typography variant="h6" color="text.secondary">
-                  Mapas, reseñas, favoritos y un panel para negocios. Minimalista, rápido y listo para vender.
+                  {t('hero.subtitle')}
                 </Typography>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} pt={1}>
                   <Button
@@ -45,7 +47,7 @@ export default function LandingPage() {
                     onClick={() => navigate('/register')}
                     sx={{ px: 3, py: 1.2 }}
                   >
-                    Empezar gratis
+                    {t('hero.startFree')}
                   </Button>
                   <Button
                     variant="outlined"
@@ -53,12 +55,12 @@ export default function LandingPage() {
                     onClick={() => navigate('/login')}
                     sx={{ px: 3, py: 1.2 }}
                   >
-                    Ver demo
+                    {t('hero.viewDemo')}
                   </Button>
                 </Stack>
                 <Stack direction="row" spacing={1} pt={2}>
-                  <Chip color="primary" variant="outlined" size="small" icon={<RocketLaunchIcon />} label="Listo para producción" />
-                  <Chip color="default" variant="outlined" size="small" icon={<SecurityIcon />} label="Seguro y auditable" />
+                  <Chip color="primary" variant="outlined" size="small" icon={<RocketLaunchIcon />} label={t('hero.readyForProduction')} />
+                  <Chip color="default" variant="outlined" size="small" icon={<SecurityIcon />} label={t('hero.secureAndAuditable')} />
                 </Stack>
               </Stack>
             </Grid>
@@ -77,7 +79,7 @@ export default function LandingPage() {
                 <Stack spacing={1} alignItems="center">
                   <MapIcon color="primary" sx={{ fontSize: 56 }} />
                   <Typography variant="h6" textAlign="center" maxWidth={360}>
-                    Mapa interactivo, chat con IA e insights para negocios. Todo en una sola plataforma.
+                    {t('hero.description')}
                   </Typography>
                 </Stack>
               </Box>
@@ -90,21 +92,21 @@ export default function LandingPage() {
       <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
         <Grid container spacing={3}>
           {[
-            { icon: <MapIcon color="primary" />, title: 'Mapa y lugares', desc: 'Exploración por categorías, filtros y cercanía.' },
-            { icon: <ChatIcon color="primary" />, title: 'Chat con IA', desc: 'Recomendaciones inteligentes en tu idioma.' },
-            { icon: <SecurityIcon color="primary" />, title: 'Seguro y escalable', desc: 'JWT, auditoría, rate limiting y roles.' },
-          ].map(({ icon, title, desc }) => (
-            <Grid item xs={12} md={4} key={title}>
+            { icon: <MapIcon color="primary" />, titleKey: 'features.mapAndPlaces.title', descKey: 'features.mapAndPlaces.description' },
+            { icon: <ChatIcon color="primary" />, titleKey: 'features.aiChat.title', descKey: 'features.aiChat.description' },
+            { icon: <SecurityIcon color="primary" />, titleKey: 'features.security.title', descKey: 'features.security.description' },
+          ].map(({ icon, titleKey, descKey }) => (
+            <Grid item xs={12} md={4} key={titleKey}>
               <Card variant="outlined" sx={{ height: '100%', borderRadius: 3 }}>
                 <CardContent>
                   <Stack spacing={1.2}>
                     <Box>{icon}</Box>
-                    <Typography variant="h6" fontWeight={700}>{title}</Typography>
-                    <Typography color="text.secondary">{desc}</Typography>
+                    <Typography variant="h6" fontWeight={700}>{t(titleKey)}</Typography>
+                    <Typography color="text.secondary">{t(descKey)}</Typography>
                     <Stack direction="row" spacing={1} pt={1}>
-                      <Chip size="small" icon={<CheckIcon />} label="Rápido" variant="outlined" />
-                      <Chip size="small" icon={<CheckIcon />} label="Minimalista" variant="outlined" />
-                      <Chip size="small" icon={<CheckIcon />} label="Listo para vender" variant="outlined" />
+                      <Chip size="small" icon={<CheckIcon />} label={t('features.labels.fast')} variant="outlined" />
+                      <Chip size="small" icon={<CheckIcon />} label={t('features.labels.minimalist')} variant="outlined" />
+                      <Chip size="small" icon={<CheckIcon />} label={t('features.labels.readyToSell')} variant="outlined" />
                     </Stack>
                   </Stack>
                 </CardContent>
@@ -119,16 +121,16 @@ export default function LandingPage() {
         <Container maxWidth="lg">
           <Grid container spacing={3}>
             {[
-              { value: '95%+', label: 'Core listo' },
-              { value: '58', label: 'Endpoints API' },
-              { value: 'A+', label: 'Seguridad' },
-            ].map(({ value, label }) => (
-              <Grid item xs={12} md={4} key={label}>
+              { value: '95%+', labelKey: 'metrics.coreReady' },
+              { value: '58', labelKey: 'metrics.apiEndpoints' },
+              { value: 'A+', labelKey: 'metrics.security' },
+            ].map(({ value, labelKey }) => (
+              <Grid item xs={12} md={4} key={labelKey}>
                 <Stack spacing={0.5} alignItems="center">
                   <Typography variant="h3" fontWeight={800}>{value}</Typography>
                   <Stack direction="row" spacing={0.5} alignItems="center">
                     <StarIcon color="warning" />
-                    <Typography color="text.secondary">{label}</Typography>
+                    <Typography color="text.secondary">{t(labelKey)}</Typography>
                   </Stack>
                 </Stack>
               </Grid>
@@ -150,14 +152,14 @@ export default function LandingPage() {
           }}
         >
           <Typography variant="h4" fontWeight={800} gutterBottom>
-            Listo para despegar en tu ciudad
+            {t('cta.title')}
           </Typography>
           <Typography color="text.secondary" sx={{ maxWidth: 720, mx: 'auto' }}>
-            Implementación rápida, diseño minimalista y enfoque en conversión. Probalo gratis y sumá tu negocio hoy.
+            {t('cta.subtitle')}
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" mt={3}>
-            <Button variant="contained" size="large" onClick={() => navigate('/register')} endIcon={<ArrowForwardIcon />}>Comenzar ahora</Button>
-            <Button variant="outlined" size="large" onClick={() => navigate('/login')}>Iniciar sesión</Button>
+            <Button variant="contained" size="large" onClick={() => navigate('/register')} endIcon={<ArrowForwardIcon />}>{t('cta.startNow')}</Button>
+            <Button variant="outlined" size="large" onClick={() => navigate('/login')}>{t('cta.login')}</Button>
           </Stack>
         </Box>
       </Container>

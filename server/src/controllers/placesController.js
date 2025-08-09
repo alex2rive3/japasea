@@ -6,6 +6,84 @@ const ai = new GoogleGenAI({})
 
 class PlacesController {
 
+  // Función para detectar el idioma del mensaje
+  static detectLanguage(message) {
+    const messageLower = message.toLowerCase()
+    
+    // Palabras clave en español
+    const spanishKeywords = ['donde', 'dónde', 'que', 'qué', 'como', 'cómo', 'cuando', 'cuándo', 'quiero', 'busco', 'necesito', 'puedo', 'restaurante', 'hotel', 'lugar', 'comida', 'comer', 'visitar', 'hacer', 'ir', 'ver', 'conocer', 'recomendar', 'recomendación', 'plan', 'viaje', 'turismo', 'actividad', 'lugares']
+    
+    // Palabras clave en portugués
+    const portugueseKeywords = ['onde', 'que', 'como', 'quando', 'quero', 'procuro', 'preciso', 'posso', 'restaurante', 'hotel', 'lugar', 'comida', 'comer', 'visitar', 'fazer', 'ir', 'ver', 'conhecer', 'recomendar', 'recomendação', 'plano', 'viagem', 'turismo', 'atividade', 'lugares', 'gostaria', 'gosto']
+    
+    // Palabras clave en inglés
+    const englishKeywords = ['where', 'what', 'how', 'when', 'want', 'looking', 'need', 'can', 'restaurant', 'hotel', 'place', 'food', 'eat', 'visit', 'do', 'go', 'see', 'know', 'recommend', 'recommendation', 'plan', 'trip', 'travel', 'tourism', 'activity', 'places', 'would', 'like']
+    
+    let spanishScore = 0
+    let portugueseScore = 0
+    let englishScore = 0
+    
+    // Contar coincidencias
+    spanishKeywords.forEach(keyword => {
+      if (messageLower.includes(keyword)) spanishScore++
+    })
+    
+    portugueseKeywords.forEach(keyword => {
+      if (messageLower.includes(keyword)) portugueseScore++
+    })
+    
+    englishKeywords.forEach(keyword => {
+      if (messageLower.includes(keyword)) englishScore++
+    })
+    
+    // Determinar idioma basado en mayor puntaje
+    if (spanishScore >= portugueseScore && spanishScore >= englishScore) {
+      return 'es'
+    } else if (portugueseScore > spanishScore && portugueseScore >= englishScore) {
+      return 'pt'
+    } else if (englishScore > spanishScore && englishScore > portugueseScore) {
+      return 'en'
+    }
+    
+    // Por defecto inglés si no se puede determinar
+    return 'en'
+  }
+
+  // Función para obtener configuración de idioma
+  static getLanguageConfig(language) {
+    const configs = {
+      'es': {
+        languageInstruction: 'Responde en español natural y amigable',
+        messageInstruction: 'Respuesta concisa en español',
+        titleSuffix: 'para tu consulta',
+        examples: {
+          query: '¿Dónde puedo comer buena pizza?',
+          expected: '3-4 pizzerías específicas de Encarnación'
+        }
+      },
+      'en': {
+        languageInstruction: 'Always respond in natural and friendly English',
+        messageInstruction: 'Concise response in English',
+        titleSuffix: 'for your query',
+        examples: {
+          query: 'Where can I eat good pizza?',
+          expected: '3-4 specific pizzerias in Encarnación'
+        }
+      },
+      'pt': {
+        languageInstruction: 'Sempre responda em português natural e amigável',
+        messageInstruction: 'Resposta concisa em português',
+        titleSuffix: 'para sua consulta',
+        examples: {
+          query: 'Onde posso comer boa pizza?',
+          expected: '3-4 pizzarias específicas de Encarnación'
+        }
+      }
+    }
+    
+    return configs[language] || configs['en']
+  }
+
   static async getPlaces(req, res) {
     try {
       const { type } = req.query
@@ -422,7 +500,13 @@ class PlacesController {
   }
 
   static async generateTravelPlan(message, context, localPlaces) {
+    const detectedLanguage = PlacesController.detectLanguage(message)
+    const langConfig = PlacesController.getLanguageConfig(detectedLanguage)
+    
     const prompt = `Eres JapaseaBot, un asistente turístico especializado en Encarnación, Paraguay, experto en crear planes de viaje personalizados y detallados.
+
+## CONFIGURACIÓN DE IDIOMA:
+**IMPORTANTE**: ${langConfig.languageInstruction}. Detecté que la consulta está en ${detectedLanguage === 'es' ? 'español' : detectedLanguage === 'pt' ? 'portugués' : 'inglés'}, por favor responde en ese mismo idioma.
 
 ## INFORMACIÓN GEOGRÁFICA Y TURÍSTICA:
 - **Ubicación**: Encarnación, Departamento de Itapúa, Paraguay
@@ -460,7 +544,7 @@ Analiza la consulta para identificar:
 ## ESTRUCTURA DE RESPUESTA OPTIMIZADA (JSON):
 
 {
-  "message": "Mensaje personalizado que resume el plan creado, destaca los puntos fuertes y da consejos adicionales (100-150 palabras)",
+  "message": "${langConfig.messageInstruction} que resume el plan creado, destaca los puntos fuertes y da consejos adicionales (100-150 palabras)",
   "travelPlan": {
     "totalDays": [número_detectado_o_1_por_defecto],
     "days": [
@@ -480,21 +564,7 @@ Analiza la consulta para identificar:
               "location": {
                 "lat": -27.xxxx,
                 "lng": -55.xxxx
-              {
-            "time": "21:00",
-            "category": "Entretenimiento",
-            "place": {
-              "key": "Nombre exacto del bar/discoteca",
-              "name": "Nombre exacto del bar/discoteca",
-              "type": "Entretenimiento",
-              "description": "Tipo de música, ambiente, horarios, por qué es ideal para terminar la noche",
-              "address": "Dirección específica",
-              "location": {
-                "lat": -27.xxxx,
-                "lng": -55.xxxx
               }
-            }
-          }
             }
           },
           {
@@ -556,13 +626,35 @@ Analiza la consulta para identificar:
                 "lng": -55.xxxx
               }
             }
+          },
+          {
+            "time": "21:00",
+            "category": "Entretenimiento",
+            "place": {
+              "key": "Nombre exacto del bar/discoteca",
+              "name": "Nombre exacto del bar/discoteca",
+              "type": "Entretenimiento",
+              "description": "Tipo de música, ambiente, horarios, por qué es ideal para terminar la noche",
+              "address": "Dirección específica",
+              "location": {
+                "lat": -27.xxxx,
+                "lng": -55.xxxx
+              }
+            }
           }
         ]
       }
     ]
   },
   "timestamp": "${new Date().toISOString()}"
-} `
+}
+
+## EJEMPLOS DE CONSULTAS Y RESPUESTAS ESPERADAS:
+
+**Consulta**: "${langConfig.examples.query}"
+**Respuesta esperada**: ${langConfig.examples.expected}
+
+RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.`
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -587,9 +679,14 @@ Analiza la consulta para identificar:
   }
 
   static async generateSimpleRecommendation(message, context, localPlaces) {
+    const detectedLanguage = PlacesController.detectLanguage(message)
+    const langConfig = PlacesController.getLanguageConfig(detectedLanguage)
   
     const prompt = `
 Eres JapaseaBot, un asistente turístico local especializado en Encarnación, Paraguay. Tienes conocimiento exhaustivo de la ciudad y respondes consultas específicas con recomendaciones precisas.
+
+## CONFIGURACIÓN DE IDIOMA:
+**IMPORTANTE**: ${langConfig.languageInstruction}. Detecté que la consulta está en ${detectedLanguage === 'es' ? 'español' : detectedLanguage === 'pt' ? 'portugués' : 'inglés'}, por favor responde en ese mismo idioma.
 
 ## CONTEXTO DE ENCARNACIÓN:
 - Ciudad fronteriza con Posadas, Argentina
@@ -600,12 +697,12 @@ Eres JapaseaBot, un asistente turístico local especializado en Encarnación, Pa
 - Coordenadas: -27.3309, -55.8663
 
 ## DATOS LOCALES DE REFERENCIA:
-${JSON.stringify(localPlaces.slice(0, 10), null, 2)}
+${JSON.stringify(localPlaces.slice(0, 15), null, 2)}
 
-## CONSULTA DEL USUARIO: 
+## CONSULTA DEL USUARIO:
 "${message}"
 
-## CONTEXTO PREVIO: 
+## CONTEXTO PREVIO:
 ${context || 'Primera consulta'}
 
 ## INSTRUCCIONES PARA LA RESPUESTA:
@@ -615,7 +712,7 @@ ${context || 'Primera consulta'}
 2. **RELEVANCIA**: Cada lugar debe responder DIRECTAMENTE a la consulta específica
 3. **PRECISIÓN**: Usa nombres reales de establecimientos de Encarnación
 4. **CONCISIÓN**: Respuesta directa sin información adicional no solicitada
-5. **IDIOMA**: Responde en español natural y amigable
+5. **IDIOMA**: ${langConfig.languageInstruction}
 
 ### CRITERIOS DE SELECCIÓN:
 - Prioriza lugares que coincidan exactamente con lo solicitado
@@ -625,13 +722,13 @@ ${context || 'Primera consulta'}
 
 ### FORMATO DE RESPUESTA REQUERIDO (JSON):
 {
-  "message": "Respuesta concisa en español (máximo 80 palabras) que introduce las recomendaciones",
+  "message": "${langConfig.messageInstruction} (máximo 80 palabras) que introduce las recomendaciones",
   "travelPlan": {
     "totalDays": 1,
     "days": [
       {
         "dayNumber": 1,
-        "title": "Lugares recomendados para tu consulta",
+        "title": "Lugares recomendados ${langConfig.titleSuffix}",
         "activities": [
           {
             "category": "Recomendación",
@@ -684,14 +781,8 @@ ${context || 'Primera consulta'}
 
 ## EJEMPLOS DE CONSULTAS Y RESPUESTAS ESPERADAS:
 
-**Consulta**: "¿Dónde puedo comer buena pizza?"
-**Respuesta esperada**: 3-4 pizzerías específicas de Encarnación
-
-**Consulta**: "¿Dónde tomar un buen café?"
-**Respuesta esperada**: 3-4 cafeterías locales
-
-**Consulta**: "Lugares para cenar con vista al río"
-**Respuesta esperada**: 3-4 restaurantes con vista al río Paraná
+**Consulta**: "${langConfig.examples.query}"
+**Respuesta esperada**: ${langConfig.examples.expected}
 
 ## VALIDACIÓN FINAL:
 - ✅ Exactamente 3-4 lugares
@@ -700,6 +791,7 @@ ${context || 'Primera consulta'}
 - ✅ Direcciones específicas de Encarnación
 - ✅ Coordenadas precisas
 - ✅ JSON válido y completo
+- ✅ Respuesta en ${detectedLanguage === 'es' ? 'español' : detectedLanguage === 'pt' ? 'portugués' : 'inglés'}
 
 RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
 `
@@ -736,7 +828,9 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       }
 
       return {
-        message: parsedResponse.message || 'Recomendaciones para tu consulta',
+        message: parsedResponse.message || (detectedLanguage === 'es' ? 'Recomendaciones para tu consulta' : 
+                 detectedLanguage === 'pt' ? 'Recomendações para sua consulta' :
+                 'Recommendations for your query'),
         places,
         timestamp: parsedResponse.timestamp || new Date().toISOString(),
       }

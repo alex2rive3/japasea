@@ -23,6 +23,7 @@ import {
 import { useAuth } from '../hooks/useAuth'
 import { useFormWithValidation, registerSchema } from '../hooks/useForm'
 import type { RegisterData } from '../types/auth'
+import { useTranslation } from 'react-i18next'
 
 interface RegisterFormData {
   name: string
@@ -35,6 +36,7 @@ interface RegisterFormData {
 export function RegisterComponent() {
   const navigate = useNavigate()
   const { register, isLoading } = useAuth()
+  const { t } = useTranslation('auth')
   
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -117,7 +119,7 @@ export function RegisterComponent() {
               fontSize: { xs: '2rem', sm: '2.5rem' }
             }}
           >
-            Japasea
+            {t('appName', { ns: 'common' })}
           </Typography>
           <Typography 
             variant="h6" 
@@ -127,7 +129,7 @@ export function RegisterComponent() {
               opacity: 0.8
             }}
           >
-            Crea tu cuenta
+            {t('register.title')}
           </Typography>
         </Box>
 
@@ -152,8 +154,8 @@ export function RegisterComponent() {
                 <TextField
                   {...field}
                   fullWidth
-                  label="Nombre completo"
-                  placeholder="Tu nombre completo"
+                  label={t('register.namePlaceholder')}
+                  placeholder={t('register.namePlaceholder')}
                   disabled={isLoading || isSubmitting}
                   error={!!errors.name}
                   helperText={errors.name?.message}
@@ -207,7 +209,7 @@ export function RegisterComponent() {
                   fullWidth
                   type="email"
                   label="Email"
-                  placeholder="tu@email.com"
+                  placeholder={t('register.emailPlaceholder')}
                   disabled={isLoading || isSubmitting}
                   error={!!errors.email}
                   helperText={errors.email?.message}
@@ -259,7 +261,7 @@ export function RegisterComponent() {
                 <TextField
                   {...field}
                   fullWidth
-                  label="Teléfono (opcional)"
+                  label={t('common.phone', { ns: 'common' }) + ' (opcional)'}
                   placeholder="+595 987 654 321"
                   disabled={isLoading || isSubmitting}
                   error={!!errors.phone}
@@ -313,8 +315,8 @@ export function RegisterComponent() {
                   {...field}
                   fullWidth
                   type={showPassword ? 'text' : 'password'}
-                  label="Contraseña"
-                  placeholder="Mínimo 6 caracteres"
+                  label={t('register.passwordPlaceholder')}
+                  placeholder={t('register.passwordPlaceholder')}
                   disabled={isLoading || isSubmitting}
                   error={!!errors.password}
                   helperText={errors.password?.message}
@@ -378,8 +380,8 @@ export function RegisterComponent() {
                   {...field}
                   fullWidth
                   type={showConfirmPassword ? 'text' : 'password'}
-                  label="Confirmar contraseña"
-                  placeholder="Repite tu contraseña"
+                  label={t('register.confirmPasswordPlaceholder')}
+                  placeholder={t('register.confirmPasswordPlaceholder')}
                   disabled={isLoading || isSubmitting}
                   error={!!errors.confirmPassword}
                   helperText={errors.confirmPassword?.message}
@@ -460,16 +462,16 @@ export function RegisterComponent() {
               {(isLoading || isSubmitting) ? (
                 <>
                   <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                  Registrando...
+                  {t('register.submit')}...
                 </>
               ) : (
-                'Crear Cuenta'
+                t('register.submit')
               )}
             </Button>
 
             <Box sx={{ textAlign: 'center', mt: 3 }}>
               <Typography variant="body2" color="text.secondary">
-                ¿Ya tienes una cuenta?{' '}
+                {t('register.hasAccount')}{' '}
                 <Link
                   to="/login"
                   style={{
@@ -478,7 +480,7 @@ export function RegisterComponent() {
                     fontWeight: 600
                   }}
                 >
-                  Inicia sesión
+                  {t('register.signIn')}
                 </Link>
               </Typography>
             </Box>
