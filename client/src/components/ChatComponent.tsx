@@ -43,6 +43,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   ])
   const [inputValue, setInputValue] = useState('')
   const [sessionId, setSessionId] = useState<string>(`session-${Date.now()}`)
+  const [botTyping, setBotTyping] = useState<boolean>(false)
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     const container = messagesContainerRef.current
@@ -99,6 +100,12 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
     scrollToBottom('smooth')
   }, [messages.length])
 
+  useEffect(() => {
+    if (botTyping) {
+      scrollToBottom('smooth')
+    }
+  }, [botTyping])
+
   const handleSendMessage = async () => {
     if (inputValue.trim()) {
       const newMessage: Message = {
@@ -111,6 +118,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
       setMessages([...messages, newMessage])
       const userInput = inputValue
       setInputValue('')
+      setBotTyping(true)
 
       setTimeout(async () => {
         try {
@@ -138,6 +146,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           }
 
           setMessages((prev) => [...prev, botResponse])
+          setBotTyping(false)
           
           if (onPlacesUpdate && allPlaces.length > 0) {
             onPlacesUpdate(allPlaces)
@@ -152,6 +161,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
             timestamp: new Date(),
           }
           setMessages((prev) => [...prev, errorResponse])
+          setBotTyping(false)
         }
       }, 1000)
     }
@@ -403,6 +413,46 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                  )}
               </ListItem>
             ))}
+
+            {botTyping && (
+              <ListItem sx={{ 
+                alignItems: 'flex-start', 
+                py: 2, 
+                flexDirection: 'column',
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                boxSizing: 'border-box',
+                border: 'none'
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <Avatar 
+                    sx={{ 
+                      mr: 2, 
+                      bgcolor: '#17a2b8',
+                      width: 36,
+                      height: 36,
+                      flexShrink: 0
+                    }}
+                  >
+                    <SmartToy sx={{ fontSize: 20 }} />
+                  </Avatar>
+                  <Box sx={{
+                    bgcolor: '#f8f9fa',
+                    color: '#495057',
+                    p: 2,
+                    borderRadius: '20px 20px 20px 4px',
+                    display: 'inline-block'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box sx={{ width: 6, height: 6, bgcolor: '#adb5bd', borderRadius: '50%', animation: 'blink 1.2s infinite' }} />
+                      <Box sx={{ width: 6, height: 6, bgcolor: '#adb5bd', borderRadius: '50%', animation: 'blink 1.2s infinite', animationDelay: '0.2s' }} />
+                      <Box sx={{ width: 6, height: 6, bgcolor: '#adb5bd', borderRadius: '50%', animation: 'blink 1.2s infinite', animationDelay: '0.4s' }} />
+                    </Box>
+                  </Box>
+                </Box>
+              </ListItem>
+            )}
           </List>
         </Box>
         
