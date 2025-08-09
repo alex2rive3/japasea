@@ -136,7 +136,7 @@ class PlacesController {
       }
 
       // Normalizar SIEMPRE la respuesta antes de guardarla en historial o retornarla
-      response = PlacesController.normalizeResponse(response)
+      response = await PlacesController.normalizeResponse(response)
 
       // Guardar en el historial si el usuario está autenticado
       if (req.user && req.user._id) {
@@ -234,24 +234,68 @@ class PlacesController {
     return place
   }
 
-  static normalizeResponse(response) {
+  static async normalizeResponse(response, shouldResolveReferences = false) {
     if (!response || typeof response !== 'object') return response
     const normalized = { ...response }
+    
     if (normalized.places && Array.isArray(normalized.places)) {
       normalized.places = normalized.places.map(PlacesController.normalizePlace)
     }
+    
     if (normalized.travelPlan && normalized.travelPlan.days) {
       normalized.travelPlan = { ...normalized.travelPlan }
-      normalized.travelPlan.days = normalized.travelPlan.days.map(day => {
+      normalized.travelPlan.days = await Promise.all(normalized.travelPlan.days.map(async day => {
         if (!day || !day.activities) return day
+        
+        const activities = await Promise.all(day.activities.map(async activity => {
+          let place = activity.place
+          
+          // Si place es un string (ID), resolverlo a objeto completo
+          if (shouldResolveReferences && typeof place === 'string') {
+            try {
+              const foundPlace = await Place.findById(place).lean()
+              if (foundPlace) {
+                place = foundPlace
+              } else {
+                // Si no se encuentra el lugar por ID, crear un lugar placeholder
+                place = {
+                  _id: place,
+                  id: place,
+                  key: 'Lugar no encontrado',
+                  name: 'Lugar no encontrado',
+                  description: 'Este lugar ya no está disponible en nuestra base de datos',
+                  address: 'Dirección no disponible',
+                  type: 'unknown',
+                  location: { lat: -27.3309, lng: -55.8663 }
+                }
+              }
+            } catch (error) {
+              console.error('Error resolving place reference:', error)
+              // Crear lugar placeholder en caso de error
+              place = {
+                _id: place,
+                id: place,
+                key: 'Lugar no disponible',
+                name: 'Lugar no disponible',
+                description: 'Error al cargar la información del lugar',
+                address: 'Dirección no disponible',
+                type: 'unknown',
+                location: { lat: -27.3309, lng: -55.8663 }
+              }
+            }
+          }
+          
+          return {
+            ...activity,
+            place: PlacesController.normalizePlace(place)
+          }
+        }))
+        
         return {
           ...day,
-          activities: day.activities.map(activity => ({
-            ...activity,
-            place: PlacesController.normalizePlace(activity.place)
-          }))
+          activities: activities
         }
-      })
+      }))
     }
     return normalized
   }
@@ -728,15 +772,15 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       const { limit = 10 } = req.query
       const history = await ChatHistory.getUserHistory(req.user._id, parseInt(limit))
 
-      // Normalizar nombres de lugares en el historial ya guardado
-      const normalizedHistory = history.map((h) => {
+      // Normalizar nombres de lugares en el historial ya guardado y resolver referencias
+      const normalizedHistory = await Promise.all(history.map(async (h) => {
         const obj = typeof h.toObject === 'function' ? h.toObject() : h
-        obj.messages = (obj.messages || []).map((m) => ({
+        obj.messages = await Promise.all((obj.messages || []).map(async (m) => ({
           ...m,
-          response: PlacesController.normalizeResponse(m.response)
-        }))
+          response: await PlacesController.normalizeResponse(m.response, true)
+        })))
         return obj
-      })
+      }))
 
       res.status(200).json({
         status: 'success',
@@ -777,10 +821,10 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       }
 
       const obj = typeof history.toObject === 'function' ? history.toObject() : history
-      obj.messages = (obj.messages || []).map((m) => ({
+      obj.messages = await Promise.all((obj.messages || []).map(async (m) => ({
         ...m,
-        response: PlacesController.normalizeResponse(m.response)
-      }))
+        response: await PlacesController.normalizeResponse(m.response, true)
+      })))
 
       res.status(200).json({
         status: 'success',
