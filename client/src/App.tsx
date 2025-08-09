@@ -19,6 +19,7 @@ import AdminUsers from './components/admin/AdminUsers'
 import AdminReviews from './components/admin/AdminReviews'
 import AdminAudit from './components/admin/AdminAudit'
 import AdminSettings from './components/admin/AdminSettings'
+import LandingPage from './components/LandingPage'
 
 // Componente interno para manejar la navegación
 function AppContent() {
@@ -30,6 +31,7 @@ function AppContent() {
       <Route path="/forgot-password" element={<ForgotPasswordComponent />} />
       <Route path="/reset-password" element={<ResetPasswordComponent />} />
       <Route path="/verify-email" element={<VerifyEmailComponent />} />
+      <Route path="/landing" element={<LandingPage />} />
       
       {/* Protected routes */}
       <Route

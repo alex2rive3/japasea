@@ -12,6 +12,7 @@ import AdminDashboard from './admin/AdminDashboard'
 import AdminStats from './admin/AdminStats'
 // import { useAuth } from '../hooks/useAuth'
 import { HomeRedirect } from './HomeRedirect'
+import LandingPage from './LandingPage'
 
 interface AppRoutesProps {
   onSearch?: (query: string) => void
@@ -38,6 +39,9 @@ export function AppRoutes({ onSearch }: AppRoutesProps) {
             <RegisterComponent />
           </PublicOnlyRoute>
         } />
+
+        {/* Rutas públicas de marketing */}
+        <Route path="/landing" element={<LandingPage />} />
 
         {/* Rutas protegidas (requieren autenticación) */}
         <Route path="/profile" element={
