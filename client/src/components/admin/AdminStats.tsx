@@ -175,6 +175,38 @@ export default function AdminStats() {
         <Chip label="Actualizado hoy" color="success" size="small" />
       </Stack>
 
+      {/* KPIs Usuarios */}
+      <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>👥 Usuarios</Typography>
+      <Box 
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+          gap: 2,
+          mb: 4
+        }}
+      >
+        {[
+          { label: 'Total usuarios', value: userStats.total, Icon: PeopleIcon, color: 'primary.main' },
+          { label: 'Activos', value: userStats.activos, Icon: VerifiedUserIcon, color: 'success.main' },
+          { label: 'Inactivos', value: userStats.inactivos, Icon: PersonOffIcon, color: 'error.main' }
+        ].map(({ label, value, Icon, color }) => (
+          <Paper sx={{ p: 2, position: 'relative', overflow: 'hidden' }} key={label}>
+            <Stack>
+              <Typography variant="subtitle2" color="text.secondary">
+                {label}
+              </Typography>
+              <Typography variant="h4" fontWeight={800}>
+                {loading ? '...' : value}
+              </Typography>
+              <Typography variant="caption" color="success.main">
+                +{Math.floor(Math.random() * 20)}% este mes
+              </Typography>
+            </Stack>
+            <Icon sx={{ position: 'absolute', right: 8, top: 8, fontSize: 36, color, opacity: 0.25 }} />
+          </Paper>
+        ))}
+      </Box>
+
       {/* Lugares */}
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
         <Typography variant="h6" fontWeight={700}>📍 Lugares</Typography>
@@ -213,38 +245,6 @@ export default function AdminStats() {
             </Paper>
           )
         })}
-      </Box>
-
-      {/* KPIs Usuarios */}
-      <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>👥 Usuarios</Typography>
-      <Box 
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
-          gap: 2,
-          mb: 4
-        }}
-      >
-        {[
-          { label: 'Total usuarios', value: userStats.total, Icon: PeopleIcon, color: 'primary.main' },
-          { label: 'Activos', value: userStats.activos, Icon: VerifiedUserIcon, color: 'success.main' },
-          { label: 'Inactivos', value: userStats.inactivos, Icon: PersonOffIcon, color: 'error.main' }
-        ].map(({ label, value, Icon, color }) => (
-          <Paper sx={{ p: 2, position: 'relative', overflow: 'hidden' }} key={label}>
-            <Stack>
-              <Typography variant="subtitle2" color="text.secondary">
-                {label}
-              </Typography>
-              <Typography variant="h4" fontWeight={800}>
-                {loading ? '...' : value}
-              </Typography>
-              <Typography variant="caption" color="success.main">
-                +{Math.floor(Math.random() * 20)}% este mes
-              </Typography>
-            </Stack>
-            <Icon sx={{ position: 'absolute', right: 8, top: 8, fontSize: 36, color, opacity: 0.25 }} />
-          </Paper>
-        ))}
       </Box>
 
       {/* KPIs Reseñas */}
