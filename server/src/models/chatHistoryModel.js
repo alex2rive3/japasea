@@ -27,11 +27,13 @@ const chatHistorySchema = new mongoose.Schema({
     response: {
       message: String,
       places: [{
+        _id: String,
         id: String,
         key: String,
         name: { type: String, default: 'Lugar por definir' },
         category: String,
         description: String,
+        address: String,
         location: {
           lat: Number,
           lng: Number,
@@ -50,19 +52,23 @@ const chatHistorySchema = new mongoose.Schema({
       travelPlan: {
         title: String,
         duration: String,
+        totalDays: Number,
         days: [{
-          day: Number,
+          dayNumber: Number,
           title: String,
           description: String,
           activities: [{
             time: String,
-            activity: String,
+            category: String,
             place: {
+              _id: String,
               id: String,
               key: String,
               name: { type: String, default: 'Lugar por definir' },
               category: String,
+              type: String,
               description: String,
+              address: String,
               location: {
                 lat: Number,
                 lng: Number,

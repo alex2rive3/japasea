@@ -67,10 +67,10 @@ const reviewSchema = new mongoose.Schema({
 })
 
 // Índices
-reviewSchema.index({ userId: 1, placeId: 1 }, { unique: true })
-reviewSchema.index({ placeId: 1, status: 1 })
-reviewSchema.index({ status: 1 })
-reviewSchema.index({ createdAt: -1 })
+reviewSchema.index({ userId: 1, placeId: 1 }, { unique: true, name: 'userId_1_placeId_1' })
+reviewSchema.index({ placeId: 1, status: 1 }, { name: 'placeId_1_status_1' })
+reviewSchema.index({ status: 1 }, { name: 'status_1' })
+reviewSchema.index({ createdAt: -1 }, { name: 'createdAt_-1' })
 
 // Virtual para información del usuario
 reviewSchema.virtual('user', {
