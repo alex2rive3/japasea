@@ -142,8 +142,10 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Enviar con Enter; salto de línea con Shift+Enter
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
       handleSendMessage()
     }
   }
@@ -399,7 +401,10 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
             placeholder="Escribe tu mensaje..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
+            multiline
+            minRows={1}
+            maxRows={6}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '25px',
