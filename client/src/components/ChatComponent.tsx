@@ -340,37 +340,47 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                   </Box>
                 )}
 
-                 {/* Places List (recomendación simple) */}
-                 {!message.travelPlan && Array.isArray(message.places) && message.places.length > 0 && message.sender === 'bot' && (
+                 {/* Places List (recomendación simple) como cards */}
+                 {Array.isArray(message.places) && message.places.length > 0 && message.sender === 'bot' && (
                    <Box sx={{
                      width: '100%',
-                     mt: 1.5,
+                     mt: 2,
                      ml: 6,
                      maxWidth: 'calc(100% - 48px)'
                    }}>
-                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}>
+                     <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>
                        Recomendaciones
                      </Typography>
-                     <List dense>
+                     <Box sx={{ display: 'grid', gap: 1.5 }}>
                        {message.places.map((p, i) => (
-                         <ListItem
+                         <Box
                            key={`${p._id || p.id || i}-${i}`}
-                           sx={{ py: 0.5, cursor: 'pointer' }}
                            onClick={() => handlePlaceClick(p)}
+                           sx={{
+                             p: 1.5,
+                             borderRadius: 1.5,
+                             border: '1px solid #e9ecef',
+                             bgcolor: '#ffffff',
+                             cursor: 'pointer',
+                             transition: 'all 0.2s ease',
+                             '&:hover': {
+                               bgcolor: '#f8f9fa',
+                               transform: 'translateY(-1px)',
+                               boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                             }
+                           }}
                          >
-                           <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                             <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>
-                               {p.key || p.name || 'Lugar sin nombre'}
+                           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.25 }}>
+                             {p.key || p.name || 'Lugar sin nombre'}
+                           </Typography>
+                           {p.address && (
+                             <Typography variant="caption" sx={{ color: '#666' }}>
+                               {p.address}
                              </Typography>
-                             {p.address && (
-                               <Typography variant="caption" sx={{ color: '#666' }}>
-                                 {p.address}
-                               </Typography>
-                             )}
-                           </Box>
-                         </ListItem>
+                           )}
+                         </Box>
                        ))}
-                     </List>
+                     </Box>
                    </Box>
                  )}
               </ListItem>

@@ -348,23 +348,31 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
       </Box>
 
       {/* Compact Summary */}
-      <Paper elevation={0} sx={{ 
-        p: 1, 
-        mt: 1.5, 
-        bgcolor: '#e8f5e8',
-        borderRadius: 1,
-        border: '1px solid #c8e6c9',
-        maxWidth: '100%',
-        overflow: 'hidden'
-      }}>
-        <Typography variant="caption" color="text.secondary" align="center" sx={{ 
-          fontSize: '0.75rem',
-          wordBreak: 'break-word'
-        }}>
-          ✨ {travelPlan.days.reduce((total, day) => total + day.activities.length, 0)} actividades 
-          en {travelPlan.totalDays} día{travelPlan.totalDays > 1 ? 's' : ''}
-        </Typography>
-      </Paper>
+      {(() => {
+        const totalDays = Array.isArray(travelPlan.days) ? (travelPlan.totalDays || travelPlan.days.length) : 0
+        const totalActivities = Array.isArray(travelPlan.days)
+          ? travelPlan.days.reduce((total, day) => total + (Array.isArray(day.activities) ? day.activities.length : 0), 0)
+          : 0
+        if (totalActivities <= 0 || totalDays <= 0) return null
+        return (
+          <Paper elevation={0} sx={{ 
+            p: 1, 
+            mt: 1.5, 
+            bgcolor: '#e8f5e8',
+            borderRadius: 1,
+            border: '1px solid #c8e6c9',
+            maxWidth: '100%',
+            overflow: 'hidden'
+          }}>
+            <Typography variant="caption" color="text.secondary" align="center" sx={{ 
+              fontSize: '0.75rem',
+              wordBreak: 'break-word'
+            }}>
+              ✨ {totalActivities} actividades en {totalDays} día{totalDays > 1 ? 's' : ''}
+            </Typography>
+          </Paper>
+        )
+      })()}
 
       {/* Modal de detalles del lugar */}
       <PlaceDetailsModal
