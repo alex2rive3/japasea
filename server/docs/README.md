@@ -90,6 +90,13 @@
 - Chat IA con historial persistente y normalización (`server/docs/CHAT_HISTORY_SPEC.md`).
 - Frontend moderno (React 18 + TS + MUI), mapas con Leaflet, componentes admin y hooks.
 
+### Backlog técnico (pendientes)
+- Priorizar verificados/destacados en listados, búsqueda, aleatorios y fuente del chat.
+- KPI de variación real en dashboard (no simulado), usando `trends.last12Months`.
+- Robustez por id en AdminPlaces (deshabilitar acciones si falta `id/_id`).
+- Endpoints de stats por rango de fecha (usuarios y reseñas).
+- Cards de Admin con imagen de portada y opción “Ver en mapa”.
+
 ### Recomendación final de precio
 - “Tal cual” 1 ciudad: **Setup USD 8.900** + **USD 490/mes** + revenue share (10–25%) + **mínimo USD 300/mes**.
 - Con reservas + pagos + PWA/push + publicidad: **Setup USD 19.900** + **USD 990/mes** + revenue share (12–28%) + **mínimo USD 600/mes**.

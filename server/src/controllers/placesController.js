@@ -91,6 +91,20 @@ class PlacesController {
     }
   }
 
+  // Obtener detalle de un lugar por ID (público)
+  static async getPlaceById(req, res) {
+    try {
+      const { id } = req.params
+      const place = await Place.findById(id).select('-__v').lean()
+      if (!place) {
+        return res.status(404).json({ success: false, message: 'Lugar no encontrado' })
+      }
+      return res.status(200).json({ success: true, data: place })
+    } catch (error) {
+      return res.status(500).json({ success: false, message: 'Error al obtener el lugar', error: error.message })
+    }
+  }
+
   // Crea o devuelve un lugar mínimo para poder referenciarlo (p.ej., favoritos)
   static async ensurePlace(req, res) {
     try {

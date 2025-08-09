@@ -77,6 +77,7 @@ router.get('/search', PlacesController.searchPlaces)
  */
 router.get('/random', PlacesController.getRandomPlaces)
 
+
 /**
  * @openapi
  * /places/nearby:
@@ -169,6 +170,9 @@ router.get('/trending', async (req, res) => {
     lastUpdated: new Date().toISOString()
   })
 })
+
+// Detalle de lugar por id (público) - mantener al final para no capturar rutas específicas
+router.get('/:id', PlacesController.getPlaceById)
 
 /**
  * @openapi

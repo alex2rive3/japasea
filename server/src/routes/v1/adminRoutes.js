@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const AdminController = require('../../controllers/adminController')
-const { authenticateToken, requireRole } = require('../../middleware/authMiddleware')
+const { authenticateToken, requireAdmin } = require('../../middleware/authMiddleware')
 const {
   handleValidationErrors,
   // Usuarios
@@ -30,7 +30,7 @@ const {
 } = require('../../middleware/adminValidation')
 
 // Todas las rutas admin requieren autenticación y rol admin
-router.use(authenticateToken, requireRole('admin'))
+router.use(authenticateToken, requireAdmin)
 
 /**
  * @openapi
@@ -38,6 +38,8 @@ router.use(authenticateToken, requireRole('admin'))
  *   get:
  *     tags: [Admin]
  *     summary: Listar lugares (admin)
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -63,6 +65,10 @@ router.use(authenticateToken, requireRole('admin'))
  *     responses:
  *       200:
  *         description: Lista paginada
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/places', AdminController.listPlaces)
 
@@ -72,6 +78,8 @@ router.get('/places', AdminController.listPlaces)
  *   post:
  *     tags: [Admin]
  *     summary: Crear nuevo lugar
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -96,6 +104,10 @@ router.get('/places', AdminController.listPlaces)
  *     responses:
  *       201:
  *         description: Creado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.post('/places', validateCreatePlace, handleValidationErrors, AdminController.createPlace)
 
@@ -105,6 +117,8 @@ router.post('/places', validateCreatePlace, handleValidationErrors, AdminControl
  *   get:
  *     tags: [Admin]
  *     summary: Obtener detalle de lugar
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -113,6 +127,10 @@ router.post('/places', validateCreatePlace, handleValidationErrors, AdminControl
  *     responses:
  *       200:
  *         description: Ok
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/places/:id', AdminController.getPlace)
 
@@ -122,6 +140,8 @@ router.get('/places/:id', AdminController.getPlace)
  *   put:
  *     tags: [Admin]
  *     summary: Actualizar lugar
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -130,6 +150,10 @@ router.get('/places/:id', AdminController.getPlace)
  *     responses:
  *       200:
  *         description: Actualizado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.put('/places/:id', validateUpdatePlace, handleValidationErrors, AdminController.updatePlace)
 
@@ -139,6 +163,8 @@ router.put('/places/:id', validateUpdatePlace, handleValidationErrors, AdminCont
  *   delete:
  *     tags: [Admin]
  *     summary: Desactivar lugar
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -147,6 +173,10 @@ router.put('/places/:id', validateUpdatePlace, handleValidationErrors, AdminCont
  *     responses:
  *       200:
  *         description: Desactivado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.delete('/places/:id', AdminController.deletePlace)
 
@@ -156,6 +186,8 @@ router.delete('/places/:id', AdminController.deletePlace)
  *   patch:
  *     tags: [Admin]
  *     summary: Cambiar estado del lugar
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -173,6 +205,10 @@ router.delete('/places/:id', AdminController.deletePlace)
  *     responses:
  *       200:
  *         description: Estado actualizado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.patch('/places/:id/status', validatePlaceStatus, handleValidationErrors, AdminController.setStatus)
 
@@ -182,6 +218,8 @@ router.patch('/places/:id/status', validatePlaceStatus, handleValidationErrors, 
  *   post:
  *     tags: [Admin]
  *     summary: Verificar lugar
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -190,6 +228,10 @@ router.patch('/places/:id/status', validatePlaceStatus, handleValidationErrors, 
  *     responses:
  *       200:
  *         description: Verificado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.post('/places/:id/verify', AdminController.verifyPlace)
 
@@ -199,6 +241,8 @@ router.post('/places/:id/verify', AdminController.verifyPlace)
  *   post:
  *     tags: [Admin]
  *     summary: Destacar lugar
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -216,6 +260,10 @@ router.post('/places/:id/verify', AdminController.verifyPlace)
  *     responses:
  *       200:
  *         description: Actualizado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.post('/places/:id/feature', validatePlaceFeature, handleValidationErrors, AdminController.featurePlace)
 
@@ -227,6 +275,8 @@ router.post('/places/:id/feature', validatePlaceFeature, handleValidationErrors,
  *   get:
  *     tags: [Admin - Users]
  *     summary: Listar usuarios
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -246,6 +296,10 @@ router.post('/places/:id/feature', validatePlaceFeature, handleValidationErrors,
  *     responses:
  *       200:
  *         description: Lista de usuarios
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/users', validateUserFilters, handleValidationErrors, AdminController.listUsers)
 
@@ -255,6 +309,8 @@ router.get('/users', validateUserFilters, handleValidationErrors, AdminControlle
  *   get:
  *     tags: [Admin - Users]
  *     summary: Obtener detalle de usuario
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -263,6 +319,10 @@ router.get('/users', validateUserFilters, handleValidationErrors, AdminControlle
  *     responses:
  *       200:
  *         description: Usuario encontrado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  *       404:
  *         description: Usuario no encontrado
  */
@@ -274,6 +334,8 @@ router.get('/users/:id', validateUserId, handleValidationErrors, AdminController
  *   patch:
  *     tags: [Admin - Users]
  *     summary: Cambiar rol de usuario
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -291,6 +353,10 @@ router.get('/users/:id', validateUserId, handleValidationErrors, AdminController
  *     responses:
  *       200:
  *         description: Rol actualizado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.patch('/users/:id/role', validateUserRole, handleValidationErrors, AdminController.updateUserRole)
 
@@ -300,6 +366,8 @@ router.patch('/users/:id/role', validateUserRole, handleValidationErrors, AdminC
  *   patch:
  *     tags: [Admin - Users]
  *     summary: Suspender usuario
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -315,6 +383,10 @@ router.patch('/users/:id/role', validateUserRole, handleValidationErrors, AdminC
  *     responses:
  *       200:
  *         description: Usuario suspendido
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.patch('/users/:id/suspend', validateUserSuspend, handleValidationErrors, AdminController.suspendUser)
 
@@ -324,6 +396,8 @@ router.patch('/users/:id/suspend', validateUserSuspend, handleValidationErrors, 
  *   patch:
  *     tags: [Admin - Users]
  *     summary: Activar usuario
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -332,6 +406,10 @@ router.patch('/users/:id/suspend', validateUserSuspend, handleValidationErrors, 
  *     responses:
  *       200:
  *         description: Usuario activado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.patch('/users/:id/activate', validateUserId, handleValidationErrors, AdminController.activateUser)
 
@@ -341,6 +419,8 @@ router.patch('/users/:id/activate', validateUserId, handleValidationErrors, Admi
  *   delete:
  *     tags: [Admin - Users]
  *     summary: Eliminar usuario
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -349,6 +429,10 @@ router.patch('/users/:id/activate', validateUserId, handleValidationErrors, Admi
  *     responses:
  *       200:
  *         description: Usuario eliminado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.delete('/users/:id', validateUserId, handleValidationErrors, AdminController.deleteUser)
 
@@ -360,9 +444,15 @@ router.delete('/users/:id', validateUserId, handleValidationErrors, AdminControl
  *   get:
  *     tags: [Admin - Stats]
  *     summary: Obtener estadísticas generales
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Estadísticas del sistema
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/stats', AdminController.getStats)
 
@@ -372,6 +462,8 @@ router.get('/stats', AdminController.getStats)
  *   get:
  *     tags: [Admin - Stats]
  *     summary: Estadísticas de lugares
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: startDate
@@ -382,6 +474,10 @@ router.get('/stats', AdminController.getStats)
  *     responses:
  *       200:
  *         description: Estadísticas detalladas
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/stats/places', validateDateRange, handleValidationErrors, AdminController.getPlaceStats)
 
@@ -393,9 +489,15 @@ router.get('/stats/places', validateDateRange, handleValidationErrors, AdminCont
  *   get:
  *     tags: [Admin - Settings]
  *     summary: Obtener configuración del sistema
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Configuración actual
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/settings', AdminController.getSystemSettings)
 
@@ -405,6 +507,8 @@ router.get('/settings', AdminController.getSystemSettings)
  *   put:
  *     tags: [Admin - Settings]
  *     summary: Actualizar configuración del sistema
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -414,6 +518,10 @@ router.get('/settings', AdminController.getSystemSettings)
  *     responses:
  *       200:
  *         description: Configuración actualizada
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.put('/settings', validateSystemSettings, handleValidationErrors, AdminController.updateSystemSettings)
 
@@ -425,6 +533,8 @@ router.put('/settings', validateSystemSettings, handleValidationErrors, AdminCon
  *   post:
  *     tags: [Admin - Notifications]
  *     summary: Enviar notificación masiva
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -440,6 +550,10 @@ router.put('/settings', validateSystemSettings, handleValidationErrors, AdminCon
  *     responses:
  *       200:
  *         description: Notificación enviada
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.post('/notifications/bulk', validateBulkNotification, handleValidationErrors, AdminController.sendBulkNotification)
 
@@ -451,6 +565,8 @@ router.post('/notifications/bulk', validateBulkNotification, handleValidationErr
  *   get:
  *     tags: [Admin - Reviews]
  *     summary: Listar reseñas
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -470,6 +586,10 @@ router.post('/notifications/bulk', validateBulkNotification, handleValidationErr
  *     responses:
  *       200:
  *         description: Lista de reseñas
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/reviews', validateReviewFilters, handleValidationErrors, AdminController.listReviews)
 
@@ -479,6 +599,8 @@ router.get('/reviews', validateReviewFilters, handleValidationErrors, AdminContr
  *   patch:
  *     tags: [Admin - Reviews]
  *     summary: Aprobar reseña
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -487,6 +609,10 @@ router.get('/reviews', validateReviewFilters, handleValidationErrors, AdminContr
  *     responses:
  *       200:
  *         description: Reseña aprobada
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.patch('/reviews/:id/approve', validateReviewId, handleValidationErrors, AdminController.approveReview)
 
@@ -496,6 +622,8 @@ router.patch('/reviews/:id/approve', validateReviewId, handleValidationErrors, A
  *   patch:
  *     tags: [Admin - Reviews]
  *     summary: Rechazar reseña
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -513,6 +641,10 @@ router.patch('/reviews/:id/approve', validateReviewId, handleValidationErrors, A
  *     responses:
  *       200:
  *         description: Reseña rechazada
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.patch('/reviews/:id/reject', validateRejectReview, handleValidationErrors, AdminController.rejectReview)
 
@@ -522,6 +654,8 @@ router.patch('/reviews/:id/reject', validateRejectReview, handleValidationErrors
  *   delete:
  *     tags: [Admin - Reviews]
  *     summary: Eliminar reseña
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -530,6 +664,10 @@ router.patch('/reviews/:id/reject', validateRejectReview, handleValidationErrors
  *     responses:
  *       200:
  *         description: Reseña eliminada
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.delete('/reviews/:id', validateReviewId, handleValidationErrors, AdminController.deleteReview)
 
@@ -541,6 +679,8 @@ router.delete('/reviews/:id', validateReviewId, handleValidationErrors, AdminCon
  *   get:
  *     tags: [Admin - Audit]
  *     summary: Obtener logs de auditoría
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -566,6 +706,10 @@ router.delete('/reviews/:id', validateReviewId, handleValidationErrors, AdminCon
  *     responses:
  *       200:
  *         description: Logs de auditoría
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.get('/audit/logs', validateAuditFilters, handleValidationErrors, AdminController.getAuditLogs)
 
@@ -575,6 +719,8 @@ router.get('/audit/logs', validateAuditFilters, handleValidationErrors, AdminCon
  *   post:
  *     tags: [Admin - Audit]
  *     summary: Exportar logs de auditoría
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: false
  *       content:
@@ -591,6 +737,10 @@ router.get('/audit/logs', validateAuditFilters, handleValidationErrors, AdminCon
  *     responses:
  *       200:
  *         description: Archivo exportado
+ *       401:
+ *         description: Token inválido o ausente
+ *       403:
+ *         description: Permisos insuficientes (requiere admin)
  */
 router.post('/audit/export', validateAuditExport, handleValidationErrors, AdminController.exportAuditLogs)
 
