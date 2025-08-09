@@ -1,0 +1,960 @@
+{
+  "_id": {
+    "$oid": "68968618f4f15c465706601a"
+  },
+  "user": {
+    "$oid": "689530d32dce2441d3fed1a3"
+  },
+  "messages": [
+    {
+      "text": "arma un plan de 5 dias para ir a conocer encarnacion, quiero comer pizza, suchi, y tomar cerveza ",
+      "sender": "user",
+      "context": "bot: ¡Hola! Soy tu asistente virtual. ¿Cómo puedo ayudarte hoy?",
+      "response": {
+        "travelPlan": {
+          "budget": {
+            "breakdown": []
+          },
+          "recommendations": [],
+          "days": []
+        },
+        "places": []
+      },
+      "_id": {
+        "$oid": "68968618f4f15c465706601c"
+      },
+      "timestamp": {
+        "$date": "2025-08-08T23:19:52.454Z"
+      }
+    },
+    {
+      "text": "¡Excelente elección! Encarnación te espera con sus encantos. He diseñado un itinerario de 5 días que combina las atracciones más icónicas con tus preferencias gastronómicas de pizza y sushi, además de opciones para disfrutar de una buena cerveza. Te alojarás cerca del corazón de la ciudad y tendrás tiempo para explorar, relajarte y saborear lo mejor de la \"Perla del Sur\". ¡Prepárate para una experiencia inolvidable!",
+      "sender": "bot",
+      "response": {
+        "message": "¡Excelente elección! Encarnación te espera con sus encantos. He diseñado un itinerario de 5 días que combina las atracciones más icónicas con tus preferencias gastronómicas de pizza y sushi, además de opciones para disfrutar de una buena cerveza. Te alojarás cerca del corazón de la ciudad y tendrás tiempo para explorar, relajarte y saborear lo mejor de la \"Perla del Sur\". ¡Prepárate para una experiencia inolvidable!",
+        "places": [],
+        "travelPlan": {
+          "days": [
+            {
+              "title": "Llegada y Primer Contacto con la Costanera",
+              "activities": [
+                {
+                  "time": "14:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cde6b",
+                    "id": "68950e08d29b6f2f131cde6b",
+                    "key": "De la Costa Hotel",
+                    "name": "De la Costa Hotel",
+                    "category": "Alojamiento",
+                    "description": "Check-in en tu hotel. El De la Costa Hotel está estratégicamente ubicado en el Paseo Gastronómico, ideal para empezar a explorar la ciudad a pie.",
+                    "address": "Avda Francia – Paseo Gastronómico",
+                    "location": {
+                      "lat": -27.334355600000002,
+                      "lng": -55.87199081254272
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066020"
+                  }
+                },
+                {
+                  "time": "16:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf1f",
+                    "id": "68950e08d29b6f2f131cdf1f",
+                    "key": "Shopping Costanera",
+                    "name": "Shopping Costanera",
+                    "category": "Compras",
+                    "description": "Explora el Shopping Costanera, un moderno centro comercial con tiendas, y restaurantes. Aquí podrás encontrar un \"Food Court\" con opciones de comida rápida.",
+                    "address": "Avda Costanera - A unos pasos de la Costanera San José",
+                    "location": {
+                      "lat": -27.32526855,
+                      "lng": -55.87538257959687
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066021"
+                  }
+                },
+                {
+                  "time": "20:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf28",
+                    "id": "68950e08d29b6f2f131cdf28",
+                    "key": "Paseo Gastronómico",
+                    "name": "Paseo Gastronómico",
+                    "category": "Comida",
+                    "description": "Disfruta de una cena en el vibrante Paseo Gastronómico, justo donde se encuentra tu hotel. Aquí encontrarás diversas opciones culinarias para elegir, incluyendo restaurantes que pueden ofrecer pizzas.",
+                    "address": "Avda Francia – A unos pasos de la Costanera San José",
+                    "location": {
+                      "lat": -27.335302729784242,
+                      "lng": -55.871649119299164
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066022"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "68968618f4f15c465706601f"
+              }
+            },
+            {
+              "title": "Historia y Gastronomía Asiática",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdec5",
+                    "id": "68950e08d29b6f2f131cdec5",
+                    "key": "Xoxo Café",
+                    "name": "Xoxo Café",
+                    "category": "Desayunos y meriendas",
+                    "description": "Comienza el día con un delicioso desayuno en Xoxo Café, conocido por sus opciones para empezar la mañana con energía.",
+                    "address": "Avda. Dr. Francia e/ Cerro Corá y 14 de Mayo",
+                    "location": {
+                      "lat": -27.334130996791295,
+                      "lng": -55.872238546284585
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066024"
+                  }
+                },
+                {
+                  "time": "10:30",
+                  "place": {
+                    "_id": "68950e09d29b6f2f131cdf94",
+                    "id": "68950e09d29b6f2f131cdf94",
+                    "key": "Museo Ferroviario de la estación del tren",
+                    "name": "Museo Ferroviario de la estación del tren",
+                    "category": "Turístico",
+                    "description": "Sumérgete en la historia de Encarnación visitando el Museo Ferroviario, que narra la evolución de la ciudad a través de fotografías y objetos históricos.",
+                    "address": "Avda Costanera - a pasos de la costanera San José",
+                    "location": {
+                      "lat": -27.334111155715224,
+                      "lng": -55.8737907963466
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066025"
+                  }
+                },
+                {
+                  "time": "13:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf16",
+                    "id": "68950e08d29b6f2f131cdf16",
+                    "key": "Hiroshima Restaurant",
+                    "name": "Hiroshima Restaurant",
+                    "category": "Comida",
+                    "description": "Disfruta de un auténtico almuerzo japonés en Hiroshima Restaurant, perfecto para tu gusto por el sushi. Ofrecen una variedad de platos.",
+                    "address": "25 de mayo / Lomas Valentinas",
+                    "location": {
+                      "lat": -27.3287054,
+                      "lng": -55.863455
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066026"
+                  }
+                },
+                {
+                  "time": "16:00",
+                  "place": {
+                    "_id": "68950e09d29b6f2f131cdf8b",
+                    "id": "68950e09d29b6f2f131cdf8b",
+                    "key": "Silo y Molino San José – Museo Memoria Viva",
+                    "name": "Silo y Molino San José – Museo Memoria Viva",
+                    "category": "Turístico",
+                    "description": "Continúa tu recorrido cultural en el Silo y Molino San José, un museo fotográfico que rescata la memoria viva de la ciudad.",
+                    "address": "Avda Costanera – al lado de la costanera San José",
+                    "location": {
+                      "lat": -27.33961434405399,
+                      "lng": -55.873624237559504
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066027"
+                  }
+                },
+                {
+                  "time": "20:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf67",
+                    "id": "68950e08d29b6f2f131cdf67",
+                    "key": "Sun rooftop",
+                    "name": "Sun rooftop",
+                    "category": "Comida",
+                    "description": "Para la cena y disfrutar de una cerveza, te recomiendo el Sun Rooftop, con vistas panorámicas del Paseo Gastronómico. Consulta sus opciones de comida para maridar con tu cerveza.",
+                    "address": "Avda Francia – Paseo Gastronómico",
+                    "location": {
+                      "lat": -27.333775365211235,
+                      "lng": -55.872256403956186
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066028"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "68968618f4f15c4657066023"
+              }
+            },
+            {
+              "title": "Exploración del Centro y Vida Nocturna",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cded7",
+                    "id": "68950e08d29b6f2f131cded7",
+                    "key": "Palove confitería Restaurant",
+                    "name": "Palove confitería Restaurant",
+                    "category": "Desayunos y meriendas",
+                    "description": "Desayuna en Palove confitería Restaurant, un lugar con variedad de opciones para empezar bien el día.",
+                    "address": "Avda. Rodríguez de Francia esq/ Cerro Corá",
+                    "location": {
+                      "lat": -27.33427197791151,
+                      "lng": -55.87214682774059
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c465706602a"
+                  }
+                },
+                {
+                  "time": "10:30",
+                  "place": {
+                    "_id": "68950e09d29b6f2f131cdf9d",
+                    "id": "68950e09d29b6f2f131cdf9d",
+                    "key": "Plaza de armas",
+                    "name": "Plaza de armas",
+                    "category": "Turístico",
+                    "description": "Visita la Plaza de Armas, el corazón de la ciudad. Recorre sus senderos, admira los monumentos y disfruta del ambiente local. Luego, explora la Zona Alta Comercial a sus alrededores.",
+                    "address": "14 de mayo / Mcal Estigarribia Tomás R. Pereira y Carlos A. Lopéz",
+                    "location": {
+                      "lat": -27.332266349999998,
+                      "lng": -55.865624448592854
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c465706602b"
+                  }
+                },
+                {
+                  "time": "13:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf55",
+                    "id": "68950e08d29b6f2f131cdf55",
+                    "key": "Primoli Restaurant",
+                    "name": "Primoli Restaurant",
+                    "category": "Comida",
+                    "description": "Almuerza en Primoli Restaurant, conocido por su variedad de platos internacionales. Podrías encontrar opciones tipo pizza o pasta aquí.",
+                    "address": "Mcal. Estigarribia esq. Jorge Memmel",
+                    "location": {
+                      "lat": -27.3413709,
+                      "lng": -55.8664126
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c465706602c"
+                  }
+                },
+                {
+                  "time": "15:30",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdef2",
+                    "id": "68950e08d29b6f2f131cdef2",
+                    "key": "Selva Negra",
+                    "name": "Selva Negra",
+                    "category": "Desayunos y meriendas",
+                    "description": "Disfruta de un café y una merienda en Selva Negra, un lugar acogedor para descansar y recargar energías.",
+                    "address": "Independencia Nacional c/ Padre Kreusser",
+                    "location": {
+                      "lat": -27.33708689425475,
+                      "lng": -55.86120377512031
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c465706602d"
+                  }
+                },
+                {
+                  "time": "21:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf5e",
+                    "id": "68950e08d29b6f2f131cdf5e",
+                    "key": "The Clover Pub",
+                    "name": "The Clover Pub",
+                    "category": "Comida",
+                    "description": "Termina el día en The Clover Pub, un excelente lugar para tomar cervezas y disfrutar de un ambiente relajado con música.",
+                    "address": "Avda Irrazábal / Gral Cabañas",
+                    "location": {
+                      "lat": -27.339031397430706,
+                      "lng": -55.857900446284475
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c465706602e"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "68968618f4f15c4657066029"
+              }
+            },
+            {
+              "title": "Aventura de Compras y Churrasco",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf04",
+                    "id": "68950e08d29b6f2f131cdf04",
+                    "key": "Café Martinez",
+                    "name": "Café Martinez",
+                    "category": "Desayunos y meriendas",
+                    "description": "Inicia el día con un café y algo ligero en Café Martinez, ubicado convenientemente cerca del Shopping Costanera.",
+                    "address": "Avda. Costanera República del Paraguay y Ángel R. Samudio Shopping",
+                    "location": {
+                      "lat": -27.325125843069657,
+                      "lng": -55.87562627512062
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066030"
+                  }
+                },
+                {
+                  "time": "10:00",
+                  "place": {
+                    "_id": "68950e09d29b6f2f131cdfaf",
+                    "id": "68950e09d29b6f2f131cdfaf",
+                    "key": "Circuito Comercial",
+                    "name": "Circuito Comercial",
+                    "category": "Turístico",
+                    "description": "Dedica la mañana al turismo de compras en el famoso Circuito Comercial, la zona baja de Encarnación donde encontrarás una gran variedad de productos.",
+                    "address": "Zona baja de Encarnación",
+                    "location": {
+                      "lat": -27.3593327,
+                      "lng": -55.8489188
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066031"
+                  }
+                },
+                {
+                  "time": "13:30",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf3a",
+                    "id": "68950e08d29b6f2f131cdf3a",
+                    "key": "America Grill Churrasqueria",
+                    "name": "America Grill Churrasqueria",
+                    "category": "Comida",
+                    "description": "Disfruta de un auténtico churrasco paraguayo en America Grill Churrasqueria, ideal para los amantes de la carne.",
+                    "address": "San Blas c/ Avda. San Roque G. de Santa Cruz",
+                    "location": {
+                      "lat": -27.356265254564438,
+                      "lng": -55.85512221744787
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066032"
+                  }
+                },
+                {
+                  "time": "16:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf0d",
+                    "id": "68950e08d29b6f2f131cdf0d",
+                    "key": "Dolcissimo Helados",
+                    "name": "Dolcissimo Helados",
+                    "category": "Desayunos y meriendas",
+                    "description": "Date un gusto con un helado en Dolcissimo, con sucursales tanto en el Shopping Costanera como en el centro.",
+                    "address": "Sucursal N°1 Avda. Costanera República del Paraguay y Ángel R. Samudio - Shopping Costanera, Sucursal N°2 Avda. Caballero c/ Mcal. Estigarribia",
+                    "location": {
+                      "lat": -27.32502605294198,
+                      "lng": -55.875493219299614
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066033"
+                  }
+                },
+                {
+                  "time": "20:30",
+                  "place": {
+                    "_id": "68950e09d29b6f2f131cdf70",
+                    "id": "68950e09d29b6f2f131cdf70",
+                    "key": "Buffalo Resto Bar",
+                    "name": "Buffalo Resto Bar",
+                    "category": "Comida",
+                    "description": "Cena en Buffalo Resto Bar, que ofrece un ambiente relajado y variedad de bebidas y comidas para cerrar el día.",
+                    "address": "Avda Costanera / Monseñor Wiessen",
+                    "location": {
+                      "lat": -27.33568013823413,
+                      "lng": -55.87162718861294
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066034"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "68968618f4f15c465706602f"
+              }
+            },
+            {
+              "title": "Despedida de Encarnación y Últimas Experiencias",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdee0",
+                    "id": "68950e08d29b6f2f131cdee0",
+                    "key": "Provecchio",
+                    "name": "Provecchio",
+                    "category": "Desayunos y meriendas",
+                    "description": "Disfruta de un último desayuno o merienda en Provecchio, un café conocido por sus opciones dulces.",
+                    "address": "14 de Mayo 370",
+                    "location": {
+                      "lat": -27.332820425303556,
+                      "lng": -55.86682340395623
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066036"
+                  }
+                },
+                {
+                  "time": "10:30",
+                  "place": {
+                    "_id": "68950e09d29b6f2f131cdfb8",
+                    "id": "68950e09d29b6f2f131cdfb8",
+                    "key": "Costanera de Encarnación",
+                    "name": "Costanera de Encarnación",
+                    "category": "Turístico",
+                    "description": "Disfruta de un paseo relajado por la famosa Costanera de Encarnación, ideal para tomar fotografías y apreciar la vista del río Paraná y Posadas.",
+                    "address": "Avenida Costanera, Encarnación",
+                    "location": {
+                      "lat": -27.3309,
+                      "lng": -55.8663
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066037"
+                  }
+                },
+                {
+                  "time": "13:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cdf43",
+                    "id": "68950e08d29b6f2f131cdf43",
+                    "key": "Novo Rodeio",
+                    "name": "Novo Rodeio",
+                    "category": "Comida",
+                    "description": "Un almuerzo final en Novo Rodeio, otra excelente churrasquería para saborear la carne paraguaya antes de partir.",
+                    "address": "Avda. San Roque G. de Santa Cruz e/ San Blas y San José",
+                    "location": {
+                      "lat": -27.356764,
+                      "lng": -55.853969
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066038"
+                  }
+                },
+                {
+                  "time": "15:00",
+                  "place": {
+                    "_id": "68950e08d29b6f2f131cde6b",
+                    "id": "68950e08d29b6f2f131cde6b",
+                    "key": "De la Costa Hotel",
+                    "name": "De la Costa Hotel",
+                    "category": "Alojamiento",
+                    "description": "Check-out del hotel y traslado para tu viaje de regreso.",
+                    "address": "Avda Francia – Paseo Gastronómico",
+                    "location": {
+                      "lat": -27.334355600000002,
+                      "lng": -55.87199081254272
+                    },
+                    "tags": [],
+                    "features": []
+                  },
+                  "tips": [],
+                  "_id": {
+                    "$oid": "68968618f4f15c4657066039"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "68968618f4f15c4657066035"
+              }
+            }
+          ],
+          "budget": {
+            "breakdown": []
+          },
+          "recommendations": []
+        }
+      },
+      "_id": {
+        "$oid": "68968618f4f15c465706601e"
+      },
+      "timestamp": {
+        "$date": "2025-08-08T23:19:52.461Z"
+      }
+    },
+    {
+      "text": "arma un plan de 5 dias, para concer encanrnacion, y recorrer lugares para comer sushi y tomar cerveza ",
+      "sender": "user",
+      "context": "user: arma un plan de 5 dias para ir a conocer encarnacion, quiero comer pizza, suchi, y tomar cerveza \nbot: ¡Excelente elección! Encarnación te espera con sus encantos. He diseñado un itinerario de 5 días que combina las atracciones más icónicas con tus preferencias gastronómicas de pizza y sushi, además de opciones para disfrutar de una buena cerveza. Te alojarás cerca del corazón de la ciudad y tendrás tiempo para explorar, relajarte y saborear lo mejor de la \"Perla del Sur\". ¡Prepárate para una experiencia inolvidable!",
+      "response": {
+        "travelPlan": {
+          "budget": {
+            "breakdown": []
+          },
+          "recommendations": [],
+          "days": []
+        },
+        "places": []
+      },
+      "_id": {
+        "$oid": "689688667e864936d06b17cb"
+      },
+      "timestamp": {
+        "$date": "2025-08-08T23:29:42.611Z"
+      }
+    },
+    {
+      "text": "¡Excelente! Un plan de 5 días para explorar Encarnación, sumergirte en su cultura, disfrutar de deliciosa pizza y sushi, y cerrar el día con una buena cerveza. Hemos diseñado un itinerario que te permitirá descubrir los puntos más emblemáticos de la ciudad, desde la vibrante Costanera hasta el histórico centro, sin dejar de lado tus preferencias gastronómicas. Te alojarás en hoteles céntricos que facilitan el acceso a todas las atracciones. ¡Prepárate para una aventura inolvidable en la Perla del Sur!",
+      "sender": "bot",
+      "response": {
+        "message": "¡Excelente! Un plan de 5 días para explorar Encarnación, sumergirte en su cultura, disfrutar de deliciosa pizza y sushi, y cerrar el día con una buena cerveza. Hemos diseñado un itinerario que te permitirá descubrir los puntos más emblemáticos de la ciudad, desde la vibrante Costanera hasta el histórico centro, sin dejar de lado tus preferencias gastronómicas. Te alojarás en hoteles céntricos que facilitan el acceso a todas las atracciones. ¡Prepárate para una aventura inolvidable en la Perla del Sur!",
+        "places": [],
+        "travelPlan": {
+          "totalDays": 5,
+          "days": [
+            {
+              "dayNumber": 1,
+              "title": "Llegada y Exploración de la Costanera",
+              "activities": [
+                {
+                  "time": "14:00",
+                  "category": "Alojamiento y Check-in",
+                  "place": "68950e08d29b6f2f131cde6b",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17cf"
+                  }
+                },
+                {
+                  "time": "16:00",
+                  "category": "Turismo",
+                  "place": "68950e08d29b6f2f131cdf04",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d0"
+                  }
+                },
+                {
+                  "time": "19:00",
+                  "category": "Cena",
+                  "place": "68950e08d29b6f2f131cdf16",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d1"
+                  }
+                },
+                {
+                  "time": "21:00",
+                  "category": "Bebidas",
+                  "place": "68950e08d29b6f2f131cdf67",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d2"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "689688667e864936d06b17ce"
+              }
+            },
+            {
+              "dayNumber": 2,
+              "title": "Cultura e Historia en el Centro y el Circuito Comercial",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "category": "Desayuno",
+                  "place": "68950e08d29b6f2f131cdec5",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d4"
+                  }
+                },
+                {
+                  "time": "10:00",
+                  "category": "Turismo",
+                  "place": "68950e09d29b6f2f131cdfa6",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d5"
+                  }
+                },
+                {
+                  "time": "12:30",
+                  "category": "Almuerzo",
+                  "place": "68950e08d29b6f2f131cdf55",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d6"
+                  }
+                },
+                {
+                  "time": "15:00",
+                  "category": "Turismo",
+                  "place": "68950e09d29b6f2f131cdfaf",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d7"
+                  }
+                },
+                {
+                  "time": "19:00",
+                  "category": "Cena",
+                  "place": "68950e08d29b6f2f131cdf28",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d8"
+                  }
+                },
+                {
+                  "time": "21:00",
+                  "category": "Bebidas",
+                  "place": "68950e09d29b6f2f131cdf70",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17d9"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "689688667e864936d06b17d3"
+              }
+            },
+            {
+              "dayNumber": 3,
+              "title": "Museos y Miradores Urbanos",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "category": "Desayuno",
+                  "place": "68950e08d29b6f2f131cded7",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17db"
+                  }
+                },
+                {
+                  "time": "10:00",
+                  "category": "Turismo",
+                  "place": "68950e09d29b6f2f131cdf94",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17dc"
+                  }
+                },
+                {
+                  "time": "12:30",
+                  "category": "Almuerzo",
+                  "place": "68950e08d29b6f2f131cdf4c",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17dd"
+                  }
+                },
+                {
+                  "time": "15:00",
+                  "category": "Turismo",
+                  "place": "68950e09d29b6f2f131cdf8b",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17de"
+                  }
+                },
+                {
+                  "time": "19:00",
+                  "category": "Cena",
+                  "place": "68950e08d29b6f2f131cdf1f",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17df"
+                  }
+                },
+                {
+                  "time": "21:00",
+                  "category": "Bebidas",
+                  "place": "68950e08d29b6f2f131cdf5e",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e0"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "689688667e864936d06b17da"
+              }
+            },
+            {
+              "dayNumber": 4,
+              "title": "Entretenimiento y Sabores Locales",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "category": "Desayuno",
+                  "place": "68950e08d29b6f2f131cdece",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e2"
+                  }
+                },
+                {
+                  "time": "10:30",
+                  "category": "Turismo",
+                  "place": "68950e09d29b6f2f131cdfb8",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e3"
+                  }
+                },
+                {
+                  "time": "12:30",
+                  "category": "Almuerzo",
+                  "place": "68950e08d29b6f2f131cdf3a",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e4"
+                  }
+                },
+                {
+                  "time": "15:00",
+                  "category": "Entretenimiento",
+                  "place": "68950e09d29b6f2f131cdf82",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e5"
+                  }
+                },
+                {
+                  "time": "19:00",
+                  "category": "Cena",
+                  "place": "68950e08d29b6f2f131cdf43",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e6"
+                  }
+                },
+                {
+                  "time": "21:00",
+                  "category": "Bebidas",
+                  "place": "68950e09d29b6f2f131cdf79",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e7"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "689688667e864936d06b17e1"
+              }
+            },
+            {
+              "dayNumber": 5,
+              "title": "Últimas Compras y Despedida",
+              "activities": [
+                {
+                  "time": "09:00",
+                  "category": "Desayuno",
+                  "place": "68950e08d29b6f2f131cdf04",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17e9"
+                  }
+                },
+                {
+                  "time": "10:00",
+                  "category": "Compras",
+                  "place": "68950e08d29b6f2f131cdf1f",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17ea"
+                  }
+                },
+                {
+                  "time": "13:00",
+                  "category": "Almuerzo y Despedida",
+                  "place": "68950e08d29b6f2f131cdf0d",
+                  "tips": [],
+                  "_id": {
+                    "$oid": "689688667e864936d06b17eb"
+                  }
+                }
+              ],
+              "_id": {
+                "$oid": "689688667e864936d06b17e8"
+              }
+            }
+          ],
+          "budget": {
+            "breakdown": []
+          },
+          "recommendations": []
+        }
+      },
+      "_id": {
+        "$oid": "689688667e864936d06b17cd"
+      },
+      "timestamp": {
+        "$date": "2025-08-08T23:29:42.626Z"
+      }
+    },
+    {
+      "text": "donde ir a comer sushi ?",
+      "sender": "user",
+      "context": "bot: ¡Excelente elección! Encarnación te espera con sus encantos. He diseñado un itinerario de 5 días que combina las atracciones más icónicas con tus preferencias gastronómicas de pizza y sushi, además de opciones para disfrutar de una buena cerveza. Te alojarás cerca del corazón de la ciudad y tendrás tiempo para explorar, relajarte y saborear lo mejor de la \"Perla del Sur\". ¡Prepárate para una experiencia inolvidable!\nuser: arma un plan de 5 dias, para concer encanrnacion, y recorrer lugares para comer sushi y tomar cerveza \nbot: ¡Excelente! Un plan de 5 días para explorar Encarnación, sumergirte en su cultura, disfrutar de deliciosa pizza y sushi, y cerrar el día con una buena cerveza. Hemos diseñado un itinerario que te permitirá descubrir los puntos más emblemáticos de la ciudad, desde la vibrante Costanera hasta el histórico centro, sin dejar de lado tus preferencias gastronómicas. Te alojarás en hoteles céntricos que facilitan el acceso a todas las atracciones. ¡Prepárate para una aventura inolvidable en la Perla del Sur!",
+      "response": {
+        "places": [],
+        "travelPlan": {
+          "days": [],
+          "budget": {
+            "breakdown": []
+          },
+          "recommendations": []
+        }
+      },
+      "_id": {
+        "$oid": "68968b68a434434058c72d79"
+      },
+      "timestamp": {
+        "$date": "2025-08-08T23:42:32.939Z"
+      }
+    },
+    {
+      "text": "¡Claro! Si buscas dónde comer sushi en Encarnación, te recomiendo este excelente lugar para disfrutar de la gastronomía japonesa.",
+      "sender": "bot",
+      "response": {
+        "message": "¡Claro! Si buscas dónde comer sushi en Encarnación, te recomiendo este excelente lugar para disfrutar de la gastronomía japonesa.",
+        "places": [
+          {
+            "_id": "68950e08d29b6f2f131cdf16",
+            "id": "68950e08d29b6f2f131cdf16",
+            "key": "Hiroshima Restaurant",
+            "name": "Hiroshima Restaurant",
+            "category": "Restaurante",
+            "description": "Ofrece almuerzos y cenas con una variedad de platos japoneses, ideal para los amantes del sushi.",
+            "address": "25 de mayo / Lomas Valentinas",
+            "location": {
+              "lat": -27.3287054,
+              "lng": -55.863455
+            },
+            "tags": [],
+            "features": []
+          }
+        ],
+        "travelPlan": {
+          "days": [],
+          "budget": {
+            "breakdown": []
+          },
+          "recommendations": []
+        }
+      },
+      "_id": {
+        "$oid": "68968b68a434434058c72d7b"
+      },
+      "timestamp": {
+        "$date": "2025-08-08T23:42:32.967Z"
+      }
+    }
+  ],
+  "sessionId": "session-1754695133428",
+  "lastActivity": {
+    "$date": "2025-08-08T23:42:32.968Z"
+  },
+  "createdAt": {
+    "$date": "2025-08-08T23:19:52.448Z"
+  },
+  "updatedAt": {
+    "$date": "2025-08-08T23:42:32.970Z"
+  },
+  "__v": 6
+}

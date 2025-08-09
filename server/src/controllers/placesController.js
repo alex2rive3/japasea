@@ -1,33 +1,24 @@
-const fs = require('fs')
-const path = require('path')
 const { GoogleGenAI } = require('@google/genai')
 const ChatHistory = require('../models/chatHistoryModel')
+const Place = require('../models/placeModel')
 
 const ai = new GoogleGenAI({})
 
 class PlacesController {
-  
-  static loadPlaces() {
-    try {
-      const placesPath = path.join(__dirname, '../../places.json')
-      const data = fs.readFileSync(placesPath, 'utf8')
-      return JSON.parse(data)
-    } catch (error) {
-      console.error('Error loading places:', error)
-      return []
-    }
-  }
 
-  static getPlaces(req, res) {
+  static async getPlaces(req, res) {
     try {
       const { type } = req.query
-      let places = PlacesController.loadPlaces()
-
+      
+      const query = { status: 'active' }
       if (type) {
-        places = places.filter(place => 
-          place.type.toLowerCase().includes(type.toLowerCase())
-        )
+        query.type = new RegExp(type, 'i')
       }
+
+      const places = await Place.find(query)
+        .select('-__v')
+        .sort({ 'rating.average': -1, 'metadata.views': -1 })
+        .lean()
 
       res.status(200).json(places)
     } catch (error) {
@@ -39,7 +30,7 @@ class PlacesController {
     }
   }
 
-  static searchPlaces(req, res) {
+  static async searchPlaces(req, res) {
     try {
       const { q } = req.query
       
@@ -50,17 +41,25 @@ class PlacesController {
         })
       }
 
-      const places = PlacesController.loadPlaces()
-      const queryLower = q.toLowerCase()
-      
-      const results = places.filter(place =>
-        place.key.toLowerCase().includes(queryLower) ||
-        place.description.toLowerCase().includes(queryLower) ||
-        place.type.toLowerCase().includes(queryLower) ||
-        place.address.toLowerCase().includes(queryLower)
-      )
+      // Búsqueda por texto o regex
+      const places = await Place.find({
+        $and: [
+          { status: 'active' },
+          {
+            $or: [
+              { name: new RegExp(q, 'i') },
+              { description: new RegExp(q, 'i') },
+              { type: new RegExp(q, 'i') },
+              { address: new RegExp(q, 'i') },
+              { tags: new RegExp(q, 'i') }
+            ]
+          }
+        ]
+      })
+      .select('-__v')
+      .lean()
 
-      res.status(200).json(results)
+      res.status(200).json(places)
     } catch (error) {
       res.status(500).json({
         status: 'error',
@@ -70,21 +69,103 @@ class PlacesController {
     }
   }
 
-  static getRandomPlaces(req, res) {
+  static async getRandomPlaces(req, res) {
     try {
       const { count = 3 } = req.query
-      const places = PlacesController.loadPlaces()
+      const numPlaces = parseInt(count)
       
-      const shuffled = [...places].sort(() => 0.5 - Math.random())
-      const selectedPlaces = shuffled.slice(0, parseInt(count))
+      // Usar agregación de MongoDB para obtener lugares aleatorios
+      const places = await Place.aggregate([
+        { $match: { status: 'active' } },
+        { $sample: { size: numPlaces } },
+        { $project: { __v: 0 } }
+      ])
 
-      res.status(200).json(selectedPlaces)
+      res.status(200).json(places)
     } catch (error) {
       res.status(500).json({
         status: 'error',
         message: 'Error al obtener lugares aleatorios',
         error: error.message
       })
+    }
+  }
+
+  // Obtener detalle de un lugar por ID (público)
+  static async getPlaceById(req, res) {
+    try {
+      const { id } = req.params
+      const place = await Place.findById(id).select('-__v').lean()
+      if (!place) {
+        return res.status(404).json({ success: false, message: 'Lugar no encontrado' })
+      }
+      return res.status(200).json({ success: true, data: place })
+    } catch (error) {
+      return res.status(500).json({ success: false, message: 'Error al obtener el lugar', error: error.message })
+    }
+  }
+
+  // Crea o devuelve un lugar mínimo para poder referenciarlo (p.ej., favoritos)
+  static async ensurePlace(req, res) {
+    try {
+      const {
+        key,
+        name,
+        description,
+        type,
+        address,
+        location
+      } = req.body || {}
+
+      const safeKey = key || name
+      const safeName = name || key
+      const safeDescription = description || 'Descripción no disponible'
+      const safeType = type || 'Gastronomía'
+      const safeAddress = address || 'Dirección por confirmar'
+
+      // Validaciones mínimas
+      if (!safeKey || !safeName) {
+        return res.status(400).json({ success: false, message: 'key o name requerido' })
+      }
+
+      // Buscar existente por key o por name+address
+      let existing = await Place.findOne({
+        $or: [
+          { key: safeKey },
+          { $and: [{ name: safeName }, { address: safeAddress }] }
+        ]
+      }).lean()
+
+      if (existing) {
+        return res.status(200).json({ success: true, data: existing })
+      }
+
+      // Preparar coordenadas
+      let lat = location?.lat
+      let lng = location?.lng
+      if (typeof lat !== 'number' || typeof lng !== 'number') {
+        lat = -27.3309
+        lng = -55.8663
+      }
+
+      const toCreate = {
+        key: safeKey,
+        name: safeName,
+        description: safeDescription,
+        type: PlacesController.mapToValidPlaceType(safeType),
+        address: safeAddress,
+        location: {
+          type: 'Point',
+          coordinates: [lng, lat]
+        },
+        status: 'active'
+      }
+
+      const created = await Place.create(toCreate)
+      return res.status(201).json({ success: true, data: created })
+    } catch (error) {
+      console.error('Error ensuring place:', error)
+      return res.status(500).json({ success: false, message: 'Error al asegurar lugar', error: error.message })
     }
   }
 
@@ -106,17 +187,35 @@ class PlacesController {
         })
       }
 
-      const localPlaces = PlacesController.loadPlaces()
+      const localPlaces = await Place.find({ status: 'active' }).lean()
+      
+      // Asegurar que todos los lugares de la BD tengan tanto key como name
+      const normalizedPlaces = localPlaces.map(place => {
+        if (!place.name && place.key) {
+          place.name = place.key
+        } else if (place.name && !place.key) {
+          place.key = place.name
+        } else if (!place.name && !place.key && place.title) {
+          // Si viene con 'title' en lugar de 'name' o 'key'
+          place.name = place.title
+          place.key = place.title
+        }
+        return place
+      })
       
       // Detectar si es una consulta de plan de viaje o una consulta simple
       const isTravelPlanQuery = PlacesController.detectTravelPlan(message)
       
       let response
       if (isTravelPlanQuery) {
-        response = await PlacesController.generateTravelPlan(message, context, localPlaces)
+        response = await PlacesController.generateTravelPlan(message, context, normalizedPlaces)
       } else {
-        response = await PlacesController.generateSimpleRecommendation(message, context, localPlaces)
+        response = await PlacesController.generateSimpleRecommendation(message, context, normalizedPlaces)
       }
+
+      // Normalizar SIEMPRE la respuesta antes de guardarla en historial o retornarla
+      // Resolver referencias también para guardar snapshots íntegros
+      response = await PlacesController.normalizeResponse(response, true)
 
       // Guardar en el historial si el usuario está autenticado
       if (req.user && req.user._id) {
@@ -132,11 +231,15 @@ class PlacesController {
           })
           
           // Añadir respuesta del bot
-          await chatHistory.addMessage({
+          const botMessageData = {
             text: response.message || 'Respuesta generada',
             sender: 'bot',
             response: response
-          })
+          }
+
+
+
+          await chatHistory.addMessage(botMessageData)
           
           // Añadir sessionId a la respuesta
           response.sessionId = chatSessionId
@@ -145,7 +248,6 @@ class PlacesController {
           // No fallar la respuesta si hay error al guardar el historial
         }
       }
-
       res.status(200).json(response)
 
     } catch (error) {
@@ -183,6 +285,140 @@ class PlacesController {
     )
     
     return hasTravelKeywords || hasMultipleActivities
+  }
+
+  static normalizePlace(rawPlace) {
+    if (!rawPlace || typeof rawPlace !== 'object') return rawPlace
+    const place = { ...rawPlace }
+    if (!place.name && place.key) {
+      place.name = place.key
+    } else if (place.name && !place.key) {
+      place.key = place.name
+    } else if (!place.name && !place.key) {
+      place.name = 'Lugar por definir'
+      place.key = 'Lugar por definir'
+    }
+    if (!place.category && place.type) {
+      place.category = place.type
+    }
+    if (!place.description) {
+      place.description = 'Descripción no disponible'
+    }
+    if (!place.address) {
+      place.address = 'Dirección por confirmar'
+    }
+    if (!place.location || typeof place.location.lat !== 'number' || typeof place.location.lng !== 'number') {
+      place.location = { lat: -27.3309, lng: -55.8663 }
+    }
+    return place
+  }
+
+  static mapToValidPlaceType(rawType) {
+    const allowed = [
+      'Alojamiento',
+      'Gastronomía',
+      'Turístico',
+      'Compras',
+      'Entretenimiento',
+      'Desayunos y meriendas',
+      'Comida'
+    ]
+    if (!rawType || typeof rawType !== 'string') return 'Gastronomía'
+    const t = rawType.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    const direct = {
+      alojamiento: 'Alojamiento',
+      gastronomia: 'Gastronomía',
+      turistico: 'Turístico',
+      compras: 'Compras',
+      entretenimiento: 'Entretenimiento',
+      'desayunos y meriendas': 'Desayunos y meriendas',
+      comida: 'Comida'
+    }
+    if (direct[t]) return direct[t]
+    if (t.includes('hotel') || t.includes('aloj') || t.includes('hostel')) return 'Alojamiento'
+    if (t.includes('desayuno') || t.includes('merienda') || t.includes('cafe')) return 'Desayunos y meriendas'
+    if (t.includes('tur') || t.includes('museo') || t.includes('plaza') || t.includes('playa') || t.includes('ruina') || t.includes('mirador') || t.includes('parque')) return 'Turístico'
+    if (t.includes('shopping') || t.includes('compras') || t.includes('tienda')) return 'Compras'
+    if (t.includes('entreten') || t.includes('pub') || t.includes('discot') || t.includes('bar') || t.includes('rooftop')) return 'Entretenimiento'
+    if (t.includes('rest') || t.includes('gastr') || t.includes('comida') || t.includes('pizza') || t.includes('sushi') || t.includes('churras') || t.includes('parrilla') || t.includes('almuerzo') || t.includes('cena')) return 'Comida'
+    return 'Gastronomía'
+  }
+
+  static async normalizeResponse(response, shouldResolveReferences = false) {
+    if (!response || typeof response !== 'object') return response
+    const normalized = { ...response }
+    
+    if (normalized.places && Array.isArray(normalized.places)) {
+      normalized.places = normalized.places.map(PlacesController.normalizePlace)
+    }
+    
+    if (normalized.travelPlan && normalized.travelPlan.days) {
+      normalized.travelPlan = { ...normalized.travelPlan }
+      const inputDays = Array.isArray(normalized.travelPlan.days) ? normalized.travelPlan.days : []
+      normalized.travelPlan.days = await Promise.all(inputDays.map(async (day, dayIndex) => {
+        if (!day || !day.activities) return day
+        
+        const inputActivities = Array.isArray(day.activities) ? day.activities : []
+        const activities = await Promise.all(inputActivities.map(async activity => {
+          let place = activity.place
+          
+          // Si place es un string (ID), resolverlo a objeto completo
+          if (shouldResolveReferences && typeof place === 'string') {
+            try {
+              const foundPlace = await Place.findById(place).lean()
+              if (foundPlace) {
+                place = foundPlace
+              } else {
+                // Si no se encuentra el lugar por ID, crear un lugar placeholder
+                place = {
+                  _id: place,
+                  id: place,
+                  key: 'Lugar no encontrado',
+                  name: 'Lugar no encontrado',
+                  description: 'Este lugar ya no está disponible en nuestra base de datos',
+                  address: 'Dirección no disponible',
+                  type: 'unknown',
+                  location: { lat: -27.3309, lng: -55.8663 }
+                }
+              }
+            } catch (error) {
+              console.error('Error resolving place reference:', error)
+              // Crear lugar placeholder en caso de error
+              place = {
+                _id: place,
+                id: place,
+                key: 'Lugar no disponible',
+                name: 'Lugar no disponible',
+                description: 'Error al cargar la información del lugar',
+                address: 'Dirección no disponible',
+                type: 'unknown',
+                location: { lat: -27.3309, lng: -55.8663 }
+              }
+            }
+          }
+          
+          return {
+            ...activity,
+            place: PlacesController.normalizePlace(place)
+          }
+        }))
+        
+        return {
+          ...day,
+          dayNumber: typeof day.dayNumber === 'number' ? day.dayNumber : (dayIndex + 1),
+          activities: activities
+        }
+      }))
+
+      // Asegurar totalDays coherente
+      if (
+        typeof normalized.travelPlan.totalDays !== 'number' ||
+        normalized.travelPlan.totalDays <= 0
+      ) {
+        normalized.travelPlan.totalDays = normalized.travelPlan.days.length
+      }
+    }
+    return normalized
   }
 
   static async generateTravelPlan(message, context, localPlaces) {
@@ -237,6 +473,7 @@ Analiza la consulta para identificar:
             "category": "Desayuno",
             "place": {
               "key": "Nombre exacto del establecimiento",
+              "name": "Nombre exacto del establecimiento",
               "type": "Desayunos y meriendas",
               "description": "Descripción específica: tipo de comida, especialidades, ambiente, por qué es ideal para esta parte del plan",
               "address": "Dirección completa con calle y número específico",
@@ -248,6 +485,7 @@ Analiza la consulta para identificar:
             "category": "Entretenimiento",
             "place": {
               "key": "Nombre exacto del bar/discoteca",
+              "name": "Nombre exacto del bar/discoteca",
               "type": "Entretenimiento",
               "description": "Tipo de música, ambiente, horarios, por qué es ideal para terminar la noche",
               "address": "Dirección específica",
@@ -264,6 +502,7 @@ Analiza la consulta para identificar:
             "category": "Turismo",
             "place": {
               "key": "Nombre exacto del lugar turístico",
+              "name": "Nombre exacto del lugar turístico",
               "type": "Turístico",
               "description": "Descripción detallada: qué se puede ver/hacer, tiempo recomendado, por qué es imperdible",
               "address": "Dirección específica",
@@ -278,6 +517,7 @@ Analiza la consulta para identificar:
             "category": "Almuerzo",
             "place": {
               "key": "Nombre exacto del restaurante",
+              "name": "Nombre exacto del restaurante",
               "type": "Gastronomía",
               "description": "Especialidades, tipo de cocina, ambiente, rango de precios, por qué encaja con el plan",
               "address": "Dirección específica",
@@ -292,6 +532,7 @@ Analiza la consulta para identificar:
             "category": "Turismo",
             "place": {
               "key": "Segundo lugar turístico",
+              "name": "Segundo lugar turístico",
               "type": "Turístico",
               "description": "Actividad complementaria, diferente al primer sitio turístico",
               "address": "Dirección específica",
@@ -306,6 +547,7 @@ Analiza la consulta para identificar:
             "category": "Cena",
             "place": {
               "key": "Nombre exacto del restaurante para cena",
+              "name": "Nombre exacto del restaurante para cena",
               "type": "Gastronomía",
               "description": "Ambiente nocturno, especialidades, por qué cierra bien el día",
               "address": "Dirección específica",
@@ -395,6 +637,7 @@ ${context || 'Primera consulta'}
             "category": "Recomendación",
             "place": {
               "key": "Nombre exacto del establecimiento",
+              "name": "Nombre exacto del establecimiento",
               "type": "Categoría específica (ej: pizzería, restaurante, café)",
               "description": "Breve descripción específica del lugar y por qué es ideal para esta consulta (máximo 30 palabras)",
               "address": "Dirección completa con nombre de calle y número",
@@ -408,6 +651,7 @@ ${context || 'Primera consulta'}
             "category": "Recomendación",
             "place": {
               "key": "Nombre exacto del establecimiento 2",
+              "name": "Nombre exacto del establecimiento 2",
               "type": "Categoría específica",
               "description": "Descripción breve y específica (máximo 30 palabras)",
               "address": "Dirección completa",
@@ -421,6 +665,7 @@ ${context || 'Primera consulta'}
             "category": "Recomendación",
             "place": {
               "key": "Nombre exacto del establecimiento 3",
+              "name": "Nombre exacto del establecimiento 3",
               "type": "Categoría específica",
               "description": "Descripción breve y específica (máximo 30 palabras)",
               "address": "Dirección completa",
@@ -473,11 +718,31 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       const jsonResponse = response.text.trim()
       const cleanedResponse = jsonResponse.replace(/```json\n?|\n?```/g, '').trim()
       const parsedResponse = JSON.parse(cleanedResponse)
-      
-      return parsedResponse
+
+      // Post-procesar para garantizar formato de consulta simple:
+      // Extraer lugares desde travelPlan (si el modelo respondió así) y guardarlos en `places`
+      let places = []
+      if (parsedResponse?.travelPlan?.days) {
+        parsedResponse.travelPlan.days.forEach((day) => {
+          ;(day.activities || []).forEach((activity) => {
+            if (activity?.place) places.push(activity.place)
+          })
+        })
+      }
+
+      // Si el modelo devolvió `places` directamente, usarlos
+      if (Array.isArray(parsedResponse?.places) && parsedResponse.places.length > 0) {
+        places = parsedResponse.places
+      }
+
+      return {
+        message: parsedResponse.message || 'Recomendaciones para tu consulta',
+        places,
+        timestamp: parsedResponse.timestamp || new Date().toISOString(),
+      }
     } catch (parseError) {
       console.error('Error parsing simple recommendation response:', parseError)
-      return PlacesController.generateFallbackRecommendation(message, relevantLocalPlaces)
+      return PlacesController.generateFallbackRecommendation(message, localPlaces)
     }
   }
 
@@ -525,6 +790,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Desayuno",
                 place: {
                   key: "Café Central Encarnación",
+                  name: "Café Central Encarnación",
                   type: "Desayunos y meriendas",
                   description: "Café céntrico perfecto para comenzar el día con un buen desayuno paraguayo",
                   address: "Avda. Dr. Francia c/ 14 de Mayo",
@@ -536,6 +802,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Turismo",
                 place: {
                   key: "Plaza de Armas",
+                  name: "Plaza de Armas",
                   type: "Turístico",
                   description: "Plaza central histórica con monumentos y ambiente tradicional",
                   address: "14 de Mayo c/ Mcal. Estigarribia",
@@ -547,6 +814,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Almuerzo",
                 place: {
                   key: "Restaurante La Costanera",
+                  name: "Restaurante La Costanera",
                   type: "Gastronomía",
                   description: "Restaurante con vista al río y especialidades locales",
                   address: "Avda. Costanera",
@@ -558,6 +826,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Turismo",
                 place: {
                   key: "Costanera de Encarnación",
+                  name: "Costanera de Encarnación",
                   type: "Turístico",
                   description: "Hermoso paseo junto al río Paraná con vistas panorámicas",
                   address: "Avda. Costanera",
@@ -569,6 +838,7 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
                 category: "Cena",
                 place: {
                   key: "Paseo Gastronómico",
+                  name: "Paseo Gastronómico",
                   type: "Gastronomía",
                   description: "Zona gastronómica con variedad de restaurantes y ambiente nocturno",
                   address: "Avda. Francia",
@@ -584,45 +854,38 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
   }
 
   static generateFallbackRecommendation(message, localPlaces) {
-    const places = localPlaces.length > 0 ? localPlaces.slice(0, 3) : [
-      {
-        key: "Costanera de Encarnación",
-        type: "Turístico",
-        description: "Hermosa costanera con vista al río Paraná, ideal para pasear y disfrutar",
-        address: "Avda. Costanera",
-        location: { lat: -27.3340, lng: -55.8737 }
-      },
-      {
-        key: "Paseo Gastronómico",
-        type: "Gastronomía",
-        description: "Zona gastronómica con variedad de restaurantes y opciones culinarias",
-        address: "Avda. Francia",
-        location: { lat: -27.3353, lng: -55.8716 }
-      },
-      {
-        key: "Shopping Costanera",
-        type: "Compras",
-        description: "Centro comercial moderno con tiendas, restaurantes y entretenimiento",
-        address: "Avda. Costanera",
-        location: { lat: -27.3253, lng: -55.8754 }
-      }
-    ]
-
-    return {
-      message: "Aquí tienes algunas recomendaciones para tu visita a Encarnación. Estos lugares te ofrecerán una buena experiencia de la ciudad y sus atractivos principales.",
-      travelPlan: {
-        totalDays: 1,
-        days: [
+    const places = (localPlaces && localPlaces.length > 0)
+      ? localPlaces.slice(0, 4)
+      : [
           {
-            dayNumber: 1,
-            title: "Recomendaciones para tu consulta",
-            activities: places.map(place => ({
-              category: "Recomendación",
-              place: place
-            }))
+            key: "Costanera de Encarnación",
+            name: "Costanera de Encarnación",
+            type: "Turístico",
+            description: "Hermosa costanera con vista al río Paraná, ideal para pasear y disfrutar",
+            address: "Avda. Costanera",
+            location: { lat: -27.3340, lng: -55.8737 }
+          },
+          {
+            key: "Paseo Gastronómico",
+            name: "Paseo Gastronómico",
+            type: "Gastronomía",
+            description: "Zona gastronómica con variedad de restaurantes y opciones culinarias",
+            address: "Avda. Francia",
+            location: { lat: -27.3353, lng: -55.8716 }
+          },
+          {
+            key: "Shopping Costanera",
+            name: "Shopping Costanera",
+            type: "Compras",
+            description: "Centro comercial moderno con tiendas, restaurantes y entretenimiento",
+            address: "Avda. Costanera",
+            location: { lat: -27.3253, lng: -55.8754 }
           }
         ]
-      },
+
+    return {
+      message: "Aquí tienes algunas recomendaciones para tu visita a Encarnación.",
+      places,
       timestamp: new Date().toISOString()
     }
   }
@@ -640,9 +903,19 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       const { limit = 10 } = req.query
       const history = await ChatHistory.getUserHistory(req.user._id, parseInt(limit))
 
+      // Normalizar nombres de lugares en el historial ya guardado y resolver referencias
+      const normalizedHistory = await Promise.all(history.map(async (h) => {
+        const obj = typeof h.toObject === 'function' ? h.toObject() : h
+        obj.messages = await Promise.all((obj.messages || []).map(async (m) => ({
+          ...m,
+          response: await PlacesController.normalizeResponse(m.response, true)
+        })))
+        return obj
+      }))
+
       res.status(200).json({
         status: 'success',
-        data: history
+        data: normalizedHistory
       })
     } catch (error) {
       console.error('Error getting chat history:', error)
@@ -678,9 +951,15 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
         })
       }
 
+      const obj = typeof history.toObject === 'function' ? history.toObject() : history
+      obj.messages = await Promise.all((obj.messages || []).map(async (m) => ({
+        ...m,
+        response: await PlacesController.normalizeResponse(m.response, true)
+      })))
+
       res.status(200).json({
         status: 'success',
-        data: history
+        data: obj
       })
     } catch (error) {
       console.error('Error getting chat session:', error)

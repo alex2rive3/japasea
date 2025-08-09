@@ -25,7 +25,19 @@ class AuthController {
         phone
       })
       
+      // Generar token de verificación antes de guardar
+      const verificationToken = user.createEmailVerificationToken()
+      
       await user.save()
+      
+      // Enviar email de verificación
+      try {
+        const emailService = require('../services/emailService')
+        await emailService.sendVerificationEmail(user, verificationToken)
+      } catch (emailError) {
+        console.error('Error enviando email de verificación:', emailError)
+        // No fallar el registro si el email no se envía
+      }
       
       const accessToken = user.generateAccessToken()
       const refreshToken = user.generateRefreshToken()
@@ -378,6 +390,233 @@ class AuthController {
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor'
+      })
+    }
+  }
+
+  async forgotPassword(req, res) {
+    try {
+      const { email } = req.body
+
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: 'El email es requerido'
+        })
+      }
+
+      // Buscar usuario por email
+      const user = await User.findOne({ email })
+
+      if (!user) {
+        // Por seguridad, no revelar si el email existe o no
+        return res.status(200).json({
+          success: true,
+          message: 'Si el email existe, recibirás instrucciones para restablecer tu contraseña'
+        })
+      }
+
+      // Generar token de recuperación
+      const resetToken = user.createPasswordResetToken()
+      await user.save({ validateBeforeSave: false })
+
+      try {
+        // Enviar email
+        const emailService = require('../services/emailService')
+        await emailService.sendPasswordResetEmail(user, resetToken)
+
+        res.status(200).json({
+          success: true,
+          message: 'Se ha enviado un email con instrucciones para restablecer tu contraseña'
+        })
+      } catch (error) {
+        // Si falla el envío del email, limpiar el token
+        user.passwordResetToken = undefined
+        user.passwordResetExpires = undefined
+        await user.save({ validateBeforeSave: false })
+
+        console.error('Error enviando email:', error)
+        return res.status(500).json({
+          success: false,
+          message: 'Error al enviar el email. Por favor intenta más tarde.'
+        })
+      }
+    } catch (error) {
+      console.error('Error en forgotPassword:', error)
+      res.status(500).json({
+        success: false,
+        message: 'Error al procesar la solicitud'
+      })
+    }
+  }
+
+  async resetPassword(req, res) {
+    try {
+      const { token, password } = req.body
+
+      if (!token || !password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Token y nueva contraseña son requeridos'
+        })
+      }
+
+      // Hash del token recibido
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex')
+
+      // Buscar usuario con token válido y no expirado
+      const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { $gt: Date.now() }
+      }).select('+passwordResetToken +passwordResetExpires')
+
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'Token inválido o expirado'
+        })
+      }
+
+      // Actualizar contraseña
+      user.password = password
+      user.passwordResetToken = undefined
+      user.passwordResetExpires = undefined
+      user.passwordChangedAt = new Date()
+
+      await user.save()
+
+      // Generar nuevos tokens
+      const authToken = jwt.sign(
+        { id: user._id, email: user.email },
+        config.JWT_SECRET,
+        { expiresIn: config.JWT_EXPIRES_IN }
+      )
+
+      const refreshToken = crypto.randomBytes(64).toString('hex')
+      user.refreshToken = refreshToken
+      await user.save()
+
+      res.status(200).json({
+        success: true,
+        message: 'Contraseña restablecida exitosamente',
+        token: authToken,
+        refreshToken,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      })
+    } catch (error) {
+      console.error('Error en resetPassword:', error)
+      res.status(500).json({
+        success: false,
+        message: 'Error al restablecer la contraseña'
+      })
+    }
+  }
+
+  async verifyEmail(req, res) {
+    try {
+      const { token } = req.params
+
+      if (!token) {
+        return res.status(400).json({
+          success: false,
+          message: 'Token de verificación requerido'
+        })
+      }
+
+      // Hash del token recibido
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex')
+
+      // Buscar usuario con token de verificación
+      const user = await User.findOne({
+        emailVerificationToken: hashedToken
+      }).select('+emailVerificationToken')
+
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'Token de verificación inválido'
+        })
+      }
+
+      // Verificar email
+      await user.verifyEmail()
+
+      // Enviar email de bienvenida
+      const emailService = require('../services/emailService')
+      await emailService.sendWelcomeEmail(user)
+
+      res.status(200).json({
+        success: true,
+        message: 'Email verificado exitosamente'
+      })
+    } catch (error) {
+      console.error('Error en verifyEmail:', error)
+      res.status(500).json({
+        success: false,
+        message: 'Error al verificar el email'
+      })
+    }
+  }
+
+  async resendVerificationEmail(req, res) {
+    try {
+      const userId = req.user.id
+      const user = await User.findById(userId).select('+emailVerificationToken')
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Usuario no encontrado'
+        })
+      }
+
+      if (user.emailVerified) {
+        return res.status(400).json({
+          success: false,
+          message: 'El email ya está verificado'
+        })
+      }
+
+      // Generar nuevo token de verificación
+      const verificationToken = user.createEmailVerificationToken()
+      await user.save({ validateBeforeSave: false })
+
+      try {
+        // Enviar email
+        const emailService = require('../services/emailService')
+        await emailService.sendVerificationEmail(user, verificationToken)
+
+        res.status(200).json({
+          success: true,
+          message: 'Email de verificación enviado exitosamente'
+        })
+      } catch (error) {
+        // Si falla el envío del email, limpiar el token
+        user.emailVerificationToken = undefined
+        await user.save({ validateBeforeSave: false })
+
+        console.error('Error enviando email:', error)
+        return res.status(500).json({
+          success: false,
+          message: 'Error al enviar el email. Por favor intenta más tarde.'
+        })
+      }
+    } catch (error) {
+      console.error('Error en resendVerificationEmail:', error)
+      res.status(500).json({
+        success: false,
+        message: 'Error al procesar la solicitud'
       })
     }
   }

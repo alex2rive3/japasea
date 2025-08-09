@@ -12,6 +12,8 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
   const { isAuthenticated, user, isLoading } = useAuth()
   const location = useLocation()
 
+
+
   if (isLoading) {
     return (
       <Box 
@@ -31,6 +33,13 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
+  // Si el usuario está autenticado y hay una ruta preferida pendiente, redirigir
+  const preferredPath = sessionStorage.getItem('preferredPathAfterLogin')
+  if (preferredPath && location.pathname !== preferredPath) {
+    sessionStorage.removeItem('preferredPathAfterLogin')
+    return <Navigate to={preferredPath} replace />
+  }
+
   if (requireAdmin && user?.role !== 'admin') {
     return <Navigate to="/" replace />
   }
@@ -43,7 +52,7 @@ interface PublicOnlyRouteProps {
 }
 
 export function PublicOnlyRoute({ children }: PublicOnlyRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
 
   if (isLoading) {
     return (
@@ -61,6 +70,10 @@ export function PublicOnlyRoute({ children }: PublicOnlyRouteProps) {
   }
 
   if (isAuthenticated) {
+    // Si es admin, redirigir a panel de admin
+    if (user?.role === 'admin') {
+      return <Navigate to="/admin/places" replace />
+    }
     return <Navigate to="/" replace />
   }
 

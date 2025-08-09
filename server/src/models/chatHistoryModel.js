@@ -27,10 +27,13 @@ const chatHistorySchema = new mongoose.Schema({
     response: {
       message: String,
       places: [{
+        _id: String,
         id: String,
-        name: String,
+        key: String,
+        name: { type: String, default: 'Lugar por definir' },
         category: String,
         description: String,
+        address: String,
         location: {
           lat: Number,
           lng: Number,
@@ -49,33 +52,16 @@ const chatHistorySchema = new mongoose.Schema({
       travelPlan: {
         title: String,
         duration: String,
+        totalDays: Number,
         days: [{
-          day: Number,
+          dayNumber: Number,
           title: String,
           description: String,
           activities: [{
             time: String,
-            activity: String,
-            place: {
-              id: String,
-              name: String,
-              category: String,
-              description: String,
-              location: {
-                lat: Number,
-                lng: Number,
-                address: String,
-                city: String
-              },
-              imageUrl: String,
-              tags: [String],
-              rating: Number,
-              priceLevel: String,
-              openingHours: String,
-              website: String,
-              phone: String,
-              features: [String]
-            },
+            category: String,
+            // Aceptar tanto snapshots de objetos completos como IDs históricos
+            place: { type: mongoose.Schema.Types.Mixed },
             duration: String,
             tips: [String]
           }]

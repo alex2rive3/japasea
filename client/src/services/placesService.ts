@@ -16,12 +16,136 @@ interface ChatHistorySession {
 }
 
 export const placesService = {
+  async adminListPlaces(params: { page?: number; limit?: number; status?: string; type?: string; q?: string; verified?: boolean; featured?: boolean } = {}) {
+    const token = localStorage.getItem('accessToken')
+    if (!token) throw new Error('No autenticado')
+    const query = new URLSearchParams()
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) query.set(k, String(v))
+    })
+    const res = await fetch(`${API_BASE_URL}/api/v1/admin/places?${query.toString()}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!res.ok) throw new Error('Error listando lugares')
+    return res.json()
+  },
+
+  async getPlaceById(id: string): Promise<Place> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/places/${id}`)
+      
+      if (!response.ok) {
+        throw new Error('Error al obtener lugar')
+      }
+
+      const data = await response.json()
+      return data.data || data
+    } catch (error) {
+      console.error('Error fetching place by id:', error)
+      throw error
+    }
+  },
+
+  async ensurePlace(payload: Partial<Place> & { key?: string; name?: string }): Promise<Place> {
+    try {
+      const token = localStorage.getItem('accessToken')
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/places/ensure`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || 'Error al asegurar lugar')
+      }
+
+      const data = await response.json()
+      return data.data
+    } catch (error) {
+      console.error('Error ensuring place:', error)
+      throw error
+    }
+  },
+
+  async adminCreatePlace(payload: any) {
+    const token = localStorage.getItem('accessToken')
+    if (!token) throw new Error('No autenticado')
+    const res = await fetch(`${API_BASE_URL}/api/v1/admin/places`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    if (!res.ok) throw new Error('Error creando lugar')
+    return res.json()
+  },
+
+  async adminUpdatePlace(id: string, payload: any) {
+    const token = localStorage.getItem('accessToken')
+    if (!token) throw new Error('No autenticado')
+    const res = await fetch(`${API_BASE_URL}/api/v1/admin/places/${id}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    if (!res.ok) throw new Error('Error actualizando lugar')
+    return res.json()
+  },
+
+  async adminSetStatus(id: string, status: string) {
+    const token = localStorage.getItem('accessToken')
+    if (!token) throw new Error('No autenticado')
+    const res = await fetch(`${API_BASE_URL}/api/v1/admin/places/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    })
+    if (!res.ok) throw new Error('Error cambiando estado')
+    return res.json()
+  },
+
+  async adminVerifyPlace(id: string) {
+    const token = localStorage.getItem('accessToken')
+    if (!token) throw new Error('No autenticado')
+    const res = await fetch(`${API_BASE_URL}/api/v1/admin/places/${id}/verify`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!res.ok) throw new Error('Error verificando lugar')
+    return res.json()
+  },
+
+  async adminFeaturePlace(id: string, featured: boolean, featuredUntil?: string) {
+    const token = localStorage.getItem('accessToken')
+    if (!token) throw new Error('No autenticado')
+    const res = await fetch(`${API_BASE_URL}/api/v1/admin/places/${id}/feature`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ featured, featuredUntil })
+    })
+    if (!res.ok) throw new Error('Error destacando lugar')
+    return res.json()
+  },
   async getPlacesByType(type?: string): Promise<Place[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/places${type ? `?type=${encodeURIComponent(type)}` : ''}`)
+      const token = localStorage.getItem('accessToken')
+      const headers: HeadersInit = {}
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/api/v1/places${type ? `?type=${encodeURIComponent(type)}` : ''}`, {
+        headers
+      })
+      
       if (!response.ok) {
         throw new Error('Error al obtener lugares')
       }
+      
       return await response.json()
     } catch (error) {
       console.error('Error fetching places:', error)
@@ -31,7 +155,7 @@ export const placesService = {
 
   async searchPlaces(query: string): Promise<Place[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/places/search?q=${encodeURIComponent(query)}`)
+      const response = await fetch(`${API_BASE_URL}/api/v1/places/search?q=${encodeURIComponent(query)}`)
       if (!response.ok) {
         throw new Error('Error al buscar lugares')
       }
@@ -44,7 +168,7 @@ export const placesService = {
 
   async getRandomPlaces(count: number = 3): Promise<Place[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/places/random?count=${count}`)
+      const response = await fetch(`${API_BASE_URL}/api/v1/places/random?count=${count}`)
       if (!response.ok) {
         throw new Error('Error al obtener lugares aleatorios')
       }
@@ -66,7 +190,7 @@ export const placesService = {
         headers['Authorization'] = `Bearer ${token}`
       }
       
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -125,7 +249,7 @@ export const placesService = {
         throw new Error('Usuario no autenticado')
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/chat/history?limit=${limit}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/history?limit=${limit}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -149,7 +273,7 @@ export const placesService = {
         throw new Error('Usuario no autenticado')
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/chat/session/${sessionId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/session/${sessionId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

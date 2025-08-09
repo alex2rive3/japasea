@@ -95,7 +95,7 @@ client/
 │   ├── assets/              # Static assets
 │   ├── App.tsx              # Main application component
 │   ├── main.tsx             # Application entry point
-│   ├── theme.ts             # Material-UI theme configuration
+
 │   └── index.css            # Global styles
 ├── public/                  # Static public assets
 ├── package.json            # Dependencies and scripts

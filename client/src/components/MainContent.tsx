@@ -15,20 +15,17 @@ export function MainContent() {
     console.log('Searching for:', query)
   }
 
-  const handleProfileClick = () => {
-    console.log('Profile clicked')
-  }
+
 
   const handleNotificationClick = () => {
     console.log('Notifications clicked')
   }
 
   return (
-    <Layout 
-      onSearch={handleSearch}
-      onProfileClick={handleProfileClick}
-      onNotificationClick={handleNotificationClick}
-    >
+          <Layout 
+        onSearch={handleSearch}
+        onNotificationClick={handleNotificationClick}
+      >
       <MapComponent places={places} />
       <ChatComponent onPlacesUpdate={handlePlacesUpdate} />
     </Layout>

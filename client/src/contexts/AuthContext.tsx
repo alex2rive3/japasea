@@ -112,6 +112,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  const refreshUser = async (): Promise<void> => {
+    try {
+      if (authService.isAuthenticated()) {
+        const userProfile = await authService.getProfile()
+        setUser(userProfile)
+      }
+    } catch (error) {
+      console.error('Error actualizando usuario:', error)
+      throw error
+    }
+  }
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -121,7 +133,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     updateProfile,
     changePassword,
-    refreshToken
+    refreshToken,
+    refreshUser
   }
 
   return (

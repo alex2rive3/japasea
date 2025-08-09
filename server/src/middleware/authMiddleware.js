@@ -86,6 +86,9 @@ const requireRole = (roles) => {
   }
 }
 
+// Alias conveniente para verificar rol de administrador en rutas de admin
+const requireAdmin = requireRole('admin')
+
 const loginRateLimit = rateLimit({
   windowMs: config.RATE_LIMIT.windowMs,
   max: config.RATE_LIMIT.max,
@@ -211,6 +214,7 @@ module.exports = {
   authenticateToken,
   optionalAuth,
   requireRole,
+  requireAdmin,
   loginRateLimit,
   registerRateLimit,
   validateRegistration,

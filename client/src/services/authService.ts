@@ -1,4 +1,5 @@
 import axios, { type AxiosResponse } from 'axios'
+import { updateGlobalAuthToken } from './apiConfig'
 import type { 
   LoginCredentials, 
   RegisterData, 
@@ -11,14 +12,14 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 const AUTH_ENDPOINTS = {
-  REGISTER: '/api/auth/register',
-  LOGIN: '/api/auth/login',
-  LOGOUT: '/api/auth/logout',
-  PROFILE: '/api/auth/profile',
-  UPDATE_PROFILE: '/api/auth/profile',
-  CHANGE_PASSWORD: '/api/auth/change-password',
-  REFRESH_TOKEN: '/api/auth/refresh-token',
-  DELETE_ACCOUNT: '/api/auth/account'
+  REGISTER: '/api/v1/auth/register',
+  LOGIN: '/api/v1/auth/login',
+  LOGOUT: '/api/v1/auth/logout',
+  PROFILE: '/api/v1/auth/profile',
+  UPDATE_PROFILE: '/api/v1/auth/profile',
+  CHANGE_PASSWORD: '/api/v1/auth/change-password',
+  REFRESH_TOKEN: '/api/v1/auth/refresh-token',
+  DELETE_ACCOUNT: '/api/v1/auth/account'
 }
 
 class AuthService {
@@ -32,6 +33,11 @@ class AuthService {
 
   constructor() {
     this.setupInterceptors()
+    // Si hay un token guardado, configurarlo en el apiClient global
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      updateGlobalAuthToken(token)
+    }
   }
 
   private setupInterceptors(): void {
@@ -210,11 +216,15 @@ class AuthService {
   private setTokens(accessToken: string, refreshToken: string): void {
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
+    // Actualizar el token en el apiClient global
+    updateGlobalAuthToken(accessToken)
   }
 
   private clearTokens(): void {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    // Limpiar el token del apiClient global
+    updateGlobalAuthToken(null)
   }
 
   getAccessToken(): string | null {
@@ -238,6 +248,89 @@ class AuthService {
   isAuthenticated(): boolean {
     const token = this.getAccessToken()
     return token !== null && !this.isTokenExpired(token)
+  }
+
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al enviar email de recuperación')
+      }
+
+      return data
+    } catch (error) {
+      this.handleError(error, 'Error al solicitar recuperación de contraseña')
+      throw error
+    }
+  }
+
+  async resetPassword(token: string, password: string): Promise<AuthResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token, password })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al restablecer contraseña')
+      }
+
+      return data
+    } catch (error) {
+      this.handleError(error, 'Error al restablecer contraseña')
+      throw error
+    }
+  }
+
+  async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify-email/${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al verificar email')
+      }
+
+      return data
+    } catch (error) {
+      this.handleError(error, 'Error al verificar email')
+      throw error
+    }
+  }
+
+  async resendVerificationEmail(): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await this.api.post('/api/v1/auth/resend-verification')
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message)
+      }
+
+      return response.data
+    } catch (error) {
+      this.handleError(error, 'Error al reenviar email de verificación')
+      throw error
+    }
   }
 
   private handleError(error: unknown, fallbackMessage: string): void {

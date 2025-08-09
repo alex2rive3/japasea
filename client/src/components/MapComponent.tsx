@@ -5,6 +5,7 @@ import { Box, Typography, Card, CardContent, Chip } from '@mui/material'
 import { LocationOn, Phone } from '@mui/icons-material'
 import { useEffect, useRef } from 'react'
 import type { Place } from '../types/places'
+import { FavoriteButton } from './FavoriteButton'
 
 const iconPrototype = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown }
 delete iconPrototype._getIconUrl
@@ -142,12 +143,13 @@ export const MapComponent = ({
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          {places.map((place) => {
+          {places.map((place, index) => {
             const phone = extractPhone(place.description)
+            const uniqueKey = place.id || place._id || `${place.key}-${index}`
             
             return (
               <Marker 
-                key={place.key} 
+                key={uniqueKey} 
                 position={[place.location.lat, place.location.lng]}
               >
                 <Popup>
@@ -157,12 +159,18 @@ export const MapComponent = ({
                         <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
                           {place.key}
                         </Typography>
-                        <Chip 
-                          label={place.type || 'Lugar'} 
-                          color={getTypeColor(place.type)}
-                          size="small"
-                          sx={{ ml: 1 }}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Chip 
+                            label={place.type || 'Lugar'} 
+                            color={getTypeColor(place.type)}
+                            size="small"
+                          />
+                          <FavoriteButton 
+                            placeId={place._id || place.key}
+                            placeName={place.key}
+                            size="small"
+                          />
+                        </Box>
                       </Box>
                       
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

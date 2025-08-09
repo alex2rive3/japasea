@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  status: {
+    type: String,
+    enum: ['active', 'suspended', 'deleted'],
+    default: 'active'
+  },
   isEmailVerified: {
     type: Boolean,
     default: false
@@ -77,7 +82,74 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
+  favorites: [{
+    place: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Place'
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  preferences: {
+    notifications: {
+      email: {
+        type: Boolean,
+        default: true
+      },
+      push: {
+        type: Boolean,
+        default: true
+      },
+      newsletter: {
+        type: Boolean,
+        default: false
+      }
+    },
+    language: {
+      type: String,
+      enum: ['es', 'pt', 'en'],
+      default: 'es'
+    },
+    theme: {
+      type: String,
+      enum: ['light', 'dark', 'auto'],
+      default: 'light'
+    },
+    searchHistory: {
+      type: Boolean,
+      default: true
+    }
+  },
+  searchHistory: [{
+    query: String,
+    searchedAt: {
+      type: Date,
+      default: Date.now
+    },
+    resultsCount: Number
+  }],
+  // Tokens de recuperación de contraseña
+  passwordResetToken: {
+    type: String,
+    select: false
+  },
+  passwordResetExpires: {
+    type: Date,
+    select: false
+  },
+  // Token de verificación de email
+  emailVerificationToken: {
+    type: String,
+    select: false
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerifiedAt: Date
 }, {
   timestamps: true,
   toJSON: { 
@@ -166,6 +238,93 @@ userSchema.methods.resetLoginAttempts = function() {
     $unset: { loginAttempts: 1, lockUntil: 1 },
     $set: { lastLogin: new Date() }
   })
+}
+
+userSchema.methods.addFavorite = async function(placeId) {
+  const exists = this.favorites.some(fav => fav.place.equals(placeId))
+  if (!exists) {
+    this.favorites.push({ place: placeId })
+    await this.save()
+    
+    // Actualizar contador en el lugar
+    const Place = mongoose.model('Place')
+    await Place.findByIdAndUpdate(placeId, {
+      $inc: { 'metadata.bookmarks': 1 }
+    })
+  }
+  return this
+}
+
+userSchema.methods.removeFavorite = async function(placeId) {
+  const index = this.favorites.findIndex(fav => fav.place.equals(placeId))
+  if (index !== -1) {
+    this.favorites.splice(index, 1)
+    await this.save()
+    
+    // Actualizar contador en el lugar
+    const Place = mongoose.model('Place')
+    await Place.findByIdAndUpdate(placeId, {
+      $inc: { 'metadata.bookmarks': -1 }
+    })
+  }
+  return this
+}
+
+userSchema.methods.isFavorite = function(placeId) {
+  return this.favorites.some(fav => fav.place.equals(placeId))
+}
+
+userSchema.methods.addSearchHistory = async function(query, resultsCount) {
+  if (this.preferences.searchHistory) {
+    // Mantener solo las últimas 50 búsquedas
+    if (this.searchHistory.length >= 50) {
+      this.searchHistory.shift()
+    }
+    this.searchHistory.push({ query, resultsCount })
+    await this.save()
+  }
+}
+
+userSchema.methods.createPasswordResetToken = function() {
+  const crypto = require('crypto')
+  
+  // Generar token aleatorio
+  const resetToken = crypto.randomBytes(32).toString('hex')
+  
+  // Hash del token para almacenar en la base de datos
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex')
+  
+  // Expiración en 1 hora
+  this.passwordResetExpires = Date.now() + 60 * 60 * 1000
+  
+  // Devolver el token sin hash (se enviará por email)
+  return resetToken
+}
+
+userSchema.methods.createEmailVerificationToken = function() {
+  const crypto = require('crypto')
+  
+  // Generar token aleatorio
+  const verificationToken = crypto.randomBytes(32).toString('hex')
+  
+  // Hash del token para almacenar en la base de datos
+  this.emailVerificationToken = crypto
+    .createHash('sha256')
+    .update(verificationToken)
+    .digest('hex')
+  
+  // Devolver el token sin hash (se enviará por email)
+  return verificationToken
+}
+
+userSchema.methods.verifyEmail = function() {
+  this.emailVerified = true
+  this.emailVerifiedAt = new Date()
+  this.emailVerificationToken = undefined
+  return this.save()
 }
 
 userSchema.index({ email: 1 })

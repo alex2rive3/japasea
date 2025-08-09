@@ -5,7 +5,14 @@ import LoginComponent from './LoginComponent'
 import { RegisterComponent } from './RegisterComponent'
 import { ProfileComponent } from './ProfileComponent'
 import { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute'
-import { MainContent } from './MainContent'
+// import { MainContent } from './MainContent'
+import AdminPlacesComponent from './AdminPlacesComponent'
+import AdminLayout from './admin/AdminLayout'
+import AdminDashboard from './admin/AdminDashboard'
+import AdminStats from './admin/AdminStats'
+// import { useAuth } from '../hooks/useAuth'
+import { HomeRedirect } from './HomeRedirect'
+import LandingPage from './LandingPage'
 
 interface AppRoutesProps {
   onSearch?: (query: string) => void
@@ -33,6 +40,9 @@ export function AppRoutes({ onSearch }: AppRoutesProps) {
           </PublicOnlyRoute>
         } />
 
+        {/* Rutas públicas de marketing */}
+        <Route path="/landing" element={<LandingPage />} />
+
         {/* Rutas protegidas (requieren autenticación) */}
         <Route path="/profile" element={
           <ProtectedRoute>
@@ -43,7 +53,30 @@ export function AppRoutes({ onSearch }: AppRoutesProps) {
         {/* Ruta principal */}
         <Route path="/" element={
           <ProtectedRoute>
-            <MainContent />
+            <HomeRedirect />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin */}
+        <Route path="/admin" element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminDashboard />
+            </AdminLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/places" element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminPlacesComponent />
+            </AdminLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/stats" element={
+          <ProtectedRoute requireAdmin>
+            <AdminLayout>
+              <AdminStats />
+            </AdminLayout>
           </ProtectedRoute>
         } />
 

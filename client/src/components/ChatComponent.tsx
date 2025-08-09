@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Box,
   Typography,
@@ -32,6 +32,7 @@ interface ChatComponentProps {
 
 export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   const { user } = useAuth()
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -42,6 +43,14 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   ])
   const [inputValue, setInputValue] = useState('')
   const [sessionId, setSessionId] = useState<string>(`session-${Date.now()}`)
+  const [botTyping, setBotTyping] = useState<boolean>(false)
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    const container = messagesContainerRef.current
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior })
+    }
+  }
 
   // Cargar historial cuando el componente se monta (si el usuario está autenticado)
   useEffect(() => {
@@ -66,12 +75,14 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                 text: msg.text,
                 sender: msg.sender,
                 timestamp: new Date(msg.timestamp),
-                places: msg.response?.places,
-                travelPlan: msg.response?.travelPlan
+                places: Array.isArray(msg.response?.places) ? msg.response?.places : undefined,
+                travelPlan: msg.response?.travelPlan?.days ? msg.response?.travelPlan : undefined
               }))
               
               if (historicalMessages.length > 0) {
                 setMessages(historicalMessages)
+                // esperar a que pinte y bajar al final
+                setTimeout(() => scrollToBottom('auto'), 0)
               }
             }
           }
@@ -83,6 +94,17 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
     
     loadChatHistory()
   }, [user])
+
+  // Bajar al final cuando cambie el número de mensajes
+  useEffect(() => {
+    scrollToBottom('smooth')
+  }, [messages.length])
+
+  useEffect(() => {
+    if (botTyping) {
+      scrollToBottom('smooth')
+    }
+  }, [botTyping])
 
   const handleSendMessage = async () => {
     if (inputValue.trim()) {
@@ -96,6 +118,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
       setMessages([...messages, newMessage])
       const userInput = inputValue
       setInputValue('')
+      setBotTyping(true)
 
       setTimeout(async () => {
         try {
@@ -123,6 +146,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           }
 
           setMessages((prev) => [...prev, botResponse])
+          setBotTyping(false)
           
           if (onPlacesUpdate && allPlaces.length > 0) {
             onPlacesUpdate(allPlaces)
@@ -137,13 +161,16 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
             timestamp: new Date(),
           }
           setMessages((prev) => [...prev, errorResponse])
+          setBotTyping(false)
         }
       }, 1000)
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Enviar con Enter; salto de línea con Shift+Enter
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
       handleSendMessage()
     }
   }
@@ -198,7 +225,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
         )}
       </Box>
       
-      <Box sx={{ 
+        <Box sx={{ 
         flex: 1, 
         display: 'flex', 
         flexDirection: 'column', 
@@ -212,6 +239,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           p: 2,
           maxWidth: '100%',
           bgcolor: '#ffffff',
+          scrollBehavior: 'smooth',
           // Custom scrollbar styling
           '&::-webkit-scrollbar': {
             width: '6px',
@@ -230,7 +258,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           // Firefox scrollbar styling
           scrollbarWidth: 'thin',
           scrollbarColor: '#dee2e6 #f8f9fa',
-        }}>
+        }} ref={messagesContainerRef}>
           <List sx={{ 
             width: '100%',
             maxWidth: '100%',
@@ -322,8 +350,8 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                   )}
                 </Box>
                 
-                {/* Travel Plan Component */}
-                {message.travelPlan && message.sender === 'bot' && (
+                 {/* Travel Plan Component */}
+                 {message.travelPlan && message.sender === 'bot' && (
                   <Box sx={{ 
                     width: '100%', 
                     mt: 2, 
@@ -339,8 +367,92 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                     />
                   </Box>
                 )}
+
+                 {/* Places List (recomendación simple) como cards */}
+                 {Array.isArray(message.places) && message.places.length > 0 && message.sender === 'bot' && (
+                   <Box sx={{
+                     width: '100%',
+                     mt: 2,
+                     ml: 6,
+                     maxWidth: 'calc(100% - 48px)'
+                   }}>
+                     <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>
+                       Recomendaciones
+                     </Typography>
+                     <Box sx={{ display: 'grid', gap: 1.5 }}>
+                       {message.places.map((p, i) => (
+                         <Box
+                           key={`${p._id || p.id || i}-${i}`}
+                           onClick={() => handlePlaceClick(p)}
+                           sx={{
+                             p: 1.5,
+                             borderRadius: 1.5,
+                             border: '1px solid #e9ecef',
+                             bgcolor: '#ffffff',
+                             cursor: 'pointer',
+                             transition: 'all 0.2s ease',
+                             '&:hover': {
+                               bgcolor: '#f8f9fa',
+                               transform: 'translateY(-1px)',
+                               boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                             }
+                           }}
+                         >
+                           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.25 }}>
+                             {p.key || p.name || 'Lugar sin nombre'}
+                           </Typography>
+                           {p.address && (
+                             <Typography variant="caption" sx={{ color: '#666' }}>
+                               {p.address}
+                             </Typography>
+                           )}
+                         </Box>
+                       ))}
+                     </Box>
+                   </Box>
+                 )}
               </ListItem>
             ))}
+
+            {botTyping && (
+              <ListItem sx={{ 
+                alignItems: 'flex-start', 
+                py: 2, 
+                flexDirection: 'column',
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                boxSizing: 'border-box',
+                border: 'none'
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <Avatar 
+                    sx={{ 
+                      mr: 2, 
+                      bgcolor: '#17a2b8',
+                      width: 36,
+                      height: 36,
+                      flexShrink: 0
+                    }}
+                  >
+                    <SmartToy sx={{ fontSize: 20 }} />
+                  </Avatar>
+                  <Box sx={{
+                    bgcolor: '#f8f9fa',
+                    color: '#495057',
+                    p: 2,
+                    borderRadius: '20px 20px 20px 4px',
+                    display: 'inline-block'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box sx={{ width: 6, height: 6, bgcolor: '#adb5bd', borderRadius: '50%', animation: 'blink 1.2s infinite' }} />
+                      <Box sx={{ width: 6, height: 6, bgcolor: '#adb5bd', borderRadius: '50%', animation: 'blink 1.2s infinite', animationDelay: '0.2s' }} />
+                      <Box sx={{ width: 6, height: 6, bgcolor: '#adb5bd', borderRadius: '50%', animation: 'blink 1.2s infinite', animationDelay: '0.4s' }} />
+                    </Box>
+                  </Box>
+                </Box>
+              </ListItem>
+            )}
           </List>
         </Box>
         
@@ -355,7 +467,10 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
             placeholder="Escribe tu mensaje..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
+            multiline
+            minRows={1}
+            maxRows={6}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '25px',
