@@ -34,7 +34,7 @@ interface UserManagement {
 class AdminService {
 
   // === ESTADÍSTICAS ===
-  async getAdminStats(): Promise<AdminStats> {
+  async getAdminStats(): Promise<any> {
     try {
       const response = await api.get<any>('/api/v1/admin/stats')
       // El cliente API ya devuelve el cuerpo JSON. La API del servidor responde { success, data }

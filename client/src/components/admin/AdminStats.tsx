@@ -113,51 +113,61 @@ export default function AdminStats() {
           setUserStats({ total, activos, inactivos })
         }
 
-        // Reseñas: consultar totales por estado (usando sólo paginación)
-        try {
-          const [all, pend, appr, rej] = await Promise.all([
-            adminService.getReviews({ page: 1, limit: 1 }),
-            adminService.getReviews({ status: 'pending', page: 1, limit: 1 }),
-            adminService.getReviews({ status: 'approved', page: 1, limit: 1 }),
-            adminService.getReviews({ status: 'rejected', page: 1, limit: 1 })
-          ])
-          const total = (all as any)?.pagination?.total ?? (Array.isArray((all as any)?.data) ? (all as any).data.length : 0)
-          const pendientes = (pend as any)?.pagination?.total ?? (Array.isArray((pend as any)?.data) ? (pend as any).data.length : 0)
-          const aprobadas = (appr as any)?.pagination?.total ?? (Array.isArray((appr as any)?.data) ? (appr as any).data.length : 0)
-          const rechazadas = (rej as any)?.pagination?.total ?? (Array.isArray((rej as any)?.data) ? (rej as any).data.length : 0)
-          setReviewStats({ total, pendientes, aprobadas, rechazadas })
-        } catch {}
+        // Reseñas: usar conteos reales del backend
+        if (statsData?.reviews) {
+          setReviewStats({
+            total: statsData.reviews.total || 0,
+            pendientes: statsData.reviews.pending || 0,
+            aprobadas: statsData.reviews.approved || 0,
+            rechazadas: statsData.reviews.rejected || 0
+          })
+        }
 
-        // Datos mensuales simulados
-        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun']
-        setMonthlyData(months.map((month) => ({
-          month,
-          lugares: Math.floor(Math.random() * 50) + 20,
-          usuarios: Math.floor(Math.random() * 100) + 50,
-          reseñas: Math.floor(Math.random() * 80) + 30,
-          ingresos: Math.floor(Math.random() * 5000) + 2000
-        })))
+        // Tendencias mensuales reales (últimos 12 meses)
+        if (statsData?.trends?.last12Months) {
+          const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+          setMonthlyData(
+            statsData.trends.last12Months.map((m: any) => {
+              const [year, month] = String(m.month).split('-')
+              const idx = Math.min(Math.max(parseInt(month, 10) - 1, 0), 11)
+              return {
+                month: `${meses[idx]} ${String(year).slice(2)}`,
+                lugares: m.newPlaces || 0,
+                usuarios: m.newUsers || 0,
+                reseñas: m.newReviews || 0,
+                ingresos: 0
+              }
+            })
+          )
+        }
 
-        // Datos para radar chart
-        setRadarData([
-          { category: 'Turismo', actual: 85, objetivo: 100 },
-          { category: 'Gastronomía', actual: 75, objetivo: 90 },
-          { category: 'Alojamiento', actual: 60, objetivo: 80 },
-          { category: 'Entretenimiento', actual: 90, objetivo: 95 },
-          { category: 'Servicios', actual: 70, objetivo: 85 }
-        ])
+        // Radar: usar byType como proxy (normalizado a 100 por el mayor)
+        if (statsData?.places?.byType?.length) {
+          const max = Math.max(...statsData.places.byType.map((t: any) => t.count || 0), 1)
+          setRadarData(
+            statsData.places.byType.slice(0, 5).map((t: any) => ({
+              category: t.type || 'Otros',
+              actual: Math.round(((t.count || 0) / max) * 100),
+              objetivo: 100
+            }))
+          )
+        }
 
-        // Datos de crecimiento
-        const last12Months = Array.from({ length: 12 }, (_, i) => {
-          const date = new Date()
-          date.setMonth(date.getMonth() - (11 - i))
-          return {
-            mes: date.toLocaleDateString('es-PY', { month: 'short' }),
-            nuevosLugares: Math.floor(Math.random() * 20) + 5,
-            nuevosUsuarios: Math.floor(Math.random() * 50) + 20
-          }
-        })
-        setGrowthData(last12Months)
+        // Datos de crecimiento reales desde trends
+        if (statsData?.trends?.last12Months) {
+          const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+          setGrowthData(
+            statsData.trends.last12Months.map((m: any) => {
+              const [year, month] = String(m.month).split('-')
+              const idx = Math.min(Math.max(parseInt(month, 10) - 1, 0), 11)
+              return {
+                mes: `${meses[idx]} ${String(year).slice(2)}`,
+                nuevosLugares: m.newPlaces || 0,
+                nuevosUsuarios: m.newUsers || 0
+              }
+            })
+          )
+        }
 
       } finally {
         setLoading(false)

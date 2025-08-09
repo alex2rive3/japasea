@@ -423,7 +423,11 @@ class AdminController {
         activePlaces,
         pendingPlaces,
         verifiedPlaces,
-        featuredPlaces
+        featuredPlaces,
+        totalReviews,
+        pendingReviews,
+        approvedReviews,
+        rejectedReviews
       ] = await Promise.all([
         User.countDocuments(),
         User.countDocuments({ status: 'active' }),
@@ -431,7 +435,11 @@ class AdminController {
         Place.countDocuments({ status: 'active' }),
         Place.countDocuments({ status: 'pending' }),
         Place.countDocuments({ 'metadata.verified': true }),
-        Place.countDocuments({ 'metadata.featured': true })
+        Place.countDocuments({ 'metadata.featured': true }),
+        Review.countDocuments(),
+        Review.countDocuments({ status: 'pending' }),
+        Review.countDocuments({ status: 'approved' }),
+        Review.countDocuments({ status: 'rejected' })
       ])
 
       // Estadísticas por tipo de lugar
@@ -440,13 +448,79 @@ class AdminController {
         { $sort: { count: -1 } }
       ])
 
-      // Actividad reciente (últimos 7 días)
+      // Actividad reciente (últimos 7 días) - resumen y serie por día
+      const today = new Date()
       const sevenDaysAgo = new Date()
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-      
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6) // incluye hoy -> 7 días
+
+      const [users7d, places7d, reviews7d] = await Promise.all([
+        User.aggregate([
+          { $match: { createdAt: { $gte: sevenDaysAgo } } },
+          { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ]),
+        Place.aggregate([
+          { $match: { createdAt: { $gte: sevenDaysAgo } } },
+          { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ]),
+        Review.aggregate([
+          { $match: { createdAt: { $gte: sevenDaysAgo } } },
+          { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ])
+      ])
+
+      const dateKey = (d) => d.toISOString().slice(0, 10)
+      const series7d = []
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(sevenDaysAgo)
+        d.setDate(sevenDaysAgo.getDate() + i)
+        const key = dateKey(d)
+        const u = users7d.find((x) => x._id === key)?.count || 0
+        const p = places7d.find((x) => x._id === key)?.count || 0
+        const r = reviews7d.find((x) => x._id === key)?.count || 0
+        series7d.push({ date: key, newUsers: u, newPlaces: p, newReviews: r })
+      }
+
       const recentActivity = {
-        newUsers: await User.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
-        newPlaces: await Place.countDocuments({ createdAt: { $gte: sevenDaysAgo } })
+        newUsers: series7d.reduce((acc, x) => acc + x.newUsers, 0),
+        newPlaces: series7d.reduce((acc, x) => acc + x.newPlaces, 0),
+        newReviews: series7d.reduce((acc, x) => acc + x.newReviews, 0)
+      }
+
+      // Tendencias mensuales (últimos 12 meses)
+      const startOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1)
+      const twelveMonthsAgo = startOfMonth(new Date(new Date(today).setMonth(today.getMonth() - 11)))
+
+      const [users12m, places12m, reviews12m] = await Promise.all([
+        User.aggregate([
+          { $match: { createdAt: { $gte: twelveMonthsAgo } } },
+          { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ]),
+        Place.aggregate([
+          { $match: { createdAt: { $gte: twelveMonthsAgo } } },
+          { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ]),
+        Review.aggregate([
+          { $match: { createdAt: { $gte: twelveMonthsAgo } } },
+          { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 } } },
+          { $sort: { _id: 1 } }
+        ])
+      ])
+
+      const monthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`
+      const series12m = []
+      for (let i = 0; i < 12; i++) {
+        const d = new Date(twelveMonthsAgo)
+        d.setMonth(twelveMonthsAgo.getMonth() + i)
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+        const u = users12m.find((x) => x._id === key)?.count || 0
+        const p = places12m.find((x) => x._id === key)?.count || 0
+        const r = reviews12m.find((x) => x._id === key)?.count || 0
+        series12m.push({ month: key, newUsers: u, newPlaces: p, newReviews: r })
       }
 
       return res.status(200).json({
@@ -468,8 +542,18 @@ class AdminController {
               count: item.count
             }))
           },
+          reviews: {
+            total: totalReviews,
+            pending: pendingReviews,
+            approved: approvedReviews,
+            rejected: rejectedReviews
+          },
           activity: {
-            last7Days: recentActivity
+            last7Days: recentActivity,
+            last7DaysSeries: series7d
+          },
+          trends: {
+            last12Months: series12m
           }
         }
       })

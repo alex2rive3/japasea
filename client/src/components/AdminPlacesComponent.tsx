@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Paper, Stack, TextField, Typography, Checkbox, Alert } from '@mui/material'
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Paper, Stack, TextField, Typography, Checkbox, Alert, Card, CardContent, Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import VerifiedIcon from '@mui/icons-material/Verified'
 import StarIcon from '@mui/icons-material/Star'
 import HomeIcon from '@mui/icons-material/Home'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
 
@@ -210,40 +211,56 @@ export default function AdminPlacesComponent() {
         </Stack>
       </Paper>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: { xs: 'center', md: 'flex-start' } }}>
         {items.map((p) => (
-          <Paper sx={{ p: 2, position: 'relative' }} key={p.id}>
-              <Checkbox
-                checked={selectedItems.includes(p.id)}
-                onChange={() => handleSelectItem(p.id)}
-                sx={{ position: 'absolute', top: 8, left: 8 }}
-              />
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ ml: 4 }}>
-                <Box>
-                  <Typography variant="h6">{p.name}</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{p.address}</Typography>
-                  <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                    <Chip size="small" label={p.type} />
-                    <Chip size="small" label={p.status} />
-                    {p?.metadata?.verified && <Chip size="small" icon={<VerifiedIcon />} label="Verificado" color="success" />}
-                    {p?.metadata?.featured && <Chip size="small" icon={<StarIcon />} label="Destacado" color="warning" />}
-                  </Stack>
-                  <Typography variant="body2" sx={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.description}</Typography>
-                </Box>
-                <Stack spacing={1} direction="row">
-                  <IconButton onClick={() => setForm({ id: p.id, key: p.key, name: p.name, description: p.description, type: p.type, address: p.address, lat: p.location?.lat ?? p.location?.coordinates?.[1], lng: p.location?.lng ?? p.location?.coordinates?.[0] })}>
-                    <EditIcon />
-                  </IconButton>
-                  <Button size="small" onClick={() => handleVerify(p.id)}>Verificar</Button>
-                  <Button size="small" onClick={() => handleFeature(p.id, !p?.metadata?.featured)}>{p?.metadata?.featured ? 'Quitar destacado' : 'Destacar'}</Button>
+          <Card key={p.id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, maxWidth: { xs: '100%', sm: '350px', md: '380px' }, position: 'relative', transition: 'all 0.3s ease-in-out', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 25px rgba(0,0,0,0.15)' }, borderRadius: 2, overflow: 'hidden' }}>
+            <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Chip label={p.type} size="small" color="primary" variant="filled" sx={{ fontWeight: 600, borderRadius: 1.5, textTransform: 'capitalize' }} />
+                  <Chip label={p.status} size="small" variant="outlined" />
+                  {p?.metadata?.verified && <Chip size="small" icon={<VerifiedIcon />} label="Verificado" color="success" />}
+                  {p?.metadata?.featured && <Chip size="small" icon={<StarIcon />} label="Destacado" color="warning" />}
                 </Stack>
-              </Stack>
-              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Checkbox checked={selectedItems.includes(p.id)} onChange={() => handleSelectItem(p.id)} />
+              </Box>
+
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: 'text.primary', mb: 1.5, lineHeight: 1.3 }}>
+                {p.name}
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.5, flexGrow: 1 }}>
+                {p.description}
+              </Typography>
+
+              {p.address && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <LocationOnIcon sx={{ fontSize: 18, mr: 1, color: 'primary.main' }} />
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+                    {p.address}
+                  </Typography>
+                </Box>
+              )}
+
+              <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 'auto' }}>
                 {STATUSES.map(s => (
-                  <Button key={s} size="small" variant={p.status === s ? 'contained' : 'outlined'} onClick={() => handleStatus(p.id, s)}>{s}</Button>
+                  <Button key={s} size="small" variant={p.status === s ? 'contained' : 'outlined'} onClick={() => handleStatus(p.id, s)} sx={{ textTransform: 'none', borderRadius: 2 }}>
+                    {s}
+                  </Button>
                 ))}
               </Stack>
-              </Paper>
+
+              <Stack direction="row" spacing={1} sx={{ mt: 1, justifyContent: 'flex-end' }}>
+                <Tooltip title="Editar">
+                  <IconButton onClick={() => { setForm({ id: p.id, key: p.key, name: p.name, description: p.description, type: p.type, address: p.address, lat: p.location?.lat ?? p.location?.coordinates?.[1], lng: p.location?.lng ?? p.location?.coordinates?.[0] }); setOpenForm(true) }}>
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+                <Button size="small" onClick={() => handleVerify(p.id)} sx={{ textTransform: 'none' }}>Verificar</Button>
+                <Button size="small" onClick={() => handleFeature(p.id, !p?.metadata?.featured)} sx={{ textTransform: 'none' }}>{p?.metadata?.featured ? 'Quitar destacado' : 'Destacar'}</Button>
+              </Stack>
+            </CardContent>
+          </Card>
         ))}
       </Box>
 
