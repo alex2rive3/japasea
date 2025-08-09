@@ -136,7 +136,8 @@ class PlacesController {
       }
 
       // Normalizar SIEMPRE la respuesta antes de guardarla en historial o retornarla
-      response = await PlacesController.normalizeResponse(response)
+      // Resolver referencias también para guardar snapshots íntegros
+      response = await PlacesController.normalizeResponse(response, true)
 
       // Guardar en el historial si el usuario está autenticado
       if (req.user && req.user._id) {
@@ -244,10 +245,12 @@ class PlacesController {
     
     if (normalized.travelPlan && normalized.travelPlan.days) {
       normalized.travelPlan = { ...normalized.travelPlan }
-      normalized.travelPlan.days = await Promise.all(normalized.travelPlan.days.map(async day => {
+      const inputDays = Array.isArray(normalized.travelPlan.days) ? normalized.travelPlan.days : []
+      normalized.travelPlan.days = await Promise.all(inputDays.map(async (day, dayIndex) => {
         if (!day || !day.activities) return day
         
-        const activities = await Promise.all(day.activities.map(async activity => {
+        const inputActivities = Array.isArray(day.activities) ? day.activities : []
+        const activities = await Promise.all(inputActivities.map(async activity => {
           let place = activity.place
           
           // Si place es un string (ID), resolverlo a objeto completo
@@ -293,9 +296,18 @@ class PlacesController {
         
         return {
           ...day,
+          dayNumber: typeof day.dayNumber === 'number' ? day.dayNumber : (dayIndex + 1),
           activities: activities
         }
       }))
+
+      // Asegurar totalDays coherente
+      if (
+        typeof normalized.travelPlan.totalDays !== 'number' ||
+        normalized.travelPlan.totalDays <= 0
+      ) {
+        normalized.travelPlan.totalDays = normalized.travelPlan.days.length
+      }
     }
     return normalized
   }
@@ -597,11 +609,31 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
       const jsonResponse = response.text.trim()
       const cleanedResponse = jsonResponse.replace(/```json\n?|\n?```/g, '').trim()
       const parsedResponse = JSON.parse(cleanedResponse)
-      
-      return parsedResponse
+
+      // Post-procesar para garantizar formato de consulta simple:
+      // Extraer lugares desde travelPlan (si el modelo respondió así) y guardarlos en `places`
+      let places = []
+      if (parsedResponse?.travelPlan?.days) {
+        parsedResponse.travelPlan.days.forEach((day) => {
+          ;(day.activities || []).forEach((activity) => {
+            if (activity?.place) places.push(activity.place)
+          })
+        })
+      }
+
+      // Si el modelo devolvió `places` directamente, usarlos
+      if (Array.isArray(parsedResponse?.places) && parsedResponse.places.length > 0) {
+        places = parsedResponse.places
+      }
+
+      return {
+        message: parsedResponse.message || 'Recomendaciones para tu consulta',
+        places,
+        timestamp: parsedResponse.timestamp || new Date().toISOString(),
+      }
     } catch (parseError) {
       console.error('Error parsing simple recommendation response:', parseError)
-      return PlacesController.generateFallbackRecommendation(message, relevantLocalPlaces)
+      return PlacesController.generateFallbackRecommendation(message, localPlaces)
     }
   }
 
@@ -713,48 +745,38 @@ RESPONDE ÚNICAMENTE CON EL JSON VÁLIDO, SIN TEXTO ADICIONAL.
   }
 
   static generateFallbackRecommendation(message, localPlaces) {
-    const places = localPlaces.length > 0 ? localPlaces.slice(0, 3) : [
-      {
-        key: "Costanera de Encarnación",
-        name: "Costanera de Encarnación",
-        type: "Turístico",
-        description: "Hermosa costanera con vista al río Paraná, ideal para pasear y disfrutar",
-        address: "Avda. Costanera",
-        location: { lat: -27.3340, lng: -55.8737 }
-      },
-      {
-        key: "Paseo Gastronómico",
-        name: "Paseo Gastronómico",
-        type: "Gastronomía",
-        description: "Zona gastronómica con variedad de restaurantes y opciones culinarias",
-        address: "Avda. Francia",
-        location: { lat: -27.3353, lng: -55.8716 }
-      },
-      {
-        key: "Shopping Costanera",
-        name: "Shopping Costanera",
-        type: "Compras",
-        description: "Centro comercial moderno con tiendas, restaurantes y entretenimiento",
-        address: "Avda. Costanera",
-        location: { lat: -27.3253, lng: -55.8754 }
-      }
-    ]
-
-    return {
-      message: "Aquí tienes algunas recomendaciones para tu visita a Encarnación. Estos lugares te ofrecerán una buena experiencia de la ciudad y sus atractivos principales.",
-      travelPlan: {
-        totalDays: 1,
-        days: [
+    const places = (localPlaces && localPlaces.length > 0)
+      ? localPlaces.slice(0, 4)
+      : [
           {
-            dayNumber: 1,
-            title: "Recomendaciones para tu consulta",
-            activities: places.map(place => ({
-              category: "Recomendación",
-              place: place
-            }))
+            key: "Costanera de Encarnación",
+            name: "Costanera de Encarnación",
+            type: "Turístico",
+            description: "Hermosa costanera con vista al río Paraná, ideal para pasear y disfrutar",
+            address: "Avda. Costanera",
+            location: { lat: -27.3340, lng: -55.8737 }
+          },
+          {
+            key: "Paseo Gastronómico",
+            name: "Paseo Gastronómico",
+            type: "Gastronomía",
+            description: "Zona gastronómica con variedad de restaurantes y opciones culinarias",
+            address: "Avda. Francia",
+            location: { lat: -27.3353, lng: -55.8716 }
+          },
+          {
+            key: "Shopping Costanera",
+            name: "Shopping Costanera",
+            type: "Compras",
+            description: "Centro comercial moderno con tiendas, restaurantes y entretenimiento",
+            address: "Avda. Costanera",
+            location: { lat: -27.3253, lng: -55.8754 }
           }
         ]
-      },
+
+    return {
+      message: "Aquí tienes algunas recomendaciones para tu visita a Encarnación.",
+      places,
       timestamp: new Date().toISOString()
     }
   }

@@ -66,8 +66,8 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                 text: msg.text,
                 sender: msg.sender,
                 timestamp: new Date(msg.timestamp),
-                places: msg.response?.places,
-                travelPlan: msg.response?.travelPlan
+                places: Array.isArray(msg.response?.places) ? msg.response?.places : undefined,
+                travelPlan: msg.response?.travelPlan?.days ? msg.response?.travelPlan : undefined
               }))
               
               if (historicalMessages.length > 0) {
@@ -322,8 +322,8 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                   )}
                 </Box>
                 
-                {/* Travel Plan Component */}
-                {message.travelPlan && message.sender === 'bot' && (
+                 {/* Travel Plan Component */}
+                 {message.travelPlan && message.sender === 'bot' && (
                   <Box sx={{ 
                     width: '100%', 
                     mt: 2, 
@@ -339,6 +339,40 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                     />
                   </Box>
                 )}
+
+                 {/* Places List (recomendación simple) */}
+                 {!message.travelPlan && Array.isArray(message.places) && message.places.length > 0 && message.sender === 'bot' && (
+                   <Box sx={{
+                     width: '100%',
+                     mt: 1.5,
+                     ml: 6,
+                     maxWidth: 'calc(100% - 48px)'
+                   }}>
+                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}>
+                       Recomendaciones
+                     </Typography>
+                     <List dense>
+                       {message.places.map((p, i) => (
+                         <ListItem
+                           key={`${p._id || p.id || i}-${i}`}
+                           sx={{ py: 0.5, cursor: 'pointer' }}
+                           onClick={() => handlePlaceClick(p)}
+                         >
+                           <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                             <Typography variant="body2" sx={{ fontWeight: 600, color: '#1a1a1a' }}>
+                               {p.key || p.name || 'Lugar sin nombre'}
+                             </Typography>
+                             {p.address && (
+                               <Typography variant="caption" sx={{ color: '#666' }}>
+                                 {p.address}
+                               </Typography>
+                             )}
+                           </Box>
+                         </ListItem>
+                       ))}
+                     </List>
+                   </Box>
+                 )}
               </ListItem>
             ))}
           </List>
