@@ -60,30 +60,8 @@ const chatHistorySchema = new mongoose.Schema({
           activities: [{
             time: String,
             category: String,
-            place: {
-              _id: String,
-              id: String,
-              key: String,
-              name: { type: String, default: 'Lugar por definir' },
-              category: String,
-              type: String,
-              description: String,
-              address: String,
-              location: {
-                lat: Number,
-                lng: Number,
-                address: String,
-                city: String
-              },
-              imageUrl: String,
-              tags: [String],
-              rating: Number,
-              priceLevel: String,
-              openingHours: String,
-              website: String,
-              phone: String,
-              features: [String]
-            },
+            // Aceptar tanto snapshots de objetos completos como IDs históricos
+            place: { type: mongoose.Schema.Types.Mixed },
             duration: String,
             tips: [String]
           }]

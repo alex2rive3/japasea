@@ -115,7 +115,10 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
     return '#26A69A'
   }
 
-  const extractPhoneNumber = (description: string): string | null => {
+  const extractPhoneNumber = (description: string | undefined | null): string | null => {
+    if (!description || typeof description !== 'string') {
+      return null
+    }
     const phoneMatch = description.match(/(\d{4}\s?\d{3}\s?\d{3}|\d{3}\s?\d{3}\s?\d{3})/g)
     return phoneMatch ? phoneMatch[0] : null
   }
@@ -166,27 +169,33 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
 
                 {/* Compact Activities */}
                 <Box sx={{ p: 1.5, maxWidth: '100%', overflow: 'hidden' }}>
-                  {day.activities.map((activity, activityIndex) => (
-                    <Box key={`activity-${dayIndex}-${activityIndex}-${activity.place.key || activity.place.name || activityIndex}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: 1.5,
-                          p: 1.5,
-                          borderRadius: 1.5,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          maxWidth: '100%',
-                          overflow: 'hidden',
-                          '&:hover': {
-                            bgcolor: '#f5f5f5',
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                          }
-                        }}
-                        onClick={() => handlePlaceClick(activity.place)}
-                      >
+                  {day.activities.map((activity, activityIndex) => {
+                    // Validar que la actividad y el lugar existan
+                    if (!activity || !activity.place) {
+                      return null;
+                    }
+                    
+                    return (
+                      <Box key={`activity-${dayIndex}-${activityIndex}-${activity.place.key || activity.place.name || activityIndex}`} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 1.5,
+                            p: 1.5,
+                            borderRadius: 1.5,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            maxWidth: '100%',
+                            overflow: 'hidden',
+                            '&:hover': {
+                              bgcolor: '#f5f5f5',
+                              transform: 'translateY(-1px)',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                            }
+                          }}
+                          onClick={() => handlePlaceClick(activity.place)}
+                        >
                         {/* Compact Time and Icon */}
                         <Box sx={{ 
                           display: 'flex', 
@@ -325,11 +334,12 @@ const TravelPlanComponent: React.FC<TravelPlanComponentProps> = ({
                         </Box>
                       </Box>
 
-                      {activityIndex < day.activities.length - 1 && (
-                        <Divider sx={{ my: 0.5, mx: 1 }} />
-                      )}
-                    </Box>
-                  ))}
+                        {activityIndex < day.activities.length - 1 && (
+                          <Divider sx={{ my: 0.5, mx: 1 }} />
+                        )}
+                      </Box>
+                    );
+                  })}
                 </Box>
               </CardContent>
             </Card>
