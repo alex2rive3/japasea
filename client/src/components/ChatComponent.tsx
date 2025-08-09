@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Box,
   Typography,
@@ -32,6 +32,7 @@ interface ChatComponentProps {
 
 export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   const { user } = useAuth()
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -42,6 +43,13 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   ])
   const [inputValue, setInputValue] = useState('')
   const [sessionId, setSessionId] = useState<string>(`session-${Date.now()}`)
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    const container = messagesContainerRef.current
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior })
+    }
+  }
 
   // Cargar historial cuando el componente se monta (si el usuario está autenticado)
   useEffect(() => {
@@ -72,6 +80,8 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
               
               if (historicalMessages.length > 0) {
                 setMessages(historicalMessages)
+                // esperar a que pinte y bajar al final
+                setTimeout(() => scrollToBottom('auto'), 0)
               }
             }
           }
@@ -83,6 +93,11 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
     
     loadChatHistory()
   }, [user])
+
+  // Bajar al final cuando cambie el número de mensajes
+  useEffect(() => {
+    scrollToBottom('smooth')
+  }, [messages.length])
 
   const handleSendMessage = async () => {
     if (inputValue.trim()) {
@@ -200,7 +215,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
         )}
       </Box>
       
-      <Box sx={{ 
+        <Box sx={{ 
         flex: 1, 
         display: 'flex', 
         flexDirection: 'column', 
@@ -214,6 +229,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           p: 2,
           maxWidth: '100%',
           bgcolor: '#ffffff',
+          scrollBehavior: 'smooth',
           // Custom scrollbar styling
           '&::-webkit-scrollbar': {
             width: '6px',
@@ -232,7 +248,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           // Firefox scrollbar styling
           scrollbarWidth: 'thin',
           scrollbarColor: '#dee2e6 #f8f9fa',
-        }}>
+        }} ref={messagesContainerRef}>
           <List sx={{ 
             width: '100%',
             maxWidth: '100%',
