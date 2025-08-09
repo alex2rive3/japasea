@@ -152,7 +152,8 @@ class AdminService {
         }, {} as Record<string, string>)
       ).toString()
       const response = await api.get<any>(`/api/v1/admin/reviews${query ? `?${query}` : ''}`)
-      return (response as any)?.data ?? response
+      // Para permitir acceder a pagination en algunas vistas, devolvemos el objeto completo cuando exista
+      return response
     } catch (error) {
       console.error('Error obteniendo reviews:', error)
       throw error

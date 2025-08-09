@@ -1,5 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Box, Paper, Typography, Stack, Chip } from '@mui/material'
+import {
+  People as PeopleIcon,
+  VerifiedUser as VerifiedUserIcon,
+  PersonOff as PersonOffIcon,
+  RateReview as RateReviewIcon,
+  HourglassEmpty as PendingIcon,
+  CheckCircleOutline as ApprovedIcon,
+  Cancel as RejectedIcon
+} from '@mui/icons-material'
+import {
+  Place as PlaceIcon,
+  Star as StarIcon,
+  Verified as VerifiedIcon,
+  CheckCircle as ActiveIcon
+} from '@mui/icons-material'
 import { adminService } from '../../services/adminService'
 import {
   AreaChart,
@@ -26,6 +41,8 @@ import {
 export default function AdminStats() {
   const [stats, setStats] = useState<{ [k: string]: number }>({})
   const [loading, setLoading] = useState(false)
+  const [userStats, setUserStats] = useState<{ total: number; activos: number; inactivos: number }>({ total: 0, activos: 0, inactivos: 0 })
+  const [reviewStats, setReviewStats] = useState<{ total: number; pendientes: number; aprobadas: number; rechazadas: number }>({ total: 0, pendientes: 0, aprobadas: 0, rechazadas: 0 })
   
   // Colores para gráficos
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D']
@@ -87,6 +104,29 @@ export default function AdminStats() {
             }))
           )
         }
+        
+        // Usuarios
+        if (statsData?.users) {
+          const total = statsData.users.total || 0
+          const activos = statsData.users.active || 0
+          const inactivos = Math.max(0, total - activos)
+          setUserStats({ total, activos, inactivos })
+        }
+
+        // Reseñas: consultar totales por estado (usando sólo paginación)
+        try {
+          const [all, pend, appr, rej] = await Promise.all([
+            adminService.getReviews({ page: 1, limit: 1 }),
+            adminService.getReviews({ status: 'pending', page: 1, limit: 1 }),
+            adminService.getReviews({ status: 'approved', page: 1, limit: 1 }),
+            adminService.getReviews({ status: 'rejected', page: 1, limit: 1 })
+          ])
+          const total = (all as any)?.pagination?.total ?? (Array.isArray((all as any)?.data) ? (all as any).data.length : 0)
+          const pendientes = (pend as any)?.pagination?.total ?? (Array.isArray((pend as any)?.data) ? (pend as any).data.length : 0)
+          const aprobadas = (appr as any)?.pagination?.total ?? (Array.isArray((appr as any)?.data) ? (appr as any).data.length : 0)
+          const rechazadas = (rej as any)?.pagination?.total ?? (Array.isArray((rej as any)?.data) ? (rej as any).data.length : 0)
+          setReviewStats({ total, pendientes, aprobadas, rechazadas })
+        } catch {}
 
         // Datos mensuales simulados
         const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun']
@@ -130,12 +170,15 @@ export default function AdminStats() {
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
         <Typography variant="h5" fontWeight={800}>
-          📊 Estadísticas Detalladas de Lugares
+          📊 Estadísticas detalladas
         </Typography>
         <Chip label="Actualizado hoy" color="success" size="small" />
       </Stack>
 
-      {/* KPIs principales */}
+      {/* Lugares */}
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+        <Typography variant="h6" fontWeight={700}>📍 Lugares</Typography>
+      </Stack>
       <Box 
         sx={{
           display: 'grid',
@@ -144,19 +187,95 @@ export default function AdminStats() {
           mb: 4
         }}
       >
-        {Object.entries(stats).slice(0, 5).map(([k, v]) => (
-          <Paper sx={{ p: 2 }} key={k}>
+        {Object.entries(stats).slice(0, 5).map(([k, v]) => {
+          const iconConfig: Record<string, { Icon: any; color: string }> = {
+            total: { Icon: PlaceIcon, color: 'info.main' },
+            activos: { Icon: ActiveIcon, color: 'success.main' },
+            pendientes: { Icon: PendingIcon, color: 'warning.main' },
+            verificados: { Icon: VerifiedIcon, color: 'primary.main' },
+            destacados: { Icon: StarIcon, color: 'warning.main' }
+          }
+          const { Icon, color } = iconConfig[k] || { Icon: PlaceIcon, color: 'info.main' }
+          return (
+            <Paper sx={{ p: 2, position: 'relative', overflow: 'hidden' }} key={k}>
+              <Stack>
+                <Typography variant="subtitle2" color="text.secondary" textTransform="capitalize">
+                  {k}
+                </Typography>
+                <Typography variant="h4" fontWeight={800}>
+                  {loading ? '...' : v}
+                </Typography>
+                <Typography variant="caption" color="success.main">
+                  +{Math.floor(Math.random() * 20)}% este mes
+                </Typography>
+              </Stack>
+              <Icon sx={{ position: 'absolute', right: 8, top: 8, fontSize: 36, color, opacity: 0.25 }} />
+            </Paper>
+          )
+        })}
+      </Box>
+
+      {/* KPIs Usuarios */}
+      <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>👥 Usuarios</Typography>
+      <Box 
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+          gap: 2,
+          mb: 4
+        }}
+      >
+        {[
+          { label: 'Total usuarios', value: userStats.total, Icon: PeopleIcon, color: 'primary.main' },
+          { label: 'Activos', value: userStats.activos, Icon: VerifiedUserIcon, color: 'success.main' },
+          { label: 'Inactivos', value: userStats.inactivos, Icon: PersonOffIcon, color: 'error.main' }
+        ].map(({ label, value, Icon, color }) => (
+          <Paper sx={{ p: 2, position: 'relative', overflow: 'hidden' }} key={label}>
             <Stack>
-              <Typography variant="subtitle2" color="text.secondary" textTransform="capitalize">
-                {k}
+              <Typography variant="subtitle2" color="text.secondary">
+                {label}
               </Typography>
               <Typography variant="h4" fontWeight={800}>
-                {loading ? '...' : v}
+                {loading ? '...' : value}
               </Typography>
               <Typography variant="caption" color="success.main">
                 +{Math.floor(Math.random() * 20)}% este mes
               </Typography>
             </Stack>
+            <Icon sx={{ position: 'absolute', right: 8, top: 8, fontSize: 36, color, opacity: 0.25 }} />
+          </Paper>
+        ))}
+      </Box>
+
+      {/* KPIs Reseñas */}
+      <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>📝 Reseñas</Typography>
+      <Box 
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gap: 2,
+          mb: 4
+        }}
+      >
+        {[
+          { label: 'Total reseñas', value: reviewStats.total, Icon: RateReviewIcon, color: 'info.main' },
+          { label: 'Pendientes', value: reviewStats.pendientes, Icon: PendingIcon, color: 'warning.main' },
+          { label: 'Aprobadas', value: reviewStats.aprobadas, Icon: ApprovedIcon, color: 'success.main' },
+          { label: 'Rechazadas', value: reviewStats.rechazadas, Icon: RejectedIcon, color: 'error.main' }
+        ].map(({ label, value, Icon, color }) => (
+          <Paper sx={{ p: 2, position: 'relative', overflow: 'hidden' }} key={label}>
+            <Stack>
+              <Typography variant="subtitle2" color="text.secondary">
+                {label}
+              </Typography>
+              <Typography variant="h4" fontWeight={800}>
+                {loading ? '...' : value}
+              </Typography>
+              <Typography variant="caption" color="success.main">
+                +{Math.floor(Math.random() * 20)}% este mes
+              </Typography>
+            </Stack>
+            <Icon sx={{ position: 'absolute', right: 8, top: 8, fontSize: 36, color, opacity: 0.25 }} />
           </Paper>
         ))}
       </Box>
