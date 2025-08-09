@@ -23,15 +23,15 @@ import {
   Email,
   Language,
   Schedule,
-  Star,
   WhatsApp,
   Share,
-  Favorite,
-  FavoriteBorder
+  FavoriteBorder,
+  RateReview
 } from '@mui/icons-material'
 import { placesService } from '../services/placesService'
 import type { Place } from '../types/places'
 import { FavoriteButton } from './FavoriteButton'
+import { ReviewForm } from './ReviewForm'
 
 interface PlaceDetailsModalProps {
   open: boolean
@@ -43,6 +43,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
   const [fullPlaceData, setFullPlaceData] = useState<Place | null>(null)
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState<{ [key: string]: boolean }>({})
+  const [reviewFormOpen, setReviewFormOpen] = useState(false)
 
   useEffect(() => {
     const fetchPlaceDetails = async () => {
@@ -53,9 +54,15 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
           if (place.images && place.openingHours) {
             setFullPlaceData(place)
           } else {
-            // Si no, intenta obtener más detalles
-            const details = await placesService.getPlaceById(place.id || place._id)
-            setFullPlaceData(details)
+            // Si no, intenta obtener más detalles SOLO si el id es válido de Mongo
+            const candidateId = (place as any)._id || (place as any).id || ''
+            const isValidObjectId = typeof candidateId === 'string' && /^[a-fA-F0-9]{24}$/.test(candidateId)
+            if (isValidObjectId) {
+              const details = await placesService.getPlaceById(candidateId)
+              setFullPlaceData(details)
+            } else {
+              setFullPlaceData(place)
+            }
           }
         } catch (error) {
           console.error('Error fetching place details:', error)
@@ -73,7 +80,9 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
   if (!place) return null
 
   const displayPlace = fullPlaceData || place
-  const placeId = displayPlace.id || displayPlace._id || ''
+  // Priorizar _id sobre id para MongoDB
+  const rawId = (displayPlace as any)._id || (displayPlace as any).id || ''
+  const placeId = typeof rawId === 'string' && /^[a-fA-F0-9]{24}$/.test(rawId) ? rawId : ''
 
   const handleWhatsApp = () => {
     if (displayPlace.phone) {
@@ -97,6 +106,19 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
     setImageError(prev => ({ ...prev, [imageId]: true }))
   }
 
+  const handleReviewSuccess = () => {
+    // Recargar los datos del lugar para actualizar las reseñas
+    if (place) {
+      const candidateId = (place as any)._id || (place as any).id || ''
+      const isValidObjectId = typeof candidateId === 'string' && /^[a-fA-F0-9]{24}$/.test(candidateId)
+      if (isValidObjectId) {
+        placesService.getPlaceById(candidateId).then(details => {
+          setFullPlaceData(details)
+        }).catch(console.error)
+      }
+    }
+  }
+
   // Imágenes por defecto según el tipo de lugar
   const getDefaultImage = (type: string) => {
     const defaultImages: { [key: string]: string } = {
@@ -114,10 +136,11 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
 
   const displayImages = displayPlace.images && displayPlace.images.length > 0
     ? displayPlace.images
-    : [{ url: getDefaultImage(displayPlace.type), caption: displayPlace.name }]
+    : [{ url: getDefaultImage(displayPlace.type || 'default'), caption: displayPlace.name }]
 
   return (
-    <Dialog 
+    <>
+      <Dialog 
       open={open} 
       onClose={onClose}
       maxWidth="sm"
@@ -166,7 +189,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                       <CardMedia
                         component="img"
                         height="100%"
-                        image={imageError[`img-${index}`] ? getDefaultImage(displayPlace.type) : image.url}
+                        image={imageError[`img-${index}`] ? getDefaultImage(displayPlace.type || 'default') : image.url} 
                         alt={image.caption || displayPlace.name}
                         onError={() => handleImageError(`img-${index}`)}
                         sx={{
@@ -294,7 +317,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                       <Stack spacing={0.5}>
                         {Object.entries(displayPlace.openingHours).map(([day, hours]) => (
                           <Typography key={day} variant="caption" color="text.secondary">
-                            <strong style={{ textTransform: 'capitalize' }}>{day}:</strong> {hours.open} - {hours.close}
+                            <strong style={{ textTransform: 'capitalize' }}>{day}:</strong> {typeof hours === 'object' && hours !== null && 'open' in hours && 'close' in hours ? `${hours.open} - ${hours.close}` : String(hours)}
                           </Typography>
                         ))}
                       </Stack>
@@ -325,7 +348,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
               )}
 
               {/* Acciones */}
-              <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+              <Stack direction="row" spacing={2} sx={{ mt: 3, alignItems: 'center' }}>
                 <Button
                   variant="contained"
                   startIcon={<WhatsApp />}
@@ -335,19 +358,22 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                 >
                   WhatsApp
                 </Button>
-                {placeId && !placeId.startsWith('temp-') ? (
+                {placeId && placeId.length > 0 ? (
                   <FavoriteButton 
                     placeId={placeId}
                     placeName={displayPlace.name}
                     showTooltip={false}
+                    size="medium"
                   />
                 ) : (
                   <IconButton
                     color="primary"
                     disabled
+                    size="medium"
                     sx={{ 
                       border: '1px solid',
-                      borderColor: 'primary.main'
+                      borderColor: 'primary.main',
+                      opacity: 0.5
                     }}
                   >
                     <FavoriteBorder />
@@ -356,6 +382,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                 <IconButton
                   onClick={handleShare}
                   color="primary"
+                  size="medium"
                   sx={{ 
                     border: '1px solid',
                     borderColor: 'primary.main'
@@ -363,12 +390,35 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                 >
                   <Share />
                 </IconButton>
+                {placeId && placeId.length > 0 && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<RateReview />}
+                    onClick={() => setReviewFormOpen(true)}
+                    size="medium"
+                  >
+                    Escribir Reseña
+                  </Button>
+                )}
               </Stack>
             </Box>
           </>
         )}
       </DialogContent>
     </Dialog>
+
+      {/* Formulario de reseña */}
+      {placeId && placeId.length > 0 && (
+        <ReviewForm
+          open={reviewFormOpen}
+          onClose={() => setReviewFormOpen(false)}
+          placeId={placeId}
+          placeName={displayPlace.name || 'este lugar'}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
+    </>
   )
 }
 

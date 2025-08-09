@@ -47,6 +47,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation() // Evitar propagación del click
+    e.preventDefault()
     
     if (!user) {
       setSnackbar({
@@ -109,14 +110,18 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       size={size}
       className={className}
       sx={{
-        color: isInFavorites ? 'error.main' : 'action.active',
+        color: isInFavorites ? 'error.main' : 'primary.main',
+        border: '1px solid',
+        borderColor: isInFavorites ? 'error.main' : 'primary.main',
         '&:hover': {
           backgroundColor: isInFavorites 
-            ? 'error.light' 
-            : 'action.hover',
+            ? 'rgba(211, 47, 47, 0.04)' 
+            : 'rgba(25, 118, 210, 0.04)',
           transform: 'scale(1.1)',
         },
         transition: 'all 0.2s ease-in-out',
+        position: 'relative',
+        zIndex: 1,
       }}
     >
       {loading ? (
