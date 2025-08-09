@@ -91,6 +91,70 @@ class PlacesController {
     }
   }
 
+  // Crea o devuelve un lugar mínimo para poder referenciarlo (p.ej., favoritos)
+  static async ensurePlace(req, res) {
+    try {
+      const {
+        key,
+        name,
+        description,
+        type,
+        address,
+        location
+      } = req.body || {}
+
+      const safeKey = key || name
+      const safeName = name || key
+      const safeDescription = description || 'Descripción no disponible'
+      const safeType = type || 'Gastronomía'
+      const safeAddress = address || 'Dirección por confirmar'
+
+      // Validaciones mínimas
+      if (!safeKey || !safeName) {
+        return res.status(400).json({ success: false, message: 'key o name requerido' })
+      }
+
+      // Buscar existente por key o por name+address
+      let existing = await Place.findOne({
+        $or: [
+          { key: safeKey },
+          { $and: [{ name: safeName }, { address: safeAddress }] }
+        ]
+      }).lean()
+
+      if (existing) {
+        return res.status(200).json({ success: true, data: existing })
+      }
+
+      // Preparar coordenadas
+      let lat = location?.lat
+      let lng = location?.lng
+      if (typeof lat !== 'number' || typeof lng !== 'number') {
+        lat = -27.3309
+        lng = -55.8663
+      }
+
+      const toCreate = {
+        key: safeKey,
+        name: safeName,
+        description: safeDescription,
+        type: PlacesController.mapToValidPlaceType(safeType),
+        address: safeAddress,
+        location: {
+          type: 'Point',
+          coordinates: [lng, lat]
+        },
+        status: 'active'
+      }
+
+      const created = await Place.create(toCreate)
+      return res.status(201).json({ success: true, data: created })
+    } catch (error) {
+      console.error('Error ensuring place:', error)
+      return res.status(500).json({ success: false, message: 'Error al asegurar lugar', error: error.message })
+    }
+  }
+
   static async processChat(req, res) {
     try {
       const { message, context, sessionId } = req.body
@@ -233,6 +297,37 @@ class PlacesController {
       place.location = { lat: -27.3309, lng: -55.8663 }
     }
     return place
+  }
+
+  static mapToValidPlaceType(rawType) {
+    const allowed = [
+      'Alojamiento',
+      'Gastronomía',
+      'Turístico',
+      'Compras',
+      'Entretenimiento',
+      'Desayunos y meriendas',
+      'Comida'
+    ]
+    if (!rawType || typeof rawType !== 'string') return 'Gastronomía'
+    const t = rawType.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    const direct = {
+      alojamiento: 'Alojamiento',
+      gastronomia: 'Gastronomía',
+      turistico: 'Turístico',
+      compras: 'Compras',
+      entretenimiento: 'Entretenimiento',
+      'desayunos y meriendas': 'Desayunos y meriendas',
+      comida: 'Comida'
+    }
+    if (direct[t]) return direct[t]
+    if (t.includes('hotel') || t.includes('aloj') || t.includes('hostel')) return 'Alojamiento'
+    if (t.includes('desayuno') || t.includes('merienda') || t.includes('cafe')) return 'Desayunos y meriendas'
+    if (t.includes('tur') || t.includes('museo') || t.includes('plaza') || t.includes('playa') || t.includes('ruina') || t.includes('mirador') || t.includes('parque')) return 'Turístico'
+    if (t.includes('shopping') || t.includes('compras') || t.includes('tienda')) return 'Compras'
+    if (t.includes('entreten') || t.includes('pub') || t.includes('discot') || t.includes('bar') || t.includes('rooftop')) return 'Entretenimiento'
+    if (t.includes('rest') || t.includes('gastr') || t.includes('comida') || t.includes('pizza') || t.includes('sushi') || t.includes('churras') || t.includes('parrilla') || t.includes('almuerzo') || t.includes('cena')) return 'Comida'
+    return 'Gastronomía'
   }
 
   static async normalizeResponse(response, shouldResolveReferences = false) {

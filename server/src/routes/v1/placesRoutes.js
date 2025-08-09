@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const PlacesController = require('../../controllers/placesController')
+const { authenticateToken } = require('../../middleware/authMiddleware')
 
 // Rutas públicas de lugares
 /**
@@ -168,5 +169,39 @@ router.get('/trending', async (req, res) => {
     lastUpdated: new Date().toISOString()
   })
 })
+
+/**
+ * @openapi
+ * /places/ensure:
+ *   post:
+ *     tags: [Places]
+ *     summary: Crear o devolver un lugar mínimo (para obtener un id)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [key, name]
+ *             properties:
+ *               key: { type: string }
+ *               name: { type: string }
+ *               description: { type: string }
+ *               type: { type: string }
+ *               address: { type: string }
+ *               location:
+ *                 type: object
+ *                 properties:
+ *                   lat: { type: number }
+ *                   lng: { type: number }
+ *     responses:
+ *       200:
+ *         description: Devuelve lugar existente
+ *       201:
+ *         description: Crea y devuelve lugar
+ */
+router.post('/ensure', authenticateToken, PlacesController.ensurePlace)
 
 module.exports = router

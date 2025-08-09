@@ -46,6 +46,31 @@ export const placesService = {
     }
   },
 
+  async ensurePlace(payload: Partial<Place> & { key?: string; name?: string }): Promise<Place> {
+    try {
+      const token = localStorage.getItem('accessToken')
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/places/ensure`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || 'Error al asegurar lugar')
+      }
+
+      const data = await response.json()
+      return data.data
+    } catch (error) {
+      console.error('Error ensuring place:', error)
+      throw error
+    }
+  },
+
   async adminCreatePlace(payload: any) {
     const token = localStorage.getItem('accessToken')
     if (!token) throw new Error('No autenticado')

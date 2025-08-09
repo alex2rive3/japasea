@@ -54,14 +54,23 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
           if (place.images && place.openingHours) {
             setFullPlaceData(place)
           } else {
-            // Si no, intenta obtener más detalles SOLO si el id es válido de Mongo
+            // Si no, intenta obtener más detalles o asegurar el lugar para obtener un ID
             const candidateId = (place as any)._id || (place as any).id || ''
             const isValidObjectId = typeof candidateId === 'string' && /^[a-fA-F0-9]{24}$/.test(candidateId)
             if (isValidObjectId) {
               const details = await placesService.getPlaceById(candidateId)
               setFullPlaceData(details)
             } else {
-              setFullPlaceData(place)
+              // Asegurar lugar mínimo en backend para obtener un _id válido
+              const ensured = await placesService.ensurePlace({
+                key: place.key || place.name,
+                name: place.name || place.key,
+                description: place.description,
+                type: place.type,
+                address: place.address,
+                location: place.location
+              })
+              setFullPlaceData(ensured)
             }
           }
         } catch (error) {
