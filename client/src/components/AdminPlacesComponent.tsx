@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Paper, Stack, TextField, Typography, Checkbox, Alert, Card, CardContent, Tooltip } from '@mui/material'
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Paper, Stack, TextField, Typography, Card, CardContent, Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import VerifiedIcon from '@mui/icons-material/Verified'
 import StarIcon from '@mui/icons-material/Star'
 import HomeIcon from '@mui/icons-material/Home'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
-import DeleteIcon from '@mui/icons-material/Delete'
-import CheckIcon from '@mui/icons-material/Check'
+ 
 
 import { placesService } from '../services/placesService'
 
@@ -36,9 +35,7 @@ export default function AdminPlacesComponent() {
   const [filters, setFilters] = useState<{ q?: string; type?: string; status?: string }>({})
   const [openForm, setOpenForm] = useState(false)
   const [form, setForm] = useState<AdminPlaceForm>({ key: '', name: '', description: '', type: '', address: '', lat: 0, lng: 0 })
-  const [selectedItems, setSelectedItems] = useState<string[]>([])
-
-  const [bulkActionSuccess, setBulkActionSuccess] = useState('')
+  
 
   const load = async () => {
     setLoading(true)
@@ -88,117 +85,26 @@ export default function AdminPlacesComponent() {
     await load()
   }
 
-  const handleSelectAll = () => {
-    if (selectedItems.length === items.length) {
-      setSelectedItems([])
-    } else {
-      setSelectedItems(items.map(item => item.id))
-    }
-  }
-
-  const handleSelectItem = (id: string) => {
-    if (selectedItems.includes(id)) {
-      setSelectedItems(selectedItems.filter(item => item !== id))
-    } else {
-      setSelectedItems([...selectedItems, id])
-    }
-  }
-
-  const handleBulkAction = async (action: 'verify' | 'activate' | 'delete') => {
-    if (selectedItems.length === 0) return
-
-    setBulkActionSuccess('')
-    
-    try {
-      switch (action) {
-        case 'verify':
-          for (const id of selectedItems) {
-            await placesService.adminVerifyPlace(id)
-          }
-          setBulkActionSuccess(`${selectedItems.length} lugares verificados`)
-          break
-        case 'activate':
-          for (const id of selectedItems) {
-            await placesService.adminSetStatus(id, 'active')
-          }
-          setBulkActionSuccess(`${selectedItems.length} lugares activados`)
-          break
-        case 'delete':
-          if (window.confirm(`¿Estás seguro de eliminar ${selectedItems.length} lugares?`)) {
-            // Placeholder para eliminación masiva
-            setBulkActionSuccess(`${selectedItems.length} lugares eliminados`)
-          }
-          break
-      }
-      
-      setSelectedItems([])
-      await load()
-      setTimeout(() => setBulkActionSuccess(''), 3000)
-    } catch (error) {
-      console.error('Error en acción masiva:', error)
-    }
-  }
+  
 
   return (
     <Box sx={{ p: 2 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
         <Typography variant="h5">Administración de Lugares</Typography>
         <Stack direction="row" spacing={2}>
-          {selectedItems.length > 0 ? (
-            <>
-              <Button variant="outlined" onClick={() => setSelectedItems([])}>
-                Cancelar selección
-              </Button>
-              <Button 
-                variant="contained" 
-                color="success" 
-                startIcon={<CheckIcon />} 
-                onClick={() => handleBulkAction('verify')}
-              >
-                Verificar ({selectedItems.length})
-              </Button>
-              <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => handleBulkAction('activate')}
-              >
-                Activar ({selectedItems.length})
-              </Button>
-              <Button 
-                variant="contained" 
-                color="error" 
-                startIcon={<DeleteIcon />} 
-                onClick={() => handleBulkAction('delete')}
-              >
-                Eliminar ({selectedItems.length})
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outlined" startIcon={<HomeIcon />} onClick={() => navigate('/')}>
-                Vista Principal
-              </Button>
-              <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
-                Nuevo lugar
-              </Button>
-            </>
-          )}
+          <Button variant="outlined" startIcon={<HomeIcon />} onClick={() => navigate('/')}>
+            Vista Principal
+          </Button>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
+            Nuevo lugar
+          </Button>
         </Stack>
       </Stack>
 
-      {bulkActionSuccess && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setBulkActionSuccess('')}>
-          {bulkActionSuccess}
-        </Alert>
-      )}
+      
 
       <Paper sx={{ p: 2, mb: 2 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
-          <Checkbox 
-            checked={selectedItems.length === items.length && items.length > 0}
-            indeterminate={selectedItems.length > 0 && selectedItems.length < items.length}
-            onChange={handleSelectAll}
-          />
           <TextField label="Buscar" value={filters.q || ''} onChange={(e) => setFilters(f => ({ ...f, q: e.target.value }))} fullWidth />
           <TextField select label="Tipo" value={filters.type || ''} onChange={(e) => setFilters(f => ({ ...f, type: e.target.value || undefined }))} fullWidth>
             <MenuItem value="">Todos</MenuItem>
@@ -212,8 +118,10 @@ export default function AdminPlacesComponent() {
       </Paper>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: { xs: 'center', md: 'flex-start' } }}>
-        {items.map((p) => (
-          <Card key={p.id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, maxWidth: { xs: '100%', sm: '350px', md: '380px' }, position: 'relative', transition: 'all 0.3s ease-in-out', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 25px rgba(0,0,0,0.15)' }, borderRadius: 2, overflow: 'hidden' }}>
+        {items.map((p) => {
+          const placeId = p.id ?? p._id ?? ''
+          return (
+          <Card key={placeId} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, maxWidth: { xs: '100%', sm: '350px', md: '380px' }, position: 'relative', transition: 'all 0.3s ease-in-out', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 25px rgba(0,0,0,0.15)' }, borderRadius: 2, overflow: 'hidden' }} data-id={placeId}>
             <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -222,7 +130,7 @@ export default function AdminPlacesComponent() {
                   {p?.metadata?.verified && <Chip size="small" icon={<VerifiedIcon />} label="Verificado" color="success" />}
                   {p?.metadata?.featured && <Chip size="small" icon={<StarIcon />} label="Destacado" color="warning" />}
                 </Stack>
-                <Checkbox checked={selectedItems.includes(p.id)} onChange={() => handleSelectItem(p.id)} />
+                {/* Sin checkbox de selección */}
               </Box>
 
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: 'text.primary', mb: 1.5, lineHeight: 1.3 }}>
@@ -244,7 +152,7 @@ export default function AdminPlacesComponent() {
 
               <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 'auto' }}>
                 {STATUSES.map(s => (
-                  <Button key={s} size="small" variant={p.status === s ? 'contained' : 'outlined'} onClick={() => handleStatus(p.id, s)} sx={{ textTransform: 'none', borderRadius: 2 }}>
+                  <Button key={s} size="small" variant={p.status === s ? 'contained' : 'outlined'} onClick={() => handleStatus(placeId, s)} sx={{ textTransform: 'none', borderRadius: 2 }}>
                     {s}
                   </Button>
                 ))}
@@ -252,16 +160,16 @@ export default function AdminPlacesComponent() {
 
               <Stack direction="row" spacing={1} sx={{ mt: 1, justifyContent: 'flex-end' }}>
                 <Tooltip title="Editar">
-                  <IconButton onClick={() => { setForm({ id: p.id, key: p.key, name: p.name, description: p.description, type: p.type, address: p.address, lat: p.location?.lat ?? p.location?.coordinates?.[1], lng: p.location?.lng ?? p.location?.coordinates?.[0] }); setOpenForm(true) }}>
+                  <IconButton onClick={() => { setForm({ id: placeId, key: p.key, name: p.name, description: p.description, type: p.type, address: p.address, lat: p.location?.lat ?? p.location?.coordinates?.[1], lng: p.location?.lng ?? p.location?.coordinates?.[0] }); setOpenForm(true) }}>
                     <EditIcon />
                   </IconButton>
                 </Tooltip>
-                <Button size="small" onClick={() => handleVerify(p.id)} sx={{ textTransform: 'none' }}>Verificar</Button>
-                <Button size="small" onClick={() => handleFeature(p.id, !p?.metadata?.featured)} sx={{ textTransform: 'none' }}>{p?.metadata?.featured ? 'Quitar destacado' : 'Destacar'}</Button>
+                <Button size="small" onClick={() => handleVerify(placeId)} sx={{ textTransform: 'none' }} disabled={!!p?.metadata?.verified}>Verificar</Button>
+                <Button size="small" onClick={() => handleFeature(placeId, !p?.metadata?.featured)} sx={{ textTransform: 'none' }}>{p?.metadata?.featured ? 'Quitar destacado' : 'Destacar'}</Button>
               </Stack>
             </CardContent>
           </Card>
-        ))}
+          )})}
       </Box>
 
       <Dialog open={openForm} onClose={() => setOpenForm(false)} maxWidth="md" fullWidth>
