@@ -56,8 +56,8 @@ export default function AdminDashboard() {
         // Obtener estadísticas reales del backend
         const response = await adminService.getAdminStats()
         
-        // Manejar diferentes estructuras de respuesta
-        const statsData = response.data || response
+        // Manejar diferentes estructuras de respuesta de forma segura
+        const statsData = (response as any)?.data ?? response
         
         if (statsData) {
           // Mapear los datos del backend al formato esperado

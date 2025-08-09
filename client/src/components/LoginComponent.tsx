@@ -39,7 +39,7 @@ export function LoginComponent() {
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.role === 'admin') {
-        navigate('/admin/places', { replace: true })
+        navigate('/admin', { replace: true })
       } else {
         navigate('/', { replace: true })
       }

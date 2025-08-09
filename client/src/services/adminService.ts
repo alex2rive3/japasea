@@ -36,8 +36,9 @@ class AdminService {
   // === ESTADÍSTICAS ===
   async getAdminStats(): Promise<AdminStats> {
     try {
-      const response = await api.get('/api/v1/admin/stats')
-      return response.data.data
+      const response = await api.get<any>('/api/v1/admin/stats')
+      // El cliente API ya devuelve el cuerpo JSON. La API del servidor responde { success, data }
+      return response.data
     } catch (error) {
       console.error('Error obteniendo estadísticas:', error)
       throw error
@@ -50,8 +51,8 @@ class AdminService {
         startDate: timeRange.start.toISOString(),
         endDate: timeRange.end.toISOString()
       } : {}
-      const response = await api.get('/api/v1/admin/stats/places', { params })
-      return response.data.data
+      const response = await api.get<any>('/api/v1/admin/stats/places', { params })
+      return response.data
     } catch (error) {
       console.error('Error obteniendo estadísticas de lugares:', error)
       throw error

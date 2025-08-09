@@ -42,11 +42,11 @@ export default function AdminStats() {
       try {
         // Obtener estadísticas generales del backend
         const statsResponse = await adminService.getAdminStats()
-        const statsData = statsResponse.data || statsResponse
+        const statsData = (statsResponse as any)?.data ?? statsResponse
         
         // Obtener estadísticas de lugares
         const placeStatsResponse = await adminService.getPlaceStats()
-        const placeStats = placeStatsResponse.data || placeStatsResponse
+        const placeStats = (placeStatsResponse as any)?.data ?? placeStatsResponse
         
         // Estadísticas básicas
         if (statsData) {
@@ -130,7 +130,7 @@ export default function AdminStats() {
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
         <Typography variant="h5" fontWeight={800}>
-          📊 Estadísticas Detalladas
+          📊 Estadísticas Detalladas de Lugares
         </Typography>
         <Chip label="Actualizado hoy" color="success" size="small" />
       </Stack>
@@ -185,7 +185,7 @@ export default function AdminStats() {
         {/* Gráfico de distribución por tipo */}
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
-            Distribución por Categoría
+            Categorías más populares
           </Typography>
           <ResponsiveContainer width="100%" height={350}>
             <PieChart>
