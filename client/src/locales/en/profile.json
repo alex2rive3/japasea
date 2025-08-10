@@ -1,0 +1,89 @@
+{
+  "title": "My Profile",
+  "role": {
+    "admin": "Administrator",
+    "user": "User"
+  },
+  "memberSince": "Member since: {{date}}",
+  "tabs": {
+    "information": "Information",
+    "favorites": "Favorites ({{count}})",
+    "preferences": "Preferences",
+    "statistics": "Statistics"
+  },
+  "personalInfo": {
+    "title": "Personal Information",
+    "nameLabel": "Full name",
+    "emailLabel": "Email",
+    "emailHelper": "Email cannot be changed",
+    "phoneLabel": "Phone (optional)",
+    "phonePlaceholder": "+595 987 654 321",
+    "saveChanges": "Save Changes",
+    "saving": "Saving..."
+  },
+  "security": {
+    "title": "Security",
+    "changePassword": "Change Password",
+    "logout": "Logout"
+  },
+  "favorites": {
+    "title": "My Favorites",
+    "empty": "You don't have any favorite places saved yet.",
+    "addedOn": "Added: {{date}}",
+    "viewAll": "View all ({{count}})"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "email": "Email notifications",
+      "push": "Push notifications",
+      "newsletter": "Weekly newsletter"
+    },
+    "privacy": {
+      "title": "Privacy",
+      "searchHistory": "Save search history",
+      "deleteHistory": "Delete history ({{count}} searches)"
+    },
+    "savePreferences": "Save Preferences",
+    "saving": "Saving..."
+  },
+  "statistics": {
+    "title": "My Statistics",
+    "favoritePlaces": "Favorite Places",
+    "favoriteType": "Favorite Type",
+    "searchesMade": "Searches Made",
+    "memberSince": "Member Since",
+    "memberDays": "{{days}} days"
+  },
+  "passwordDialog": {
+    "title": "Change Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "cancel": "Cancel",
+    "change": "Change"
+  },
+  "messages": {
+    "profileUpdated": "Profile updated successfully",
+    "preferencesUpdated": "Preferences updated successfully",
+    "passwordChanged": "Password changed successfully",
+    "historyDeleted": "Search history deleted",
+    "nameRequired": "Name is required",
+    "passwordFieldsRequired": "All password fields are required",
+    "passwordMismatch": "New passwords do not match",
+    "passwordMinLength": "New password must be at least 6 characters",
+    "passwordComplexity": "Password must contain at least one lowercase letter, one uppercase letter and one number",
+    "updateError": "Error updating profile",
+    "passwordError": "Error changing password",
+    "preferencesError": "Error updating preferences",
+    "historyError": "Error deleting history"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "title": "Mi Perfil",
+  "role": {
+    "admin": "Administrador",
+    "user": "Usuario"
+  },
+  "memberSince": "Miembro desde: {{date}}",
+  "tabs": {
+    "information": "Información",
+    "favorites": "Favoritos ({{count}})",
+    "preferences": "Preferencias",
+    "statistics": "Estadísticas"
+  },
+  "personalInfo": {
+    "title": "Información Personal",
+    "nameLabel": "Nombre completo",
+    "emailLabel": "Email",
+    "emailHelper": "El email no se puede cambiar",
+    "phoneLabel": "Teléfono (opcional)",
+    "phonePlaceholder": "+595 987 654 321",
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando..."
+  },
+  "security": {
+    "title": "Seguridad",
+    "changePassword": "Cambiar Contraseña",
+    "logout": "Cerrar Sesión"
+  },
+  "favorites": {
+    "title": "Mis Favoritos",
+    "empty": "No tienes lugares favoritos guardados aún.",
+    "addedOn": "Agregado: {{date}}",
+    "viewAll": "Ver todos ({{count}})"
+  },
+  "preferences": {
+    "title": "Preferencias",
+    "language": "Idioma",
+    "theme": "Tema",
+    "themeOptions": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "auto": "Automático"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "email": "Notificaciones por email",
+      "push": "Notificaciones push",
+      "newsletter": "Newsletter semanal"
+    },
+    "privacy": {
+      "title": "Privacidad",
+      "searchHistory": "Guardar historial de búsquedas",
+      "deleteHistory": "Eliminar historial ({{count}} búsquedas)"
+    },
+    "savePreferences": "Guardar Preferencias",
+    "saving": "Guardando..."
+  },
+  "statistics": {
+    "title": "Mis Estadísticas",
+    "favoritePlaces": "Lugares Favoritos",
+    "favoriteType": "Tipo Favorito",
+    "searchesMade": "Búsquedas Realizadas",
+    "memberSince": "Miembro Desde",
+    "memberDays": "{{days}} días"
+  },
+  "passwordDialog": {
+    "title": "Cambiar Contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar nueva contraseña",
+    "cancel": "Cancelar",
+    "change": "Cambiar"
+  },
+  "messages": {
+    "profileUpdated": "Perfil actualizado exitosamente",
+    "preferencesUpdated": "Preferencias actualizadas exitosamente",
+    "passwordChanged": "Contraseña cambiada exitosamente",
+    "historyDeleted": "Historial de búsquedas eliminado",
+    "nameRequired": "El nombre es requerido",
+    "passwordFieldsRequired": "Todos los campos de contraseña son requeridos",
+    "passwordMismatch": "Las contraseñas nuevas no coinciden",
+    "passwordMinLength": "La nueva contraseña debe tener al menos 6 caracteres",
+    "passwordComplexity": "La contraseña debe contener al menos una letra minúscula, una mayúscula y un número",
+    "updateError": "Error actualizando perfil",
+    "passwordError": "Error cambiando contraseña",
+    "preferencesError": "Error al actualizar preferencias",
+    "historyError": "Error al eliminar historial"
+  }
+}

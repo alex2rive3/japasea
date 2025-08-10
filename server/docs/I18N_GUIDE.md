@@ -10,7 +10,7 @@
 - **SEO**: etiqueta lang, títulos, meta y (opcional) rutas por idioma.
 
 ### Librerías y APIs sugeridas
-- **Frontend**: `i18next`, `react-i18next`, `i18next-browser-languagedetector`.
+- **Frontend**: `react-i18next`
 - **MUI**: locales `@mui/material/locale` (`esES`, `enUS`, `ptBR`).
 - **Formateo**: `Intl.DateTimeFormat` y `Intl.NumberFormat`.
 - **Backend (opcional)**: `i18next` o mapa de códigos→mensajes por idioma.

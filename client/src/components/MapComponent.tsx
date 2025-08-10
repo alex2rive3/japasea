@@ -6,6 +6,7 @@ import { LocationOn, Phone } from '@mui/icons-material'
 import { useEffect, useRef } from 'react'
 import type { Place } from '../types/places'
 import { FavoriteButton } from './FavoriteButton'
+import { useTranslation } from 'react-i18next'
 
 const iconPrototype = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown }
 delete iconPrototype._getIconUrl
@@ -27,6 +28,7 @@ export const MapComponent = ({
   places = []
 }: MapComponentProps) => {
   const mapRef = useRef<L.Map | null>(null)
+  const { t } = useTranslation('home')
 
   useEffect(() => {
     // Force map to invalidate size when component mounts or resizes
@@ -104,7 +106,7 @@ export const MapComponent = ({
             fontSize: '1.5rem'
           }}
         >
-          Mapa Interactivo
+          {t('map.title')}
         </Typography>
         <Typography 
           variant="body2" 
@@ -113,7 +115,7 @@ export const MapComponent = ({
             fontSize: '0.875rem'
           }}
         >
-          Explora destinos, hoteles y actividades.
+          {t('map.subtitle')}
         </Typography>
       </Box>
 

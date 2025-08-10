@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { CssBaseline } from '@mui/material'
+import { CssBaseline, createTheme } from '@mui/material'
 import { AuthProvider } from './contexts/AuthContext'
+import { LocaleProvider } from './contexts/LocaleContext'
+import './i18n' // Initialize i18n
 import { ProtectedRoute } from './components/ProtectedRoute'
 import LoginComponent from './components/LoginComponent'
 import { RegisterComponent } from './components/RegisterComponent'
@@ -20,6 +22,32 @@ import AdminReviews from './components/admin/AdminReviews'
 import AdminAudit from './components/admin/AdminAudit'
 import AdminSettings from './components/admin/AdminSettings'
 import LandingPage from './components/LandingPage'
+
+// Base theme configuration
+const baseTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+  typography: {
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+  },
+});
 
 // Componente interno para manejar la navegación
 function AppContent() {
@@ -145,12 +173,14 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
+    <LocaleProvider baseTheme={baseTheme}>
       <CssBaseline />
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </LocaleProvider>
   )
 }
 

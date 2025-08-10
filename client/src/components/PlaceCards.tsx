@@ -10,6 +10,7 @@ import {
 } from '@mui/material'
 import { LocationOn, Phone, Info, Hotel, Restaurant, Coffee, Place, ShoppingBag } from '@mui/icons-material'
 import type { Place as PlaceType } from '../types/places'
+import { useTranslation } from 'react-i18next'
 
 interface PlaceCardsProps {
   places: PlaceType[]
@@ -17,6 +18,8 @@ interface PlaceCardsProps {
 }
 
 export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
+  const { t } = useTranslation('home')
+  
   // Verificación defensiva para evitar errores si places es undefined
   if (!places || places.length === 0) {
     return null
@@ -88,7 +91,7 @@ export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
   return (
     <Box sx={{ mt: 3 }}>
       <Typography variant="h5" component="h3" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
-        Lugares Recomendados
+        {t('places.recommendedPlaces')}
       </Typography>
       <Box 
         sx={{ 
@@ -156,7 +159,7 @@ export const PlaceCards = ({ places, onLocationClick }: PlaceCardsProps) => {
                   </Typography>
                   <Chip 
                     icon={getTypeIcon(place.type)}
-                    label={place.type || 'Lugar'} 
+                    label={place.type || t('places.place')} 
                     color={getTypeColor(place.type)}
                     size="small"
                     sx={{ 

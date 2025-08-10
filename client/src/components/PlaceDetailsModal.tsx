@@ -32,6 +32,7 @@ import { placesService } from '../services/placesService'
 import type { Place } from '../types/places'
 import { FavoriteButton } from './FavoriteButton'
 import { ReviewForm } from './ReviewForm'
+import { useTranslation } from 'react-i18next'
 
 interface PlaceDetailsModalProps {
   open: boolean
@@ -40,6 +41,7 @@ interface PlaceDetailsModalProps {
 }
 
 const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, place }) => {
+  const { t } = useTranslation('home')
   const [fullPlaceData, setFullPlaceData] = useState<Place | null>(null)
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState<{ [key: string]: boolean }>({})
@@ -96,7 +98,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
   const handleWhatsApp = () => {
     if (displayPlace.phone) {
       const cleanPhone = displayPlace.phone.replace(/\D/g, '')
-      const message = `Hola! Vi su negocio ${displayPlace.name} en Japasea y me gustaría más información.`
+      const message = t('places.whatsappMessage', { name: displayPlace.name })
       window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank')
     }
   }
@@ -105,7 +107,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
     if (navigator.share) {
       navigator.share({
         title: displayPlace.name,
-        text: `Mira este lugar: ${displayPlace.name}`,
+        text: t('places.shareMessage', { name: displayPlace.name }),
         url: window.location.href
       })
     }
@@ -228,7 +230,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                   }}
                 >
                   <Typography variant="body2">
-                    +{displayImages.length - 4} más
+                    {t('places.morePhotos', { count: displayImages.length - 4 })}
                   </Typography>
                 </Box>
               )}
@@ -253,7 +255,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                       precision={0.5}
                     />
                     <Typography variant="body2" color="text.secondary">
-                      ({displayPlace.rating.count} reseñas)
+                      ({displayPlace.rating.count} {t('places.reviews')})
                     </Typography>
                   </Stack>
                 )}
@@ -321,7 +323,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                     <Schedule color="action" fontSize="small" />
                     <Box>
                       <Typography variant="subtitle2" gutterBottom>
-                        Horarios
+                        {t('places.schedules')}
                       </Typography>
                       <Stack spacing={0.5}>
                         {Object.entries(displayPlace.openingHours).map(([day, hours]) => (
@@ -340,7 +342,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                 <>
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="subtitle2" gutterBottom>
-                    Características
+                    {t('places.features')}
                   </Typography>
                   <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                     {displayPlace.features.map((feature, index) => (
@@ -407,7 +409,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
                     onClick={() => setReviewFormOpen(true)}
                     size="medium"
                   >
-                    Escribir Reseña
+                    {t('places.writeReview')}
                   </Button>
                 )}
               </Stack>
@@ -423,7 +425,7 @@ const PlaceDetailsModal: React.FC<PlaceDetailsModalProps> = ({ open, onClose, pl
           open={reviewFormOpen}
           onClose={() => setReviewFormOpen(false)}
           placeId={placeId}
-          placeName={displayPlace.name || 'este lugar'}
+          placeName={displayPlace.name || t('places.thisPlace')}
           onSuccess={handleReviewSuccess}
         />
       )}

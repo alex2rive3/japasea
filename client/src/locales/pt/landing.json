@@ -1,0 +1,41 @@
+{
+  "hero": {
+    "title": "Descubra o Paraguai com uma plataforma moderna e simples",
+    "subtitle": "Mapas, avaliações, favoritos e um painel para negócios. Minimalista, rápido e pronto para vender.",
+    "startFree": "Começar grátis",
+    "viewDemo": "Ver demo",
+    "readyForProduction": "Pronto para produção",
+    "secureAndAuditable": "Seguro e auditável",
+    "description": "Mapa interativo, chat com IA e insights para negócios. Tudo em uma plataforma."
+  },
+  "features": {
+    "mapAndPlaces": {
+      "title": "Mapa e lugares",
+      "description": "Exploração por categorias, filtros e proximidade."
+    },
+    "aiChat": {
+      "title": "Chat com IA",
+      "description": "Recomendações inteligentes no seu idioma."
+    },
+    "security": {
+      "title": "Seguro e escalável",
+      "description": "JWT, auditoria, rate limiting e papéis."
+    },
+    "labels": {
+      "fast": "Rápido",
+      "minimalist": "Minimalista",
+      "readyToSell": "Pronto para vender"
+    }
+  },
+  "metrics": {
+    "coreReady": "Core pronto",
+    "apiEndpoints": "Endpoints da API",
+    "security": "Segurança"
+  },
+  "cta": {
+    "title": "Pronto para decolar na sua cidade",
+    "subtitle": "Implementação rápida, design minimalista e foco em conversão. Experimente grátis e adicione seu negócio hoje.",
+    "startNow": "Começar agora",
+    "login": "Entrar"
+  }
+}

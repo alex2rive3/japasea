@@ -16,6 +16,7 @@ import { placesService } from '../services/placesService'
 import TravelPlanComponent from './TravelPlanComponent'
 import type { Place, TravelPlan } from '../types/places'
 import { useAuth } from '../hooks/useAuth'
+import { useTranslation } from 'react-i18next'
 
 interface Message {
   id: number
@@ -32,11 +33,12 @@ interface ChatComponentProps {
 
 export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   const { user } = useAuth()
+  const { t, i18n } = useTranslation('home')
   const messagesContainerRef = useRef<HTMLDivElement | null>(null)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: '¡Hola! Soy tu asistente virtual. ¿Cómo puedo ayudarte hoy?',
+      text: t('chat.welcome'),
       sender: 'bot',
       timestamp: new Date(),
     },
@@ -44,6 +46,20 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   const [inputValue, setInputValue] = useState('')
   const [sessionId, setSessionId] = useState<string>(`session-${Date.now()}`)
   const [botTyping, setBotTyping] = useState<boolean>(false)
+
+  // Actualizar el mensaje de bienvenida cuando cambie el idioma
+  useEffect(() => {
+    setMessages((prevMessages) => {
+      const updatedMessages = [...prevMessages]
+      if (updatedMessages.length > 0 && updatedMessages[0].id === 1 && updatedMessages[0].sender === 'bot') {
+        updatedMessages[0] = {
+          ...updatedMessages[0],
+          text: t('chat.welcome')
+        }
+      }
+      return updatedMessages
+    })
+  }, [i18n.language, t])
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     const container = messagesContainerRef.current
@@ -156,7 +172,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           console.error('Error processing chat message:', error)
           const errorResponse: Message = {
             id: messages.length + 2,
-            text: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
+            text: t('chat.error'),
             sender: 'bot',
             timestamp: new Date(),
           }
@@ -205,18 +221,18 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           mb: 1,
           color: '#2c3e50'
         }}>
-          Chat con Planificador IA
+          {t('appName', { ns: 'common' })} AI
         </Typography>
         <Typography variant="body2" sx={{ 
           color: '#6c757d',
           fontSize: '0.875rem'
         }}>
-          Cuéntame tus preferencias de viaje para comenzar.
+          {t('chat.welcome')}
         </Typography>
         {user && (
           <Chip
             icon={<History />}
-            label="Historial guardado"
+            label={t('chat.historySaved')}
             size="small"
             sx={{ mt: 1 }}
             color="primary"
@@ -377,7 +393,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                      maxWidth: 'calc(100% - 48px)'
                    }}>
                      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>
-                       Recomendaciones
+                       {t('chat.recommendations')}
                      </Typography>
                      <Box sx={{ display: 'grid', gap: 1.5 }}>
                        {message.places.map((p, i) => (
@@ -401,11 +417,18 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
                            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1a1a1a', mb: 0.25 }}>
                              {p.key || p.name || 'Lugar sin nombre'}
                            </Typography>
-                           {p.address && (
-                             <Typography variant="caption" sx={{ color: '#666' }}>
-                               {p.address}
-                             </Typography>
-                           )}
+                           {(() => {
+                            // Usar location.address si address es "Dirección por confirmar" o no existe
+                            const displayAddress = p.address && p.address !== 'Dirección por confirmar' 
+                              ? p.address 
+                              : p.location?.address || 'Dirección por confirmar'
+                            
+                            return displayAddress && (
+                              <Typography variant="caption" sx={{ color: '#666' }}>
+                                {displayAddress}
+                              </Typography>
+                            )
+                          })()}
                          </Box>
                        ))}
                      </Box>
@@ -464,7 +487,7 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
             fullWidth
             size="medium"
             variant="outlined"
-            placeholder="Escribe tu mensaje..."
+            placeholder={t('chat.placeholder')}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}

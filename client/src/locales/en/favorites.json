@@ -1,0 +1,29 @@
+{
+  "title": "My Favorites",
+  "subtitle": {
+    "withFavorites": "You have {{count}} favorite place{{plural}}",
+    "noFavorites": "You don't have favorite places yet"
+  },
+  "actions": {
+    "refresh": "Refresh favorites",
+    "remove": "Remove from favorites",
+    "goToHome": "Go to Home"
+  },
+  "empty": {
+    "title": "You don't have favorites yet",
+    "description": "Discover places from the chat and mark the ones you like most as favorites"
+  },
+  "addedOn": "Added: {{date}}",
+  "place": {
+    "type": "Type",
+    "rating": "Rating",
+    "location": "Location",
+    "description": "Description",
+    "noDescription": "No description available",
+    "noRating": "No rating"
+  },
+  "loading": "Loading favorites...",
+  "error": "Error loading favorites",
+  "removeSuccess": "Place removed from favorites",
+  "removeError": "Error removing from favorites"
+}

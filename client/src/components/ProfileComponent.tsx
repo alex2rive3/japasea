@@ -54,6 +54,7 @@ import type { UpdateProfileData, ChangePasswordData } from '../types/auth'
 import { profileStyles } from '../styles'
 import { favoritesService } from '../services/favoritesService'
 import { EmailVerificationBanner } from './EmailVerificationBanner'
+import { useTranslation } from 'react-i18next'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -80,6 +81,7 @@ function TabPanel(props: TabPanelProps) {
 export function ProfileComponent() {
   const { user, updateProfile, changePassword, logout, isLoading } = useAuth()
   const { favorites, favoriteCount, removeFavorite } = useFavorites()
+  const { t, i18n } = useTranslation('profile')
   
   const [tabValue, setTabValue] = useState(0)
   const [profileData, setProfileData] = useState<UpdateProfileData>({
@@ -94,7 +96,7 @@ export function ProfileComponent() {
   
   const [preferences, setPreferences] = useState({
     theme: user?.preferences?.theme || 'light',
-    language: user?.preferences?.language || 'es',
+    language: user?.preferences?.language || i18n.language || 'es',
     notifications: {
       email: user?.preferences?.notifications?.email ?? true,
       push: user?.preferences?.notifications?.push ?? true,
@@ -120,7 +122,7 @@ export function ProfileComponent() {
       
       setPreferences({
         theme: user.preferences?.theme || 'light',
-        language: user.preferences?.language || 'es',
+        language: user.preferences?.language || i18n.language || 'es',
         notifications: {
           email: user.preferences?.notifications?.email ?? true,
           push: user.preferences?.notifications?.push ?? true,
@@ -129,7 +131,15 @@ export function ProfileComponent() {
         searchHistory: user.preferences?.searchHistory ?? true,
       })
     }
-  }, [user])
+  }, [user, i18n.language])
+
+  // Sincronizar el estado de idioma con i18n cuando cambie
+  useEffect(() => {
+    setPreferences(prev => ({
+      ...prev,
+      language: i18n.language
+    }))
+  }, [i18n.language])
 
   useEffect(() => {
     // Cargar estadísticas de favoritos
@@ -166,7 +176,7 @@ export function ProfileComponent() {
 
   const handleUpdateProfile = async () => {
     if (!profileData.name?.trim()) {
-      setError('El nombre es requerido')
+      setError(t('messages.nameRequired'))
       return
     }
 
@@ -174,9 +184,9 @@ export function ProfileComponent() {
       setIsUpdating(true)
       setError('')
       await updateProfile(profileData)
-      setMessage('Perfil actualizado exitosamente')
+      setMessage(t('messages.profileUpdated'))
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error actualizando perfil'
+      const errorMessage = error instanceof Error ? error.message : t('messages.updateError')
       setError(errorMessage)
     } finally {
       setIsUpdating(false)
@@ -189,6 +199,11 @@ export function ProfileComponent() {
 
   const handlePreferenceChange = (pref: string) => (event: any) => {
     const value = event.target.checked ?? event.target.value
+    
+    // Si se cambia el idioma, también cambiarlo en i18n inmediatamente
+    if (pref === 'language') {
+      i18n.changeLanguage(value)
+    }
     
     if (pref.includes('.')) {
       const [parent, child] = pref.split('.')
@@ -212,9 +227,9 @@ export function ProfileComponent() {
       setIsUpdating(true)
       // Aquí iría la llamada a la API para guardar preferencias
       await updateProfile({ preferences } as any)
-      setMessage('Preferencias actualizadas exitosamente')
+      setMessage(t('messages.preferencesUpdated'))
     } catch (error) {
-      setError('Error al actualizar preferencias')
+      setError(t('messages.preferencesError'))
     } finally {
       setIsUpdating(false)
     }
@@ -223,31 +238,31 @@ export function ProfileComponent() {
   const handleDeleteSearchHistory = async () => {
     try {
       // Aquí iría la llamada para eliminar el historial
-      setMessage('Historial de búsquedas eliminado')
+      setMessage(t('messages.historyDeleted'))
     } catch (error) {
-      setError('Error al eliminar historial')
+      setError(t('messages.historyError'))
     }
   }
 
   const handleChangePassword = async () => {
     if (!passwordData.currentPassword || !passwordData.newPassword) {
-      setError('Todos los campos de contraseña son requeridos')
+      setError(t('messages.passwordFieldsRequired'))
       return
     }
 
     if (passwordData.newPassword !== confirmPassword) {
-      setError('Las contraseñas nuevas no coinciden')
+      setError(t('messages.passwordMismatch'))
       return
     }
 
     if (passwordData.newPassword.length < 6) {
-      setError('La nueva contraseña debe tener al menos 6 caracteres')
+      setError(t('messages.passwordMinLength'))
       return
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/
     if (!passwordRegex.test(passwordData.newPassword)) {
-      setError('La contraseña debe contener al menos una letra minúscula, una mayúscula y un número')
+      setError(t('messages.passwordComplexity'))
       return
     }
 
@@ -255,12 +270,12 @@ export function ProfileComponent() {
       setIsChangingPassword(true)
       setError('')
       await changePassword(passwordData)
-      setMessage('Contraseña cambiada exitosamente')
+      setMessage(t('messages.passwordChanged'))
       setPasswordData({ currentPassword: '', newPassword: '' })
       setConfirmPassword('')
       setShowPasswordDialog(false)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error cambiando contraseña'
+      const errorMessage = error instanceof Error ? error.message : t('messages.passwordError')
       setError(errorMessage)
     } finally {
       setIsChangingPassword(false)
@@ -288,16 +303,16 @@ export function ProfileComponent() {
       <Paper elevation={3} sx={profileStyles.card}>
         <Box sx={profileStyles.header}>
           <Typography variant="h4" component="h1" sx={profileStyles.title}>
-            Mi Perfil
+            {t('title')}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
             <Chip
-              label={user.role === 'admin' ? 'Administrador' : 'Usuario'}
+              label={user.role === 'admin' ? t('role.admin') : t('role.user')}
               color={user.role === 'admin' ? 'secondary' : 'primary'}
               size="small"
             />
             <Typography variant="body2" color="text.secondary">
-              Miembro desde: {new Date(user.createdAt).toLocaleDateString('es-ES')}
+              {t('memberSince', { date: new Date(user.createdAt).toLocaleDateString() })}
             </Typography>
           </Box>
         </Box>
@@ -320,10 +335,10 @@ export function ProfileComponent() {
         {/* Tabs de navegación */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="profile tabs">
-            <Tab icon={<PersonIcon />} label="Información" />
-            <Tab icon={<FavoriteIcon />} label={`Favoritos (${favoriteCount})`} />
-            <Tab icon={<SettingsIcon />} label="Preferencias" />
-            <Tab icon={<StatsIcon />} label="Estadísticas" />
+            <Tab icon={<PersonIcon />} label={t('tabs.information')} />
+            <Tab icon={<FavoriteIcon />} label={t('tabs.favorites', { count: favoriteCount })} />
+            <Tab icon={<SettingsIcon />} label={t('tabs.preferences')} />
+            <Tab icon={<StatsIcon />} label={t('tabs.statistics')} />
           </Tabs>
         </Box>
 
@@ -332,13 +347,13 @@ export function ProfileComponent() {
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
               <PersonIcon color="primary" />
-              Información Personal
+              {t('personalInfo.title')}
             </Typography>
           
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <TextField
               fullWidth
-              label="Nombre completo"
+              label={t('personalInfo.nameLabel')}
               value={profileData.name}
               onChange={handleProfileChange('name')}
               disabled={isUpdating}
@@ -349,22 +364,22 @@ export function ProfileComponent() {
 
             <TextField
               fullWidth
-              label="Email"
+              label={t('personalInfo.emailLabel')}
               value={user.email}
               disabled
               InputProps={{
                 startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary' }} />
               }}
-              helperText="El email no se puede cambiar"
+              helperText={t('personalInfo.emailHelper')}
             />
 
             <TextField
               fullWidth
-              label="Teléfono (opcional)"
+              label={t('personalInfo.phoneLabel')}
               value={profileData.phone}
               onChange={handleProfileChange('phone')}
               disabled={isUpdating}
-              placeholder="+595 987 654 321"
+              placeholder={t('personalInfo.phonePlaceholder')}
               InputProps={{
                 startAdornment: <PhoneIcon sx={{ mr: 1, color: 'text.secondary' }} />
               }}
@@ -377,7 +392,7 @@ export function ProfileComponent() {
               startIcon={isUpdating ? <CircularProgress size={20} /> : <SaveIcon />}
               sx={{ alignSelf: 'flex-start' }}
             >
-              {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
+              {isUpdating ? t('personalInfo.saving') : t('personalInfo.saveChanges')}
             </Button>
           </Box>
         </Box>
@@ -388,8 +403,8 @@ export function ProfileComponent() {
         <Box>
           <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
             <LockIcon color="primary" />
-            Seguridad
-          </Typography>
+                          {t('security.title')}
+            </Typography>
           
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Button
@@ -397,7 +412,7 @@ export function ProfileComponent() {
               onClick={() => setShowPasswordDialog(true)}
               startIcon={<LockIcon />}
             >
-              Cambiar Contraseña
+              {t('security.changePassword')}
             </Button>
 
             <Button
@@ -405,7 +420,7 @@ export function ProfileComponent() {
               color="error"
               onClick={handleLogout}
             >
-              Cerrar Sesión
+              {t('security.logout')}
             </Button>
           </Box>
         </Box>
@@ -416,12 +431,12 @@ export function ProfileComponent() {
           <Box>
             <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
               <FavoriteIcon color="primary" />
-              Mis Favoritos
+              {t('favorites.title')}
             </Typography>
             
             {favorites.length === 0 ? (
               <Typography color="text.secondary">
-                No tienes lugares favoritos guardados aún.
+                {t('favorites.empty')}
               </Typography>
             ) : (
               <Grid container spacing={2}>
@@ -437,7 +452,7 @@ export function ProfileComponent() {
                         </Typography>
                         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="caption" color="text.secondary">
-                            Agregado: {new Date(favorite.favoritedAt).toLocaleDateString()}
+                            {t('favorites.addedOn', { date: new Date(favorite.favoritedAt).toLocaleDateString() })}
                           </Typography>
                           <IconButton 
                             size="small" 
@@ -456,7 +471,7 @@ export function ProfileComponent() {
             
             {favorites.length > 6 && (
               <Button sx={{ mt: 2 }}>
-                Ver todos ({favorites.length})
+                {t('favorites.viewAll', { count: favorites.length })}
               </Button>
             )}
           </Box>
@@ -467,38 +482,22 @@ export function ProfileComponent() {
           <Box>
             <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
               <SettingsIcon color="primary" />
-              Preferencias
+              {t('preferences.title')}
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel>Idioma</InputLabel>
-                  <Select
-                    value={preferences.language}
-                    onChange={handlePreferenceChange('language')}
-                    label="Idioma"
-                    startAdornment={<LanguageIcon sx={{ mr: 1, color: 'text.secondary' }} />}
-                  >
-                    <MenuItem value="es">Español</MenuItem>
-                    <MenuItem value="pt">Português</MenuItem>
-                    <MenuItem value="en">English</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Tema</InputLabel>
+                  <InputLabel>{t('preferences.theme')}</InputLabel>
                   <Select
                     value={preferences.theme}
                     onChange={handlePreferenceChange('theme')}
-                    label="Tema"
+                    label={t('preferences.theme')}
                     startAdornment={<PaletteIcon sx={{ mr: 1, color: 'text.secondary' }} />}
                   >
-                    <MenuItem value="light">Claro</MenuItem>
-                    <MenuItem value="dark">Oscuro</MenuItem>
-                    <MenuItem value="auto">Automático</MenuItem>
+                    <MenuItem value="light">{t('preferences.themeOptions.light')}</MenuItem>
+                    <MenuItem value="dark">{t('preferences.themeOptions.dark')}</MenuItem>
+                    <MenuItem value="auto">{t('preferences.themeOptions.auto')}</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -506,7 +505,7 @@ export function ProfileComponent() {
               <Grid item xs={12}>
                 <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                   <NotificationsIcon />
-                  Notificaciones
+                  {t('preferences.notifications.title')}
                 </Typography>
                 <FormGroup>
                   <FormControlLabel
@@ -516,7 +515,7 @@ export function ProfileComponent() {
                         onChange={handlePreferenceChange('notifications.email')}
                       />
                     }
-                    label="Notificaciones por email"
+                    label={t('preferences.notifications.email')}
                   />
                   <FormControlLabel
                     control={
@@ -525,7 +524,7 @@ export function ProfileComponent() {
                         onChange={handlePreferenceChange('notifications.push')}
                       />
                     }
-                    label="Notificaciones push"
+                    label={t('preferences.notifications.push')}
                   />
                   <FormControlLabel
                     control={
@@ -534,7 +533,7 @@ export function ProfileComponent() {
                         onChange={handlePreferenceChange('notifications.newsletter')}
                       />
                     }
-                    label="Newsletter semanal"
+                    label={t('preferences.notifications.newsletter')}
                   />
                 </FormGroup>
               </Grid>
@@ -542,7 +541,7 @@ export function ProfileComponent() {
               <Grid item xs={12}>
                 <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                   <HistoryIcon />
-                  Privacidad
+                  {t('preferences.privacy.title')}
                 </Typography>
                 <FormGroup>
                   <FormControlLabel
@@ -552,7 +551,7 @@ export function ProfileComponent() {
                         onChange={handlePreferenceChange('searchHistory')}
                       />
                     }
-                    label="Guardar historial de búsquedas"
+                    label={t('preferences.privacy.searchHistory')}
                   />
                 </FormGroup>
                 {preferences.searchHistory && user?.searchHistory?.length > 0 && (
@@ -564,7 +563,7 @@ export function ProfileComponent() {
                     onClick={handleDeleteSearchHistory}
                     startIcon={<DeleteIcon />}
                   >
-                    Eliminar historial ({user.searchHistory.length} búsquedas)
+                    {t('preferences.privacy.deleteHistory', { count: user.searchHistory.length })}
                   </Button>
                 )}
               </Grid>
@@ -576,7 +575,7 @@ export function ProfileComponent() {
                   disabled={isUpdating}
                   startIcon={isUpdating ? <CircularProgress size={20} /> : <SaveIcon />}
                 >
-                  {isUpdating ? 'Guardando...' : 'Guardar Preferencias'}
+                  {isUpdating ? t('preferences.saving') : t('preferences.savePreferences')}
                 </Button>
               </Grid>
             </Grid>
@@ -588,7 +587,7 @@ export function ProfileComponent() {
           <Box>
             <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
               <StatsIcon color="primary" />
-              Mis Estadísticas
+              {t('statistics.title')}
             </Typography>
             
             <Grid container spacing={3}>
@@ -596,7 +595,7 @@ export function ProfileComponent() {
                 <Card>
                   <CardContent>
                     <Typography color="text.secondary" gutterBottom>
-                      Lugares Favoritos
+                      {t('statistics.favoritePlaces')}
                     </Typography>
                     <Typography variant="h4">
                       <Badge badgeContent={favoriteCount} color="primary">
@@ -613,7 +612,7 @@ export function ProfileComponent() {
                     <Card>
                       <CardContent>
                         <Typography color="text.secondary" gutterBottom>
-                          Tipo Favorito
+                          {t('statistics.favoriteType')}
                         </Typography>
                         <Typography variant="h6">
                           {Object.entries(favoriteStats.byType)
@@ -627,7 +626,7 @@ export function ProfileComponent() {
                     <Card>
                       <CardContent>
                         <Typography color="text.secondary" gutterBottom>
-                          Búsquedas Realizadas
+                          {t('statistics.searchesMade')}
                         </Typography>
                         <Typography variant="h4">
                           {user?.searchHistory?.length || 0}
@@ -640,10 +639,10 @@ export function ProfileComponent() {
                     <Card>
                       <CardContent>
                         <Typography color="text.secondary" gutterBottom>
-                          Miembro Desde
+                          {t('statistics.memberSince')}
                         </Typography>
                         <Typography variant="h6">
-                          {Math.floor((new Date().getTime() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))} días
+                          {t('statistics.memberDays', { days: Math.floor((new Date().getTime() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)) })}
                         </Typography>
                       </CardContent>
                     </Card>
