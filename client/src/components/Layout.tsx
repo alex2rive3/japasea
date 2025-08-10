@@ -14,18 +14,13 @@ import {
   Button,
   Badge,
   Paper,
-  Menu,
-  MenuItem,
-  Divider,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
   Home as HomeIcon,
   FavoriteBorder as WishlistIcon,
-  Add as AddIcon,
   Search as SearchIcon,
   Notifications as NotificationsIcon,
-  Person as PersonIcon,
   AccountCircle as AccountCircleIcon,
   Logout as LogoutIcon,
 } from '@mui/icons-material'
@@ -54,7 +49,6 @@ export const Layout = ({
   const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(true) // Desktop sidebar state
   const [searchQuery, setSearchQuery] = useState('')
-  const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null)
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -75,23 +69,9 @@ export const Layout = ({
   const handleLogout = async () => {
     try {
       await logout()
-      setAvatarMenuAnchor(null)
     } catch (error) {
       console.error('Error durante logout:', error)
     }
-  }
-
-  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAvatarMenuAnchor(event.currentTarget)
-  }
-
-  const handleAvatarMenuClose = () => {
-    setAvatarMenuAnchor(null)
-  }
-
-  const handleViewProfile = () => {
-    navigate('/profile')
-    setAvatarMenuAnchor(null)
   }
 
   const handleSearchSubmit = (event: React.FormEvent) => {
@@ -157,17 +137,21 @@ export const Layout = ({
         <Button
           variant="contained"
           fullWidth
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/favorites')}
+          startIcon={<LogoutIcon />}
+          onClick={handleLogout}
           sx={{
             borderRadius: 2,
             py: 1.5,
             textTransform: 'none',
             fontWeight: 600,
-            fontSize: '0.95rem'
+            fontSize: '0.95rem',
+            bgcolor: 'error.main',
+            '&:hover': {
+              bgcolor: 'error.dark'
+            }
           }}
         >
-          {t('navigation.viewFavorites')}
+          {t('navigation.logout')}
         </Button>
       </Box>
     </Box>
@@ -303,76 +287,18 @@ export const Layout = ({
             </IconButton>
 
             {/* Profile Avatar */}
-            <IconButton
-              onClick={handleAvatarClick}
-              sx={{ p: 0.5, ml: 1 }}
-            >
-              <Avatar 
-                sx={{ 
-                  width: 36, 
-                  height: 36,
-                  bgcolor: 'primary.main',
-                  fontSize: '1rem',
-                  fontWeight: 'bold',
-                  '&:hover': {
-                    boxShadow: '0 0 0 2px rgba(25, 118, 210, 0.2)',
-                  },
-                }}
-              >
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-              </Avatar>
-            </IconButton>
-
-            {/* Avatar Menu */}
-            <Menu
-              anchorEl={avatarMenuAnchor}
-              open={Boolean(avatarMenuAnchor)}
-              onClose={handleAvatarMenuClose}
-              onClick={handleAvatarMenuClose}
-              PaperProps={{
-                elevation: 3,
-                sx: {
-                  overflow: 'visible',
-                  filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                  mt: 1.5,
-                  minWidth: 180,
-                  '& .MuiAvatar-root': {
-                    width: 32,
-                    height: 32,
-                    ml: -0.5,
-                    mr: 1,
-                  },
-                  '&:before': {
-                    content: '""',
-                    display: 'block',
-                    position: 'absolute',
-                    top: 0,
-                    right: 14,
-                    width: 10,
-                    height: 10,
-                    bgcolor: 'background.paper',
-                    transform: 'translateY(-50%) rotate(45deg)',
-                    zIndex: 0,
-                  },
-                },
+            <Avatar 
+              sx={{ 
+                width: 36, 
+                height: 36,
+                bgcolor: 'primary.main',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                ml: 1
               }}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              <MenuItem onClick={handleViewProfile}>
-                <ListItemIcon>
-                  <PersonIcon fontSize="small" />
-                </ListItemIcon>
-                {t('userMenu.viewProfile')}
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon>
-                  <LogoutIcon fontSize="small" />
-                </ListItemIcon>
-                {t('navigation.logout')}
-              </MenuItem>
-            </Menu>
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </Avatar>
           </Box>
         </Toolbar>
       </AppBar>
