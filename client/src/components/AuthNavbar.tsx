@@ -28,6 +28,7 @@ import {
 import { alpha } from '@mui/material/styles'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from './LanguageSwitcher'
 
 interface AuthNavbarProps {
   onSearch?: (query: string) => void
@@ -177,6 +178,9 @@ export function AuthNavbar({ onSearch }: AuthNavbarProps) {
 
           {isAuthenticated && user ? (
             <>
+              {/* Selector de idioma */}
+              <LanguageSwitcher />
+              
               {/* Notificaciones */}
               <IconButton>
                 <Badge badgeContent={2} color="error">

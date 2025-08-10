@@ -486,23 +486,7 @@ export function ProfileComponent() {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>{t('preferences.language')}</InputLabel>
-                  <Select
-                    value={preferences.language}
-                    onChange={handlePreferenceChange('language')}
-                    label={t('preferences.language')}
-                    startAdornment={<LanguageIcon sx={{ mr: 1, color: 'text.secondary' }} />}
-                  >
-                    <MenuItem value="es">Español</MenuItem>
-                    <MenuItem value="pt">Português</MenuItem>
-                    <MenuItem value="en">English</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12}>
                 <FormControl fullWidth>
                   <InputLabel>{t('preferences.theme')}</InputLabel>
                   <Select

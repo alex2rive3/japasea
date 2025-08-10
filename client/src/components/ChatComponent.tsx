@@ -33,7 +33,7 @@ interface ChatComponentProps {
 
 export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   const { user } = useAuth()
-  const { t } = useTranslation('home')
+  const { t, i18n } = useTranslation('home')
   const messagesContainerRef = useRef<HTMLDivElement | null>(null)
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -46,6 +46,20 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   const [inputValue, setInputValue] = useState('')
   const [sessionId, setSessionId] = useState<string>(`session-${Date.now()}`)
   const [botTyping, setBotTyping] = useState<boolean>(false)
+
+  // Actualizar el mensaje de bienvenida cuando cambie el idioma
+  useEffect(() => {
+    setMessages((prevMessages) => {
+      const updatedMessages = [...prevMessages]
+      if (updatedMessages.length > 0 && updatedMessages[0].id === 1 && updatedMessages[0].sender === 'bot') {
+        updatedMessages[0] = {
+          ...updatedMessages[0],
+          text: t('chat.welcome')
+        }
+      }
+      return updatedMessages
+    })
+  }, [i18n.language, t])
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     const container = messagesContainerRef.current

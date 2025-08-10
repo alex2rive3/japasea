@@ -15,7 +15,6 @@ import {
 } from '@mui/icons-material'
 import { alpha } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
-import LanguageSwitcher from './LanguageSwitcher'
 
 interface NavbarProps {
   onProfileClick?: () => void
@@ -137,11 +136,8 @@ export const Navbar = ({
           </Paper>
         </Box>
 
-        {/* Right Section - Language, Notifications and Profile */}
+        {/* Right Section - Notifications and Profile */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* Language Switcher */}
-          <LanguageSwitcher />
-          
           {/* Notifications */}
           <IconButton
             onClick={onNotificationClick}

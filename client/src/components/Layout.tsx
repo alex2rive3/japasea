@@ -32,6 +32,7 @@ import {
 import { alpha } from '@mui/material/styles'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from './LanguageSwitcher'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -281,8 +282,11 @@ export const Layout = ({
             </Paper>
           </Box>
 
-          {/* Right Section - Notifications and Profile */}
+          {/* Right Section - Language, Notifications and Profile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+            
             {/* Notifications */}
             <IconButton
               onClick={onNotificationClick}
