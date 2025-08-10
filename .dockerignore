@@ -1,0 +1,21 @@
+# Ignorar archivos globales para Docker
+.git
+.gitignore
+README.md
+DOCKER_README.md
+*.md
+.DS_Store
+.vscode
+.idea
+*.log
+logs
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de desarrollo
+dev.sh
+Makefile
+docker-compose.override.yml

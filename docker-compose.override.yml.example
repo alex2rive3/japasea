@@ -1,0 +1,72 @@
+# Ejemplo de docker-compose.override.yml para personalizaciones locales
+# Copia este archivo como docker-compose.override.yml y modifica según tus necesidades
+# Docker Compose automáticamente usará este archivo junto con docker-compose.yml
+
+version: '3.8'
+
+services:
+  # Personalizar configuración del servidor
+  server:
+    environment:
+      # Sobrescribir variables de entorno si es necesario
+      # MONGODB_URI: mongodb://admin:adminpassword@mongodb:27017/japasea_dev?authSource=admin
+      # JWT_SECRET: tu_jwt_secret_personalizado
+      # RATE_LIMIT_MAX: 1000
+    volumes:
+      # Agregar volúmenes adicionales si es necesario
+      # - ./server/uploads:/app/uploads
+    ports:
+      # Cambiar puerto si es necesario
+      # - "3002:3001"
+
+  # Personalizar configuración del cliente
+  client:
+    environment:
+      # Sobrescribir variables de entorno si es necesario
+      # VITE_API_URL: http://localhost:3002
+    ports:
+      # Cambiar puerto si es necesario
+      # - "5174:5173"
+
+  # Personalizar configuración de MongoDB
+  mongodb:
+    environment:
+      # Cambiar credenciales si es necesario
+      # MONGO_INITDB_ROOT_USERNAME: mi_usuario
+      # MONGO_INITDB_ROOT_PASSWORD: mi_password
+    ports:
+      # Cambiar puerto si es necesario
+      # - "27018:27017"
+    volumes:
+      # Agregar scripts de inicialización adicionales
+      # - ./custom-scripts:/docker-entrypoint-initdb.d
+
+  # Personalizar Mongo Express
+  mongo-express:
+    environment:
+      # Cambiar configuración si es necesario
+      # ME_CONFIG_BASICAUTH: true
+      # ME_CONFIG_BASICAUTH_USERNAME: admin
+      # ME_CONFIG_BASICAUTH_PASSWORD: admin
+    ports:
+      # Cambiar puerto si es necesario
+      # - "8082:8081"
+
+  # Servicios adicionales para desarrollo
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: japasea-redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - japasea-network
+
+# Redes adicionales si es necesario
+# networks:
+#   external-network:
+#     external: true
+
+# Volúmenes adicionales si es necesario
+# volumes:
+#   custom_data:
+#     driver: local
