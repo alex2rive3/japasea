@@ -994,7 +994,7 @@ module.exports = app
 #### Frontend (Días 1-2)
 - [ ] **Optimizar renders** con React.memo y useMemo
 - [ ] **Implementar lazy loading** para rutas y componentes
-- [ ] **Mejorar gestión de estado** con Context API o Zustand
+- [ ] **Mejorar gestión de estado** con Zustand
 - [ ] **Crear hooks personalizados** para lógica repetitiva
 
 #### Backend (Días 3-5)  
