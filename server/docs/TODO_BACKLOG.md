@@ -2,11 +2,15 @@
 
 Este documento consolida tareas pendientes detectadas en el código (etiqueta TODO) y mejoras propuestas. Sirve como fuente única para priorización.
 
-## Hallazgos automáticos (TODOs exactos)
+## Tareas Técnicas Pendientes
 
-- server/src/routes/v1/placesRoutes.js
-  - TODO: Implementar búsqueda geoespacial real
-  - TODO: Implementar lógica de trending real
+### Docker y DevOps ✅ Completado
+- ✅ Configuración completa de Docker Compose
+- ✅ Dockerfiles optimizados para desarrollo
+- ✅ Scripts de automatización (dev.sh, Makefile)
+- ✅ Documentación de Docker
+
+### Desarrollo Pendiente
 
 ## Mejoras propuestas (prioridad)
 

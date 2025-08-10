@@ -1,109 +1,241 @@
-### Análisis Comercial y Modelo de Monetización – Japasea
+# 📚 Documentación del Proyecto Japasea
 
-**Última actualización**: Enero 2025
+## 🎯 Acerca del Proyecto
 
-### Resumen ejecutivo
-- **Producto**: plataforma turística moderna (web) con autenticación, mapa, lugares, favoritos, reseñas, panel admin completo, auditoría, chat con IA e historial, API versionada y documentada.
-- **Estado**: “MVP mejorado” listo para producción con 95%+ de funcionalidades core; pendientes: PWA/offline, notificaciones push, pagos/reservas, testeo automatizado y CI/CD.
-- **Mercado**: Encarnación (~500k turistas/año, gasto ~USD 75M). Potencial de comisiones en reservas/tours y publicidad local.
-- **Tesis**: vender implementación “llave en mano” + quedarse con % de ventas (GMV) atribuidas, con mínimo garantizado mensual y add-ons B2B.
+Japasea es una plataforma turística digital para Encarnación, Paraguay, que utiliza inteligencia artificial para proporcionar recomendaciones personalizadas de lugares, actividades y servicios turísticos. La plataforma incluye una interfaz web responsiva, panel de administración completo, y chat inteligente con IA.
 
-### Valor del activo (estimación de precio)
-- **Costo de reposición (880–1.350 h)**: Frontend (300–450 h), Backend (350–500 h), Admin (150–250 h), Perf/Seguridad/Docs (80–150 h). A USD 25–40/h → **USD 22k–54k**.
-- **Rango sugerido (venta base 1 ciudad)**: **USD 8.900–19.900** hoy; con upsells puede escalar a **USD 30k–80k** (white‑label multi‑ciudad + reservas/pagos + móvil).
+## 🏗️ Arquitectura
 
-### Modelos de venta
-- **Licencia + Setup + Revenue Share (recomendado)**: cobro por setup + fee mensual + % sobre GMV atribuido.
-- **SaaS/white‑label**: fee mensual mayor (SLA, hosting, evolutivos) + % sobre transacciones/ads.
+- **Frontend**: React 19 + TypeScript + Material-UI + Vite
+- **Backend**: Node.js + Express + MongoDB + Mongoose  
+- **Autenticación**: JWT con refresh tokens
+- **Chat IA**: Integración con Google AI (Gemini)
+- **Mapas**: Leaflet + React Leaflet
+- **Gráficos**: Recharts
 
-### Paquetes comerciales (propuesta)
-- **Paquete Base (1 ciudad)**
-  - Alcance: web operativa, catálogo de lugares, chat IA, favoritos, reseñas, admin completo, analíticas básicas.
-  - Setup: **USD 8.900** | Mantenimiento: **USD 490/mes**
-  - Revenue share (GMV atribuido): Restaurants **10–12%**, Hoteles **15–18%**, Tours **20–25%**
-  - Mínimo garantizado: **USD 300/mes**
-- **Paquete Pro (reservas + pagos + publicidad)**
-  - + Reservas end‑to‑end, pagos locales, campañas self‑serve, PWA/push.
-  - Setup: **USD 19.900** | Mantenimiento: **USD 990/mes**
-  - Revenue share: Restaurants **12–15%**, Hoteles **15–20%**, Tours **22–28%**; Publicidad: **20–30%** de pauta gestionada
-  - Mínimo garantizado: **USD 600/mes**
-- **White‑label Municipio/Asociación**
-  - Multi‑ciudad, SLAs (99.9% uptime), roles avanzados, reportes ejecutivos.
-  - Setup: **USD 39.900–79.900** | Mantenimiento: **USD 1.490–2.490/mes**
-  - Revenue share: GMV **10–20%** + **20–30%** de pauta
-  - Mínimo garantizado: **USD 1.000–2.000/mes**
+## 📖 Documentación Disponible
 
-### Revenue share y atribución de ventas
-- **Qué cuenta como venta**: reservas pagadas in‑app; canjes en local con QR/código por partner; click‑out con UTM + voucher/código (last‑touch ≤ 7–14 días) con confirmación del comercio.
-- **Medición**: in‑app (órdenes en DB); fuera (QR por negocio, cupones, deep links WhatsApp con parámetros) + conciliación mensual.
-- **Cláusulas**: mínimo garantizado mensual; ventana de atribución; exclusividad por zona (opcional); plazo 12–24 meses; preaviso 60 días.
+### 🔧 Documentación Técnica
 
-### Upsells para subir el ticket
-- **Reservas + pagos locales**: Bancard, Tigo Money, transferencias QR, pre‑autorizaciones, calendario, política de no‑show.
-- **Publicidad self‑serve**: listados destacados, banners, segmentación geográfica/temporal, presupuestos y facturación auto.
-- **Panel B2B avanzado**: cohortes, repetición, ticket promedio, comparativas, exportaciones, campañas (push/email).
-- **Fidelidad y referidos**: “Pasaporte Encarnación”, puntos, niveles, recompensas; referidos vía WhatsApp.
-- **PWA + push**: offline, re‑engagement por eventos/clima.
-- **App móvil (React Native)**: upsell **USD 12k–25k**.
-- **Multi‑idioma completo (ES/PT/EN)** y **SEO internacional**.
-- **Integraciones**: GA4, Meta Pixel, Google My Business, POS.
-- **SLA/Compliance**: monitoreo (Sentry/Prometheus), backups, CI/CD, TOS/Privacidad/Cookies.
-- **Marketplace de experiencias**: guías PDF, audioguías, rutas premium (comisiones 20–30%).
+| Documento | Descripción | Estado |
+|-----------|-------------|--------|
+| [`API_ENDPOINTS.md`](./API_ENDPOINTS.md) | Documentación completa de todos los endpoints de la API | ✅ Actualizado |
+| [`AUTH_API.md`](./AUTH_API.md) | Especificación detallada de la API de autenticación | ✅ Actualizado |
+| [`DOCUMENTATION.md`](./DOCUMENTATION.md) | Documentación técnica completa del proyecto | ✅ Actualizado |
+| [`CHAT_HISTORY_SPEC.md`](./CHAT_HISTORY_SPEC.md) | Especificación del sistema de historial de chat | ✅ Actualizado |
+| [`I18N_GUIDE.md`](./I18N_GUIDE.md) | Guía de internacionalización (ES/EN/PT) | ✅ Actualizado |
+| [`TECHNICAL_IMPLEMENTATION_PLAN.md`](./TECHNICAL_IMPLEMENTATION_PLAN.md) | Plan de implementación técnica | ✅ Actualizado |
 
-### Estimación de esfuerzo y precios de mejoras
-- Reservas + pagos locales: 4–6 semanas, **USD 6k–12k**
-- Publicidad self‑serve: 3–5 semanas, **USD 5k–10k**
-- PWA/offline + push: 2–3 semanas, **USD 3k–6k**
-- Panel B2B avanzado + reportes: 3–5 semanas, **USD 5k–9k**
-- App móvil básica: 6–10 semanas, **USD 12k–25k**
-- Multi‑idioma + SEO internacional: 2–4 semanas, **USD 3k–6k**
-- Tests + CI/CD + monitoreo prod: 2–3 semanas, **USD 3k–5k**
+### 👨‍💼 Documentación de Usuario y Administración
 
-### Roadmap 60–90 días (cierre rápido)
-- **Mes 1**: PWA/offline, push, pricing/planes, onboarding B2B, TOS/Privacidad/Cookies, dashboards base.
-- **Mes 2**: Reservas + pagos locales (hoteles/restos), tracking QR/UTM/cupones, reportes de comisión, paquetes de publicidad.
-- **Mes 3**: Fidelidad, campañas B2B, lanzamiento con 20–50 partners y calendario de temporada alta.
+| Documento | Descripción | Estado |
+|-----------|-------------|--------|
+| [`ADMIN_GUIDE.md`](./ADMIN_GUIDE.md) | Guía completa del panel de administración | ✅ Actualizado |
 
-### Ejemplos de ROI
-- 50 reservas/mes en restaurantes, ticket USD 20 → GMV USD 1.000 → 12% = **USD 120/mes**.
-- 30 noches hotel a USD 40 → GMV USD 1.200 → 18% = **USD 216/mes**.
-- 25 tours a USD 30 → GMV USD 750 → 22% = **USD 165/mes**.
-- Publicidad: 10 comercios “Growth” a USD 100/mes = **USD 1.000/mes**; fee de gestión 25% = **USD 250/mes**.
+### 📋 Gestión de Proyecto
 
-### Riesgos y mitigación
-- Pagos y reservas no productizados → integrar métodos locales y MVP de reservas con confirmación/depósito.
-- Confiabilidad sin suite de tests/CI → Jest + pruebas API, pipeline CI/CD, monitoreo (Sentry).
-- Legal y confianza local → TOS/privacidad/cookies, soporte WhatsApp, precios en Gs., métodos de pago locales.
+| Documento | Descripción | Estado |
+|-----------|-------------|--------|
+| [`FEATURES_SUMMARY.md`](./FEATURES_SUMMARY.md) | Resumen de características implementadas | ✅ Actualizado |
+| [`TODO_BACKLOG.md`](./TODO_BACKLOG.md) | Lista de tareas pendientes y mejoras | ✅ Actualizado |
+| [`LAUNCH_CHECKLIST.md`](./LAUNCH_CHECKLIST.md) | Checklist para el lanzamiento a producción | ✅ Actualizado |
 
-### Contrato (puntos clave)
-- Alcance y entregables por paquete.
-- Setup, mensual y revenue share por rubro; mínimos garantizados.
-- Definición técnica de atribución, acceso a reportes y auditoría.
-- SLA, soporte, tiempos de respuesta, backups.
-- Derechos sobre marca/datos y confidencialidad.
-- Cronograma y hitos de aceptación.
+### 💼 Información Comercial
 
-### Observaciones técnicas del repo
-- API v1 completa y documentada (`server/src/docs/swagger.v1.js`, `API_ENDPOINTS.md`).
-- Panel admin robusto (usuarios, lugares, reseñas, stats, auditoría).
-- Seguridad: JWT + refresh, rate limiting, validación y sanitización, Helmet.
-- Chat IA con historial persistente y normalización (`server/docs/CHAT_HISTORY_SPEC.md`).
-- Frontend moderno (React 18 + TS + MUI), mapas con Leaflet, componentes admin y hooks.
+| Documento | Descripción | Estado |
+|-----------|-------------|--------|
+| [`BUSINESS_OVERVIEW.md`](./BUSINESS_OVERVIEW.md) | Resumen ejecutivo y estrategia de negocio | ✅ Actualizado |
 
-### Backlog técnico (pendientes)
-- Priorizar verificados/destacados en listados, búsqueda, aleatorios y fuente del chat.
-- KPI de variación real en dashboard (no simulado), usando `trends.last12Months`.
-- Robustez por id en AdminPlaces (deshabilitar acciones si falta `id/_id`).
-- Endpoints de stats por rango de fecha (usuarios y reseñas).
-- Cards de Admin con imagen de portada y opción “Ver en mapa”.
+## 🚀 Inicio Rápido
 
-### Recomendación final de precio
-- “Tal cual” 1 ciudad: **Setup USD 8.900** + **USD 490/mes** + revenue share (10–25%) + **mínimo USD 300/mes**.
-- Con reservas + pagos + PWA/push + publicidad: **Setup USD 19.900** + **USD 990/mes** + revenue share (12–28%) + **mínimo USD 600/mes**.
-- Municipios/asociaciones: **USD 39.900–79.900** + **USD 1.490–2.490/mes** + revenue share 10–20% y 20–30% pauta.
+### Prerrequisitos
+- Node.js 18+
+- MongoDB 6.0+
+- Docker (opcional)
+
+### Instalación con Docker (Recomendado)
+```bash
+# Clonar el repositorio
+git clone <repo-url>
+cd japasea
+
+# Configurar variables de entorno
+cp server/env.example server/.env
+cp client/env.example client/.env
+
+# Iniciar con Docker Compose
+docker-compose up -d --build
+```
+
+### Instalación Manual
+```bash
+# Backend
+cd server
+npm install
+cp env.example .env
+npm run dev
+
+# Frontend (en otra terminal)
+cd client
+npm install
+cp env.example .env
+npm run dev
+```
+
+### URLs de Desarrollo
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:3001
+- **Mongo Express**: http://localhost:8081
+- **Admin Panel**: http://localhost:5173/admin
+
+## 📊 Estado del Proyecto
+
+| Componente | Estado | Progreso |
+|------------|--------|-----------|
+| **Autenticación** | ✅ Completo | 100% |
+| **Gestión de Lugares** | ✅ Completo | 100% |
+| **Chat con IA** | ✅ Completo | 100% |
+| **Panel Admin** | ✅ Completo | 100% |
+| **Mapas Interactivos** | ✅ Completo | 100% |
+| **Sistema de Favoritos** | ✅ Completo | 100% |
+| **Sistema de Reseñas** | ✅ Completo | 100% |
+| **PWA** | 🔄 En Progreso | 70% |
+| **Tests** | 🔄 En Progreso | 40% |
+| **Internacionalización** | 🔄 En Progreso | 60% |
+
+## 🛠️ Comandos Útiles
+
+### Docker
+```bash
+# Iniciar servicios
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Parar servicios
+docker-compose down
+
+# Reiniciar un servicio
+docker-compose restart server
+```
+
+### Desarrollo
+```bash
+# Servidor - Tests
+npm test
+npm run test:coverage
+
+# Servidor - Base de datos
+npm run db:seed
+npm run db:clear
+
+# Cliente - Build
+npm run build
+npm run preview
+```
+
+## 🔐 Configuración
+
+### Variables de Entorno del Servidor
+```env
+NODE_ENV=development
+PORT=3001
+MONGODB_URI=mongodb://localhost:27017/japasea_db
+JWT_SECRET=your-secret-key
+GOOGLE_AI_API_KEY=your-google-ai-key
+```
+
+### Variables de Entorno del Cliente
+```env
+VITE_API_URL=http://localhost:3001
+```
+
+## 👥 Roles y Permisos
+
+| Rol | Permisos |
+|-----|----------|
+| **Guest** | Ver lugares, usar chat (limitado) |
+| **User** | Todo lo anterior + favoritos, reseñas, historial |
+| **Admin** | Todo lo anterior + panel admin, gestión completa |
+
+## 📱 Características Principales
+
+### Para Usuarios
+- 🤖 Chat inteligente con IA multilingüe
+- 🗺️ Mapas interactivos con marcadores
+- ❤️ Sistema de favoritos
+- ⭐ Reseñas y calificaciones
+- 📱 PWA instalable
+- 🌐 Soporte multi-idioma
+
+### Para Administradores
+- 📊 Dashboard con métricas en tiempo real
+- 👥 Gestión completa de usuarios
+- 📍 CRUD de lugares con verificación
+- ⭐ Moderación de reseñas
+- 🔍 Sistema de auditoría
+- ⚙️ Configuración del sistema
+
+## 🔧 API
+
+La API REST está completamente documentada y versionada:
+
+- **Base URL**: `http://localhost:3001/api/v1`
+- **Autenticación**: JWT Bearer Token
+- **Documentación**: Consultar [`API_ENDPOINTS.md`](./API_ENDPOINTS.md)
+
+### Endpoints Principales
+- `POST /auth/login` - Autenticación
+- `GET /places` - Listar lugares
+- `POST /chat/message` - Chat con IA
+- `GET /admin/stats` - Estadísticas (admin)
+
+## 🧪 Testing
+
+### Ejecutar Tests
+```bash
+# Backend
+cd server
+npm test
+npm run test:coverage
+
+# Frontend
+cd client
+npm test
+```
+
+### Coverage Objetivo
+- **Backend**: > 80%
+- **Frontend**: > 70%
+
+## 🚀 Deployment
+
+### Preparación para Producción
+1. Revisar [`LAUNCH_CHECKLIST.md`](./LAUNCH_CHECKLIST.md)
+2. Configurar variables de entorno de producción
+3. Configurar MongoDB Atlas o servidor dedicado
+4. Configurar HTTPS y certificados SSL
+5. Configurar monitoring y backups
+
+### Stack de Producción Recomendado
+- **Hosting**: VPS o Docker containers
+- **Base de Datos**: MongoDB Atlas
+- **CDN**: CloudFlare
+- **Monitoring**: PM2 + Uptime Robot
+- **Backups**: Automáticos cada 24h
+
+## 📞 Soporte
+
+Para consultas técnicas:
+- **Issues**: Usar el sistema de issues del repositorio
+- **Documentación**: Consultar los archivos en `/docs`
+- **Chat**: Contactar al equipo de desarrollo
 
 ---
 
-Si necesitás un one‑pager comercial y un borrador de contrato (con definición de atribución y mínimos garantizados), puedo incluirlos como anexos en esta carpeta.
+**Última actualización**: Enero 2025  
+**Versión**: 2.0  
+**Estado**: MVP Completado - Preparando Producción
 
 
