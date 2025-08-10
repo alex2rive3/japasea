@@ -1,0 +1,11 @@
+{
+  "status": 200,
+  "data": {
+    "id": 1,
+    "name": "Original Name",
+    "items": [
+      "item1",
+      "item2"
+    ]
+  }
+}

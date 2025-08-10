@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": {
+    "success": true,
+    "message": "Reseña creada exitosamente",
+    "data": {
+      "id": "review-new",
+      "userId": "user-123",
+      "placeId": "place-123",
+      "rating": 5,
+      "comment": "Nueva reseña de prueba",
+      "status": "approved",
+      "helpful": 0,
+      "images": [
+        "new-review.jpg"
+      ],
+      "createdAt": "2024-01-15T12:00:00.000Z"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": 400,
+  "statusText": "Bad Request",
+  "data": {
+    "success": false,
+    "message": "Token de verificación inválido o expirado"
+  }
+}

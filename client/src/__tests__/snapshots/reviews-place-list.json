@@ -1,0 +1,52 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": {
+    "data": {
+      "reviews": [
+        {
+          "id": "review-1",
+          "userId": "user-123",
+          "userName": "Usuario Test",
+          "rating": 5,
+          "comment": "Excelente lugar para visitar, muy recomendado!",
+          "helpful": 12,
+          "images": [
+            "review1.jpg",
+            "review2.jpg"
+          ],
+          "createdAt": "2024-01-15T10:00:00.000Z",
+          "isHelpful": false
+        },
+        {
+          "id": "review-2",
+          "userId": "user-456",
+          "userName": "Otro Usuario",
+          "rating": 4,
+          "comment": "Muy bueno, aunque un poco caro.",
+          "helpful": 8,
+          "images": [],
+          "createdAt": "2024-01-10T15:30:00.000Z",
+          "isHelpful": true
+        }
+      ],
+      "stats": {
+        "avgRating": 4.5,
+        "totalReviews": 2,
+        "distribution": {
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 1,
+          "5": 1
+        }
+      },
+      "pagination": {
+        "page": 1,
+        "limit": 10,
+        "total": 2,
+        "totalPages": 1
+      }
+    }
+  }
+}

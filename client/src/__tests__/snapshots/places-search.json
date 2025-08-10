@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": [
+    {
+      "_id": "place-1",
+      "name": "Machu Picchu",
+      "description": "Antigua ciudadela inca en los Andes peruanos",
+      "location": {
+        "lat": -13.1631,
+        "lng": -72.545
+      },
+      "type": "historical",
+      "address": "Aguas Calientes, Perú",
+      "rating": {
+        "average": 4.8,
+        "count": 1250
+      }
+    }
+  ]
+}

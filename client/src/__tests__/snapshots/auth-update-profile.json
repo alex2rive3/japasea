@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": {
+    "success": true,
+    "message": "Perfil actualizado exitosamente",
+    "data": {
+      "user": {
+        "id": "user-123",
+        "name": "Usuario Actualizado",
+        "email": "usuario@actualizado.com",
+        "phone": "+51987654321",
+        "role": "user",
+        "isEmailVerified": true,
+        "profilePicture": "avatar-nuevo.jpg",
+        "createdAt": "2024-01-01T00:00:00.000Z",
+        "updatedAt": "2024-01-15T10:00:00.000Z"
+      }
+    }
+  }
+}

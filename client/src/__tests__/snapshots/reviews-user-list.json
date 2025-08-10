@@ -1,0 +1,28 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": {
+    "data": [
+      {
+        "id": "review-user-1",
+        "placeId": "place-123",
+        "placeName": "Machu Picchu",
+        "placeType": "historical",
+        "rating": 5,
+        "comment": "Increíble experiencia histórica",
+        "status": "approved",
+        "helpful": 15,
+        "images": [
+          "machu-review.jpg"
+        ],
+        "createdAt": "2024-01-10T10:00:00.000Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 1,
+      "totalPages": 1
+    }
+  }
+}

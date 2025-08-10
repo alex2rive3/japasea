@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": {
+    "success": true,
+    "message": "Reseña actualizada exitosamente",
+    "data": {
+      "id": "review-1",
+      "rating": 4,
+      "comment": "Reseña actualizada con nueva información",
+      "images": [
+        "updated-review.jpg"
+      ],
+      "updatedAt": "2024-01-15T14:00:00.000Z"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": {
+    "success": true,
+    "message": "Login exitoso",
+    "data": {
+      "user": {
+        "id": "user-123",
+        "name": "Test User",
+        "email": "user@test.com",
+        "role": "user",
+        "isEmailVerified": true,
+        "createdAt": "2024-01-01T00:00:00.000Z"
+      },
+      "accessToken": "mock-access-token",
+      "refreshToken": "mock-refresh-token"
+    }
+  }
+}

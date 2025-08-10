@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "data": {
+    "data": {
+      "helpful": 13,
+      "userVote": "yes"
+    }
+  }
+}
