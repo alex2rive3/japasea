@@ -1,11 +1,12 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { SuspendUserUseCase } from '../../domain/interfaces/admin.use-cases';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
 import { SuspendUserDto } from '../dtos/request.dto';
 
 @Injectable()
 export class SuspendUserUseCaseImpl implements SuspendUserUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 

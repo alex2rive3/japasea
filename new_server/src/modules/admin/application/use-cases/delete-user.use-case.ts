@@ -1,10 +1,11 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { DeleteUserUseCase } from '../../domain/interfaces/admin.use-cases';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
 
 @Injectable()
 export class DeleteUserUseCaseImpl implements DeleteUserUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 

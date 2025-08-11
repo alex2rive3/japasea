@@ -6,11 +6,12 @@ import { EmailService } from '../../../../shared/services/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../../../users/domain/entities/user.entity';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
 
 @Injectable()
 export class ForgotPasswordUseCaseImpl implements ForgotPasswordUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,

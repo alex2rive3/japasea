@@ -1,13 +1,16 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { GetAdminStatsUseCase } from '../../domain/interfaces/admin.use-cases';
 import { AdminStatsResponseDto } from '../dtos/response.dto';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
+import { PLACE_REPOSITORY } from '../../../places/tokens';
+import { ReviewsProvider } from '../../../reviews/domain/providers/reviews.tokens';
 
 @Injectable()
 export class GetAdminStatsUseCaseImpl implements GetAdminStatsUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
-    @Inject('PlaceRepository') private readonly placeRepository: any,
-    @Inject('ReviewRepository') private readonly reviewRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
+    @Inject(PLACE_REPOSITORY) private readonly placeRepository: any,
+    @Inject(ReviewsProvider.reviewRepository) private readonly reviewRepository: any,
   ) {}
 
   async execute(): Promise<AdminStatsResponseDto> {

@@ -1,10 +1,11 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { GetAdminPlaceUseCase } from '../../domain/interfaces/admin.use-cases';
+import { PLACE_REPOSITORY } from '../../../places/tokens';
 
 @Injectable()
 export class GetAdminPlaceUseCaseImpl implements GetAdminPlaceUseCase {
   constructor(
-    @Inject('PlaceRepository') private readonly placeRepository: any,
+    @Inject(PLACE_REPOSITORY) private readonly placeRepository: any,
   ) {}
 
   async execute(placeId: string): Promise<any> {

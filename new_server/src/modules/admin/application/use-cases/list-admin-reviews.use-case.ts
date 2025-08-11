@@ -1,11 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ListAdminReviewsUseCase } from '../../domain/interfaces/admin.use-cases';
 import { AdminListReviewsQueryDto } from '../dtos/request.dto';
+import { ReviewsProvider } from '../../../reviews/domain/providers/reviews.tokens';
 
 @Injectable()
 export class ListAdminReviewsUseCaseImpl implements ListAdminReviewsUseCase {
   constructor(
-    @Inject('ReviewRepository') private readonly reviewRepository: any,
+    @Inject(ReviewsProvider.reviewRepository) private readonly reviewRepository: any,
   ) {}
 
   async execute(query: AdminListReviewsQueryDto): Promise<{ data: any[]; total: number; page: number; limit: number; }> {

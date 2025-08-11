@@ -1,11 +1,12 @@
 import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { SetPlaceStatusUseCase } from '../../domain/interfaces/admin.use-cases';
 import { SetPlaceStatusDto } from '../dtos/request.dto';
+import { PLACE_REPOSITORY } from '../../../places/tokens';
 
 @Injectable()
 export class SetPlaceStatusUseCaseImpl implements SetPlaceStatusUseCase {
   constructor(
-    @Inject('PlaceRepository') private readonly placeRepository: any,
+    @Inject(PLACE_REPOSITORY) private readonly placeRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 

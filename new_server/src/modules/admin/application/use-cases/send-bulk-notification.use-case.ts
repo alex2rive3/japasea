@@ -1,12 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { SendBulkNotificationUseCase } from '../../domain/interfaces/admin.use-cases';
 import { SendBulkNotificationDto } from '../dtos/request.dto';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
 
 @Injectable()
 export class SendBulkNotificationUseCaseImpl implements SendBulkNotificationUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
+    // @Inject('NotificationService') private readonly notificationService: any,
   ) {}
 
   async execute(data: SendBulkNotificationDto, adminUserId: string): Promise<{ sent: number; failed: number; }> {

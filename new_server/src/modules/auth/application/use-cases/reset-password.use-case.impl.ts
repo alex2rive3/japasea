@@ -5,11 +5,12 @@ import { ResetPasswordResponseDto } from '../dtos/response/password-recovery.res
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
 
 @Injectable()
 export class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}

@@ -1,13 +1,16 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { GetUserDetailsUseCase } from '../../domain/interfaces/admin.use-cases';
 import { UserDetailsResponseDto } from '../dtos/response.dto';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
+import { FavoritesProvider } from '../../../favorites/domain/providers/favorites.tokens';
+import { ReviewsProvider } from '../../../reviews/domain/providers/reviews.tokens';
 
 @Injectable()
 export class GetUserDetailsUseCaseImpl implements GetUserDetailsUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
-    @Inject('ReviewRepository') private readonly reviewRepository: any,
-    @Inject('FavoriteRepository') private readonly favoriteRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
+    @Inject(ReviewsProvider.reviewRepository) private readonly reviewRepository: any,
+    @Inject(FavoritesProvider.favoriteRepository) private readonly favoriteRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 

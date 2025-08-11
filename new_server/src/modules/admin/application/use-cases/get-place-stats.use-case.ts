@@ -1,11 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { GetPlaceStatsUseCase } from '../../domain/interfaces/admin.use-cases';
 import { PlaceStatsResponseDto } from '../dtos/response.dto';
+import { PLACE_REPOSITORY } from '../../../places/tokens';
+import { ReviewsProvider } from '../../../reviews/domain/providers/reviews.tokens';
 
 @Injectable()
 export class GetPlaceStatsUseCaseImpl implements GetPlaceStatsUseCase {
   constructor(
-    @Inject('PlaceRepository') private readonly placeRepository: any,
+    @Inject(PLACE_REPOSITORY) private readonly placeRepository: any,
+    @Inject(ReviewsProvider.reviewRepository) private readonly reviewRepository: any,
   ) {}
 
   async execute(): Promise<PlaceStatsResponseDto> {

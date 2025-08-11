@@ -38,6 +38,7 @@ import { AdminController } from './controllers/admin.controller';
 import { UsersModule } from '../users/users.module';
 import { PlacesModule } from '../places/places.module';
 import { ReviewsModule } from '../reviews/reviews.module';
+import { FavoritesModule } from '../favorites/favorites.module';
 
 @Module({
   imports: [
@@ -45,9 +46,10 @@ import { ReviewsModule } from '../reviews/reviews.module';
       { name: Audit.name, schema: AuditSchema },
       { name: Settings.name, schema: SettingsSchema }
     ]),
-    UsersModule,    // Para acceder al UserRepository
-    PlacesModule,   // Para acceder al PlaceRepository
-    ReviewsModule,  // Para acceder al ReviewRepository
+    UsersModule,       // Para acceder al UserRepository
+    PlacesModule,      // Para acceder al PlaceRepository
+    ReviewsModule,     // Para acceder al ReviewRepository
+    FavoritesModule,   // Para acceder al FavoriteRepository
   ],
   controllers: [AdminController],
   providers: [

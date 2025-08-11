@@ -4,20 +4,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 // Entity and Schema
 import { Favorite, FavoriteSchema } from './domain/entities/favorite.entity';
 
-// Repository
-import { MongoFavoriteRepository } from './infrastructure/repositories/mongo-favorite.repository';
-
-// Use Cases implementations
-import { GetUserFavoritesUseCaseImpl } from './application/use-cases/get-user-favorites.use-case';
-import { AddFavoriteUseCaseImpl } from './application/use-cases/add-favorite.use-case';
-import { RemoveFavoriteUseCaseImpl } from './application/use-cases/remove-favorite.use-case';
-import { CheckFavoriteUseCaseImpl } from './application/use-cases/check-favorite.use-case';
-
 // Controller
 import { FavoritesController } from './controllers/favorites.controller';
 
 // Import PlacesModule to access PlaceRepository
 import { PlacesModule } from '../places/places.module';
+
+// Providers
+import { providers } from './domain/providers/favorites.provider';
 
 @Module({
   imports: [
@@ -28,29 +22,7 @@ import { PlacesModule } from '../places/places.module';
   ],
   controllers: [FavoritesController],
   providers: [
-    // Repository
-    {
-      provide: 'FavoriteRepository',
-      useClass: MongoFavoriteRepository,
-    },
-    
-    // Use Cases
-    {
-      provide: 'GetUserFavoritesUseCase',
-      useClass: GetUserFavoritesUseCaseImpl,
-    },
-    {
-      provide: 'AddFavoriteUseCase',
-      useClass: AddFavoriteUseCaseImpl,
-    },
-    {
-      provide: 'RemoveFavoriteUseCase',
-      useClass: RemoveFavoriteUseCaseImpl,
-    },
-    {
-      provide: 'CheckFavoriteUseCase',
-      useClass: CheckFavoriteUseCaseImpl,
-    },
+    ...providers,
     
     // TODO: Implementar use cases restantes
     {
@@ -79,11 +51,7 @@ import { PlacesModule } from '../places/places.module';
     },
   ],
   exports: [
-    'FavoriteRepository',
-    'GetUserFavoritesUseCase',
-    'AddFavoriteUseCase',
-    'RemoveFavoriteUseCase',
-    'CheckFavoriteUseCase',
+    ...providers,
   ],
 })
 export class FavoritesModule {}

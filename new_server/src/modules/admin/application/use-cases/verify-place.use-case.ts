@@ -1,11 +1,12 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { VerifyPlaceUseCase } from '../../domain/interfaces/admin.use-cases';
+import { PLACE_REPOSITORY } from '../../../places/tokens';
 import { VerifyPlaceDto } from '../dtos/request.dto';
 
 @Injectable()
 export class VerifyPlaceUseCaseImpl implements VerifyPlaceUseCase {
   constructor(
-    @Inject('PlaceRepository') private readonly placeRepository: any,
+    @Inject(PLACE_REPOSITORY) private readonly placeRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 

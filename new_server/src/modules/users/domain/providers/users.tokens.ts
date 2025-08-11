@@ -3,5 +3,6 @@ export const UsersProvider = {
   findAllUsers: "FindAllUsersUseCase",
   findUserById: "FindUserByIdUseCase",
   updateUser: "UpdateUserUseCase",
-  softDeleteUser: "SoftDeleteUserUseCase"
+  softDeleteUser: "SoftDeleteUserUseCase",
+  userRepository: "UserRepository"
 };

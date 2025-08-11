@@ -1,11 +1,12 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { RejectReviewUseCase } from '../../domain/interfaces/admin.use-cases';
+import { ReviewsProvider } from '../../../reviews/domain/providers/reviews.tokens';
 import { ReviewModerationDto } from '../dtos/request.dto';
 
 @Injectable()
 export class RejectReviewUseCaseImpl implements RejectReviewUseCase {
   constructor(
-    @Inject('ReviewRepository') private readonly reviewRepository: any,
+    @Inject(ReviewsProvider.reviewRepository) private readonly reviewRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 

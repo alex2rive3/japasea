@@ -1,11 +1,12 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { UpdateUserRoleUseCase } from '../../domain/interfaces/admin.use-cases';
 import { UpdateUserRoleDto } from '../dtos/request.dto';
+import { UsersProvider } from '../../../users/domain/providers/users.tokens';
 
 @Injectable()
 export class UpdateUserRoleUseCaseImpl implements UpdateUserRoleUseCase {
   constructor(
-    @Inject('UserRepository') private readonly userRepository: any,
+    @Inject(UsersProvider.userRepository) private readonly userRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 

@@ -1,10 +1,11 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { DeleteReviewUseCase } from '../../domain/interfaces/admin.use-cases';
+import { ReviewsProvider } from '../../../reviews/domain/providers/reviews.tokens';
 
 @Injectable()
 export class DeleteAdminReviewUseCaseImpl implements DeleteReviewUseCase {
   constructor(
-    @Inject('ReviewRepository') private readonly reviewRepository: any,
+    @Inject(ReviewsProvider.reviewRepository) private readonly reviewRepository: any,
     @Inject('AuditRepository') private readonly auditRepository: any,
   ) {}
 
