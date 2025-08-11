@@ -4,13 +4,13 @@ Esta documentación describe los endpoints de autenticación disponibles en la A
 
 ## Base URL
 ```
-http://localhost:3001/api/auth
+http://localhost:3001/api/v1
 ```
 
 ## Endpoints
 
 ### 1. Registro de Usuario
-**POST** `/register`
+**POST** `/auth/register`
 
 Registra un nuevo usuario en el sistema.
 
@@ -48,7 +48,7 @@ Registra un nuevo usuario en el sistema.
 ```
 
 ### 2. Iniciar Sesión
-**POST** `/login`
+**POST** `/auth/login`
 
 Autentica un usuario existente.
 
@@ -85,7 +85,7 @@ Autentica un usuario existente.
 ```
 
 ### 3. Renovar Token
-**POST** `/refresh-token`
+**POST** `/auth/refresh-token`
 
 Renueva un token de acceso usando un refresh token válido.
 
@@ -109,7 +109,7 @@ Renueva un token de acceso usando un refresh token válido.
 ```
 
 ### 4. Cerrar Sesión
-**POST** `/logout`
+**POST** `/auth/logout`
 
 Cierra la sesión del usuario actual.
 
@@ -123,10 +123,10 @@ Cierra la sesión del usuario actual.
 }
 ```
 
-### 5. Obtener Perfil
-**GET** `/profile`
+### 5. Perfil actual
+**GET** `/auth/me`
 
-Obtiene la información del perfil del usuario autenticado.
+Obtiene la información del usuario autenticado.
 
 **Headers:** `Authorization: Bearer <token>`
 
@@ -152,8 +152,8 @@ Obtiene la información del perfil del usuario autenticado.
 }
 ```
 
-### 6. Actualizar Perfil
-**PUT** `/profile`
+### 6. Actualizar perfil
+**PUT** `/auth/me`
 
 Actualiza la información del perfil del usuario.
 
@@ -187,8 +187,8 @@ Actualiza la información del perfil del usuario.
 }
 ```
 
-### 7. Cambiar Contraseña
-**PUT** `/change-password`
+### 7. Cambiar contraseña
+**PATCH** `/auth/change-password`
 
 Cambia la contraseña del usuario autenticado.
 
@@ -318,3 +318,8 @@ Desactiva la cuenta del usuario (soft delete).
 ### Encriptación
 - Contraseñas hasheadas con bcrypt (12 rounds)
 - Tokens JWT firmados con clave secreta
+
+---
+
+- Anteponer siempre `/api/v1` al consumir estos endpoints.
+- Swagger: `http://localhost:3001/api/v1/docs`

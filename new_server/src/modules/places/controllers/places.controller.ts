@@ -4,6 +4,7 @@ import {
   Post, 
   Put, 
   Patch, 
+  Delete, 
   Body, 
   Param, 
   Query, 
@@ -51,8 +52,8 @@ import { SoftDeletePlaceRequestDto } from '../application/dtos/request/soft-dele
 import { ProcessChatRequestDto } from '../application/dtos/request/process-chat.request.dto';
 import { PlaceResponseDto } from '../application/dtos/response/place-response.dto';
 
+@Controller({ path: 'places', version: '1' })
 @ApiTags('Places')
-@Controller('places')
 export class PlacesController {
   constructor(
     @Inject(CREATE_PLACE_USE_CASE) private readonly createPlaceUseCase: CreatePlaceUseCase,

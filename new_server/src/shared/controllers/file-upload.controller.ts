@@ -37,7 +37,7 @@ import { Roles, CurrentUser, UserRole } from '../index';
 
 @ApiTags('file-upload')
 @ApiBearerAuth()
-@Controller('api/files')
+@Controller({ path: 'files', version: '1' })
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
 

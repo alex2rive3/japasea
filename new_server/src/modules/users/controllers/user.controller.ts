@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Patch, Param, Body, Inject, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, Inject, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { IsMongoId } from 'class-validator';
 import { CreateUserRequestDto } from '../application/dtos/request/create-user.request.dto';
@@ -8,7 +8,7 @@ import { UserResponseDto } from '../application/dtos/response/user-response.dto'
 import { ICreateUserUseCase, IFindAllUsersUseCase, IFindUserByIdUseCase, IUpdateUserUseCase, ISoftDeleteUserUseCase, UsersProvider } from '../domain';
 import { Roles, UserRole } from '../../../shared';
 
-@Controller('users')
+@Controller({ path: 'users', version: '1' })
 @ApiTags('users')
 export class UserController {
   private readonly logger = new Logger(UserController.name);

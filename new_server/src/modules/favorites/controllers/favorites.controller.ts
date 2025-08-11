@@ -38,7 +38,7 @@ import {
 
 @ApiTags('favorites')
 @ApiBearerAuth()
-@Controller('api/favorites')
+@Controller({ path: 'favorites', version: '1' })
 export class FavoritesController {
   constructor(
     @Inject('GetUserFavoritesUseCase') private readonly getUserFavoritesUseCase: GetUserFavoritesUseCase,

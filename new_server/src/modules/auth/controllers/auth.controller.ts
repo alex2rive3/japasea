@@ -9,7 +9,7 @@ import { ILoginUseCase, IRegisterUseCase, IRefreshTokenUseCase, ILogoutUseCase, 
 import { ForgotPasswordUseCase, ResetPasswordUseCase } from '../domain/interfaces/password-recovery-use-cases.interface';
 import { Public, CurrentUser } from '../../../shared';
 
-@Controller('auth')
+@Controller({ path: 'auth', version: '1' })
 @ApiTags('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);

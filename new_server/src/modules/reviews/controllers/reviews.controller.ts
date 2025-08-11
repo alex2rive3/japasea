@@ -4,6 +4,7 @@ import {
   Post, 
   Put, 
   Delete, 
+  Patch, 
   Body, 
   Param, 
   Query, 
@@ -28,8 +29,8 @@ import { UpdateReviewRequestDto } from '../application/dtos/request/update-revie
 import { VoteReviewRequestDto } from '../application/dtos/request/vote-review.request.dto';
 import { ReviewResponseDto, PlaceReviewsResponseDto, VoteResponseDto } from '../application/dtos/response/review.response.dto';
 
-@ApiTags('Reviews')
-@Controller('reviews')
+@Controller({ path: 'reviews', version: '1' })
+@ApiTags('reviews')
 export class ReviewsController {
   constructor(
     @Inject('CreateReviewUseCase') private readonly createReviewUseCase: CreateReviewUseCase,

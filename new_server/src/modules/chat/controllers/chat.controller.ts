@@ -31,7 +31,7 @@ import {
 
 @ApiTags('chat')
 @ApiBearerAuth()
-@Controller('api/chat')
+@Controller({ path: 'chat', version: '1' })
 export class ChatController {
   constructor(
     @Inject('ProcessChatUseCase') private readonly processChatUseCase: ProcessChatUseCase,

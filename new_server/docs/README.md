@@ -186,10 +186,10 @@ La API REST está completamente documentada y versionada:
 - **Documentación**: Consultar [`API_ENDPOINTS.md`](./API_ENDPOINTS.md)
 
 ### Endpoints Principales
-- `POST /auth/login` - Autenticación
-- `GET /places` - Listar lugares
-- `POST /chat/message` - Chat con IA
-- `GET /admin/stats` - Estadísticas (admin)
+- `POST /api/v1/auth/login` - Autenticación
+- `GET /api/v1/places` - Listar lugares
+- `POST /api/v1/chat/process` - Chat con IA
+- `GET /api/v1/admin/stats` - Estadísticas (admin)
 
 ## 🧪 Testing
 

@@ -18,10 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:seed": "ts-node scripts/seedDatabase.ts seed",
-    "db:clear": "ts-node scripts/seedDatabase.ts clear",
-    "db:stats": "ts-node scripts/seedDatabase.ts stats",
-    "migrate:places": "ts-node scripts/migratePlacesToMongoDB.ts"
+    "db:seed": "ts-node -r tsconfig-paths/register scripts/seedDatabase.ts seed",
+    "db:clear": "ts-node -r tsconfig-paths/register scripts/seedDatabase.ts clear",
+    "db:stats": "ts-node -r tsconfig-paths/register scripts/seedDatabase.ts stats",
+    "migrate:places": "node scripts/migratePlacesToMongoDB.js",
+    "routes": "ts-node -r tsconfig-paths/register scripts/listEndpoints.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.3",

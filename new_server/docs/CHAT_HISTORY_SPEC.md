@@ -8,7 +8,7 @@ Garantizar que el historial de chat se guarde y recupere íntegramente, preserva
 
 #### Alcance
 - Backend (API y modelo) y Frontend (renderizado de mensajes del historial).
-- Endpoints: `POST /api/v1/chat`, `GET /api/v1/chat/history`, `GET /api/v1/chat/session/:sessionId`.
+- Endpoints: `POST /api/v1/chat/process`, `GET /api/v1/chat/history`, `GET /api/v1/chat/session/:sessionId`.
 
 ---
 
@@ -179,7 +179,7 @@ Nota: Un historial/sesión puede alternar mensajes de ambos tipos.
 ---
 
 ### Endpoints
-- `POST /api/v1/chat`: procesa mensaje, normaliza y guarda snapshot de `travelPlan` o `places`.
+- `POST /api/v1/chat/process`: procesa mensaje, normaliza y guarda snapshot de `travelPlan` o `places`.
 - `GET /api/v1/chat/history?limit=N`: devuelve sesiones recientes con mensajes normalizados y referencias resueltas.
 - `GET /api/v1/chat/session/:sessionId`: devuelve una sesión específica con normalización y referencias resueltas.
 

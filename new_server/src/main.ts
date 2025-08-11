@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { join } from 'path';
@@ -28,8 +28,12 @@ async function bootstrap() {
     }),
   );
 
-  // API prefix
+  // API prefix and versioning
   app.setGlobalPrefix('api');
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
 
   // Swagger configuration
   const config = new DocumentBuilder()
@@ -37,16 +41,17 @@ async function bootstrap() {
     .setDescription('API documentation for Japasea tourism platform')
     .setVersion('1.0')
     .addBearerAuth()
+    .addServer('/api/v1')
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/v1/docs', app, document);
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
   
   console.log(`Japasea NestJS Server running on http://localhost:${port}`);
-  console.log(`Swagger documentation available at http://localhost:${port}/api/docs`);
+  console.log(`Swagger documentation available at http://localhost:${port}/api/v1/docs`);
 }
 
 bootstrap();
