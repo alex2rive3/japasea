@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Location, Contact, Image, BusinessHour, Rating, Pricing, PlaceMetadata, SeasonalInfo } from '../../domain/entities/place.entity';
+import { BusinessHour, Contact, Location, PlaceMetadata, Pricing, Rating, SeasonalInfo } from '@src/modules/places/domain/entities/place.entity';
 
 export class PlaceResponseDto {
   @ApiProperty()
@@ -30,7 +30,10 @@ export class PlaceResponseDto {
   amenities: string[];
 
   @ApiProperty({ type: [Object] })
-  images: Image[];
+  images: {
+    url: string
+    alt?: string
+  }[];
 
   @ApiProperty({ type: [Object] })
   businessHours: BusinessHour[];

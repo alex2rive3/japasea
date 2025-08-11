@@ -5,4 +5,5 @@ export class SoftDeletePlaceRequestDto {
   @IsMongoId()
   @ApiProperty({ description: 'MongoDB ObjectId of the place to soft delete' })
   id: string;
+  reason: string;
 }

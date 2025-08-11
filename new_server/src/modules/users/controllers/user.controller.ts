@@ -6,6 +6,7 @@ import { UpdateUserRequestDto } from '../application/dtos/request/update-user.re
 import { SoftDeleteUserRequestDto } from '../application/dtos/request/soft-delete-user.request.dto';
 import { UserResponseDto } from '../application/dtos/response/user-response.dto';
 import { ICreateUserUseCase, IFindAllUsersUseCase, IFindUserByIdUseCase, IUpdateUserUseCase, ISoftDeleteUserUseCase, UsersProvider } from '../domain';
+import { Roles, UserRole } from '../../../shared';
 
 @Controller('users')
 @ApiTags('users')
@@ -26,6 +27,7 @@ export class UserController {
   ) {}
 
   @Get()
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, type: [UserResponseDto] })
   async findAll(): Promise<UserResponseDto[]> {
@@ -34,6 +36,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Get user by id' })
   @ApiParam({ name: 'id', description: 'MongoDB ObjectId' })
   @ApiResponse({ status: 200, type: UserResponseDto })
@@ -43,6 +46,7 @@ export class UserController {
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Create user' })
   @ApiResponse({ status: 201, type: UserResponseDto })
   async create(@Body() createDto: CreateUserRequestDto): Promise<UserResponseDto> {
@@ -51,6 +55,7 @@ export class UserController {
   }
 
   @Put(':id')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update user' })
   @ApiParam({ name: 'id', description: 'MongoDB ObjectId' })
   @ApiResponse({ status: 200, type: UserResponseDto })
@@ -63,6 +68,7 @@ export class UserController {
   }
 
   @Patch(':id/soft-delete')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Soft delete user' })
   @ApiParam({ name: 'id', description: 'MongoDB ObjectId' })
   @ApiResponse({ status: 200, type: UserResponseDto })

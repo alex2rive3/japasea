@@ -60,3 +60,26 @@ export class ResetPasswordRequestDto {
   @ApiProperty({ description: 'New password', minLength: 6 })
   password: string;
 }
+
+export class UpdateProfileRequestDto {
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ description: 'User name', required: false })
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ description: 'User phone number', required: false })
+  phone?: string;
+}
+
+export class ChangePasswordRequestDto {
+  @IsString()
+  @ApiProperty({ description: 'Current password' })
+  currentPassword: string;
+
+  @IsString()
+  @MinLength(6)
+  @ApiProperty({ description: 'New password', minLength: 6 })
+  newPassword: string;
+}

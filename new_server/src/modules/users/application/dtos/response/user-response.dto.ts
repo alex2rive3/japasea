@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Favorite, UserPreferences, SearchHistoryItem } from '../../domain/entities/user.entity';
+import { Favorite, SearchHistoryItem, UserPreferences } from '@src/modules/users/domain';
 
 export class UserResponseDto {
   @ApiProperty()

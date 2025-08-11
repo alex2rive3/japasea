@@ -94,3 +94,14 @@ export class MessageResponseDto {
   @ApiProperty()
   message: string;
 }
+
+export class ProfileResponseDto {
+  @ApiProperty()
+  success: boolean;
+
+  @ApiProperty()
+  message: string;
+
+  @ApiProperty({ type: UserAuthResponseDto })
+  data: UserAuthResponseDto;
+}
