@@ -41,7 +41,7 @@ async function bootstrap() {
     .setDescription('API documentation for Japasea tourism platform')
     .setVersion('1.0')
     .addBearerAuth()
-    .addServer('/api/v1')
+    .addServer('/')
     .build();
   
   const document = SwaggerModule.createDocument(app, config);

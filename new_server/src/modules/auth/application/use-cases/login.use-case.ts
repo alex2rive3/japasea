@@ -18,50 +18,51 @@ export class LoginUseCase implements ILoginUseCase {
   ) {}
 
   async execute(loginDto: LoginRequestDto): Promise<LoginResponseDto> {
-    this.logger.log(`Login attempt for email: ${loginDto.email}`);
+    const email = (loginDto.email || '').trim().toLowerCase();
+    this.logger.log(`Login attempt for email: ${email}`);
     
     try {
       const user = await this.userModel
-        .findOne({ email: loginDto.email })
+        .findOne({ email })
         .select('+password +loginAttempts +lockUntil')
         .exec();
       
       if (!user) {
-        this.logger.warn(`User not found with email: ${loginDto.email}`);
+        this.logger.warn(`User not found with email: ${email}`);
         throw new UnauthorizedException('Credenciales inválidas');
       }
       
-      if (!user.isActive) {
-        this.logger.warn(`Inactive account login attempt: ${loginDto.email}`);
+      if (user.isActive === false) {
+        this.logger.warn(`Inactive account login attempt: ${email}`);
         throw new UnauthorizedException('Cuenta desactivada. Contacte al administrador.');
       }
       
       // Check if account is locked
       if (user.lockUntil && user.lockUntil > new Date()) {
-        this.logger.warn(`Locked account login attempt: ${loginDto.email}`);
+        this.logger.warn(`Locked account login attempt: ${email}`);
         throw new UnauthorizedException('Cuenta bloqueada temporalmente debido a múltiples intentos fallidos');
       }
       
       // Verify password (assuming comparePassword method exists on user model)
-      const isValidPassword = await this.comparePassword(loginDto.password, user.password);
+      const isValidPassword = await this.comparePassword(loginDto.password, (user as any).password);
       
       if (!isValidPassword) {
-        await this.incrementLoginAttempts(user);
-        this.logger.warn(`Invalid password attempt for: ${loginDto.email}`);
+        await this.incrementLoginAttempts(user as any);
+        this.logger.warn(`Invalid password attempt for: ${email}`);
         throw new UnauthorizedException('Credenciales inválidas');
       }
       
       // Reset login attempts on successful login
-      await this.resetLoginAttempts(user);
+      await this.resetLoginAttempts(user as any);
       
       // Generate tokens
-      const accessToken = this.generateAccessToken(user);
-      const refreshToken = this.generateRefreshToken(user);
+      const accessToken = this.generateAccessToken(user as any);
+      const refreshToken = this.generateRefreshToken(user as any);
       
       // Save refresh token
-      user.refreshToken = refreshToken;
-      user.lastLogin = new Date();
-      await user.save();
+      (user as any).refreshToken = refreshToken;
+      (user as any).lastLogin = new Date();
+      await (user as any).save();
       
       this.logger.log(`Successful login for user: ${user._id}`);
       
@@ -70,13 +71,13 @@ export class LoginUseCase implements ILoginUseCase {
         message: 'Inicio de sesión exitoso',
         data: {
           user: {
-            id: user._id.toString(),
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
-            isEmailVerified: user.isEmailVerified,
-            createdAt: user.createdAt
+            id: (user as any)._id.toString(),
+            name: (user as any).name,
+            email: (user as any).email,
+            phone: (user as any).phone,
+            role: (user as any).role,
+            isEmailVerified: (user as any).isEmailVerified,
+            createdAt: (user as any).createdAt
           },
           accessToken,
           refreshToken
@@ -84,7 +85,7 @@ export class LoginUseCase implements ILoginUseCase {
       };
       
     } catch (error) {
-      this.logger.error(`Login failed: ${error.message}`, error.stack);
+      this.logger.error(`Login failed: ${(error as any).message}`, (error as any).stack);
       
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -103,7 +104,7 @@ export class LoginUseCase implements ILoginUseCase {
     const updates: any = { $inc: { loginAttempts: 1 } };
     
     // Lock account after 5 failed attempts
-    if (user.loginAttempts >= 4) {
+    if ((user.loginAttempts ?? 0) >= 4) {
       updates.$set = {
         lockUntil: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes lock
       };
