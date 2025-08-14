@@ -97,4 +97,35 @@ export class MongoPlaceRepository implements PlaceRepository {
     );
     return result.modifiedCount > 0;
   }
+
+  async countDocuments(filter: any): Promise<number> {
+    return this.placeModel.countDocuments(filter).exec();
+  }
+
+  async getTopPlacesByReviews(limit: number): Promise<any[]> {
+    return this.placeModel
+      .find({ status: 'active' })
+      .sort({ 'rating.average': -1, 'rating.count': -1 })
+      .limit(limit)
+      .select('name key rating location.address')
+      .lean()
+      .exec();
+  }
+
+  async getPlacesByType(): Promise<Array<{ _id: string; count: number }>> {
+    return this.placeModel.aggregate([
+      {
+        $match: { status: 'active' }
+      },
+      {
+        $group: {
+          _id: '$details.type',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      }
+    ]).exec();
+  }
 }

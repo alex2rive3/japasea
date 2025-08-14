@@ -10,4 +10,7 @@ export interface PlaceRepository {
   getRandomPlaces(count: number): Promise<Place[]>;
   update(id: string, updateData: Partial<Place>): Promise<Place | null>;
   softDelete(id: string, reason?: string): Promise<boolean>;
+  countDocuments(filter: any): Promise<number>;
+  getTopPlacesByReviews(limit: number): Promise<any[]>;
+  getPlacesByType(): Promise<Array<{ _id: string; count: number }>>;
 }

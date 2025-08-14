@@ -86,7 +86,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   
   private generateAccessToken(user: any): string {
     const payload = {
-      id: user._id,
+      sub: user._id.toString(),
       email: user.email,
       role: user.role,
       type: 'access'
@@ -97,7 +97,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   
   private generateRefreshToken(user: any): string {
     const payload = {
-      id: user._id,
+      sub: user._id.toString(),
       type: 'refresh'
     };
     

@@ -121,7 +121,7 @@ export class LoginUseCase implements ILoginUseCase {
   
   private generateAccessToken(user: any): string {
     const payload = {
-      id: user._id,
+      sub: user._id.toString(),
       email: user.email,
       role: user.role,
       type: 'access'
@@ -132,7 +132,7 @@ export class LoginUseCase implements ILoginUseCase {
   
   private generateRefreshToken(user: any): string {
     const payload = {
-      id: user._id,
+      sub: user._id.toString(),
       type: 'refresh'
     };
     

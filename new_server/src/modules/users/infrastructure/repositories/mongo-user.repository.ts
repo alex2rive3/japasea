@@ -60,4 +60,45 @@ export class MongoUserRepository implements IUserRepository {
       })
       .exec();
   }
+
+  async countDocuments(filter: any): Promise<number> {
+    return this.userModel.countDocuments(filter).exec();
+  }
+
+  async getUserGrowthByMonth(startDate: Date): Promise<Array<{ period: string; count: number }>> {
+    const result = await this.userModel.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { '_id.year': 1, '_id.month': 1 }
+      },
+      {
+        $project: {
+          period: {
+            $concat: [
+              { $toString: '$_id.year' },
+              '-',
+              { $cond: { if: { $lt: ['$_id.month', 10] }, then: { $concat: ['0', { $toString: '$_id.month' }] }, else: { $toString: '$_id.month' } } }
+            ]
+          },
+          count: 1,
+          _id: 0
+        }
+      }
+    ]).exec();
+
+    return result;
+  }
 }

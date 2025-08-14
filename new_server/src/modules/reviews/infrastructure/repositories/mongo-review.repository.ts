@@ -113,4 +113,21 @@ export class MongoReviewRepository implements ReviewRepository {
   async countDocuments(query: any): Promise<number> {
     return this.reviewModel.countDocuments(query).exec();
   }
+
+  async getReviewsByRating(): Promise<Array<{ _id: number; count: number }>> {
+    return this.reviewModel.aggregate([
+      {
+        $match: { status: 'active' }
+      },
+      {
+        $group: {
+          _id: '$rating',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]).exec();
+  }
 }

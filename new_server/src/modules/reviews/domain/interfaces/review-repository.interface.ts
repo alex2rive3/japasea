@@ -10,4 +10,5 @@ export interface ReviewRepository {
   delete(id: string): Promise<boolean>;
   getPlaceReviewStats(placeId: string): Promise<{ avgRating: number; totalReviews: number; distribution: Record<string, number> }>;
   countDocuments(query: any): Promise<number>;
+  getReviewsByRating(): Promise<Array<{ _id: number; count: number }>>;
 }

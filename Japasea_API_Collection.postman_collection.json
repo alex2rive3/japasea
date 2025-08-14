@@ -1,0 +1,2206 @@
+{
+  "info": {
+    "name": "Japasea API Collection",
+    "description": "Complete collection of Japasea API endpoints for testing and development",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "apiUrl",
+      "value": "{{baseUrl}}/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "placeId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "Health Check Basic",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/health",
+              "host": ["{{apiUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Health Check Detailed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/health/detailed",
+              "host": ["{{apiUrl}}"],
+              "path": ["health", "detailed"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.to.have.status(201)) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.accessToken) {",
+                  "        pm.environment.set('accessToken', responseJson.data.accessToken);",
+                  "        pm.environment.set('refreshToken', responseJson.data.refreshToken);",
+                  "        pm.environment.set('userId', responseJson.data.user.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Test\",\n  \"email\": \"test@japasea.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+595971123456\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/auth/register",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.to.have.status(200)) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.accessToken) {",
+                  "        pm.environment.set('accessToken', responseJson.data.accessToken);",
+                  "        pm.environment.set('refreshToken', responseJson.data.refreshToken);",
+                  "        pm.environment.set('userId', responseJson.data.user.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@japasea.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/auth/login",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.to.have.status(200)) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.accessToken) {",
+                  "        pm.environment.set('accessToken', responseJson.data.accessToken);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/auth/refresh-token",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/auth/me",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Test Actualizado\",\n  \"phone\": \"+595971123456\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/auth/me",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/auth/change-password",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@japasea.com\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/auth/forgot-password",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset_token_here\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/auth/reset-password",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/auth/logout",
+              "host": ["{{apiUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📍 Places",
+      "item": [
+        {
+          "name": "Get All Places",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places",
+              "host": ["{{apiUrl}}"],
+              "path": ["places"]
+            }
+          }
+        },
+        {
+          "name": "Get Places by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places?type=Alojamiento",
+              "host": ["{{apiUrl}}"],
+              "path": ["places"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "Alojamiento"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Places",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/search?q=hotel",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "hotel"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Random Places",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/random?count=5",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "random"],
+              "query": [
+                {
+                  "key": "count",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Place by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.to.have.status(200)) {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.id) {",
+                  "        pm.environment.set('placeId', responseJson.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/{{placeId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "{{placeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Place (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"nuevo-lugar-test\",\n  \"name\": \"Nuevo Lugar Test\",\n  \"description\": \"Un lugar de prueba para testing en Encarnación, Paraguay\",\n  \"type\": \"Alojamiento\",\n  \"address\": \"Dirección de prueba, Encarnación, Paraguay\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [-55.8683, -27.3378]\n  },\n  \"contact\": {\n    \"phone\": \"+595971123456\",\n    \"email\": \"contacto@lugartest.com\"\n  },\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/places",
+              "host": ["{{apiUrl}}"],
+              "path": ["places"]
+            }
+          }
+        },
+        {
+          "name": "Ensure Place (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"lugar-ensure-test\",\n  \"name\": \"Lugar Ensure Test\",\n  \"description\": \"Lugar creado con ensure para testing\",\n  \"type\": \"Gastronomía\",\n  \"address\": \"Dirección ensure, Encarnación, Paraguay\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [-55.8683, -27.3378]\n  },\n  \"contact\": {\n    \"phone\": \"+595971123456\"\n  },\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/places/ensure",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "ensure"]
+            }
+          }
+        },
+        {
+          "name": "Update Place (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lugar Test Actualizado\",\n  \"description\": \"Descripción actualizada del lugar\",\n  \"contact\": {\n    \"phone\": \"+595971123456\",\n    \"email\": \"actualizado@lugar.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/places/{{placeId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "{{placeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Soft Delete Place (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Lugar cerrado temporalmente\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/places/{{placeId}}/soft-delete",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "{{placeId}}", "soft-delete"]
+            }
+          }
+        },
+        {
+          "name": "Process Chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"¿Puedes recomendarme hoteles en Encarnación?\",\n  \"context\": \"tourism\",\n  \"sessionId\": \"session_123\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/places/chat",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "chat"]
+            }
+          }
+        },
+        {
+          "name": "Get Chat History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/chat/history?limit=10",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "chat", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Chat Session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/chat/session/session_123",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "chat", "session", "session_123"]
+            }
+          }
+        },
+        {
+          "name": "Get Place Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/{{placeId}}/analytics",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "{{placeId}}", "analytics"]
+            }
+          }
+        },
+        {
+          "name": "Get Place Visit Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/{{placeId}}/stats/visits?period=30d",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "{{placeId}}", "stats", "visits"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "Período de estadísticas: 7d, 30d, 90d"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Place Interaction Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/places/{{placeId}}/stats/interactions",
+              "host": ["{{apiUrl}}"],
+              "path": ["places", "{{placeId}}", "stats", "interactions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Chat",
+      "item": [
+        {
+          "name": "Process Chat Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hola, ¿qué lugares puedes recomendarme en Encarnación?\",\n  \"sessionId\": \"chat_session_001\",\n  \"context\": {\n    \"userLocation\": \"Encarnación\",\n    \"preferences\": [\"turismo\", \"gastronomía\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/chat/process",
+              "host": ["{{apiUrl}}"],
+              "path": ["chat", "process"]
+            }
+          }
+        },
+        {
+          "name": "Get Chat History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/chat/history?limit=20&page=1",
+              "host": ["{{apiUrl}}"],
+              "path": ["chat", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Chat Session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/chat/session/chat_session_001",
+              "host": ["{{apiUrl}}"],
+              "path": ["chat", "session", "chat_session_001"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Favorites",
+      "item": [
+        {
+          "name": "Get User Favorites",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/favorites",
+              "host": ["{{apiUrl}}"],
+              "path": ["favorites"]
+            }
+          }
+        },
+        {
+          "name": "Add to Favorites",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Me gusta este lugar\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/favorites/{{placeId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["favorites", "{{placeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Remove from Favorites",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/favorites/{{placeId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["favorites", "{{placeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Check if Favorite",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/favorites/check/{{placeId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["favorites", "check", "{{placeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Check Multiple Favorites",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placeIds\": [\"place1\", \"place2\", \"place3\"]\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/favorites/check/multiple",
+              "host": ["{{apiUrl}}"],
+              "path": ["favorites", "check", "multiple"]
+            }
+          }
+        },
+        {
+          "name": "Get Favorite Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/favorites/stats",
+              "host": ["{{apiUrl}}"],
+              "path": ["favorites", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Sync Favorites",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addPlaces\": [\"place1\", \"place2\"],\n  \"removePlaces\": [\"place3\", \"place4\"]\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/favorites/sync",
+              "host": ["{{apiUrl}}"],
+              "path": ["favorites", "sync"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Reviews",
+      "item": [
+        {
+          "name": "Get Place Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/reviews/place/{{placeId}}?page=1&limit=10&sortBy=date&sortOrder=desc",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "place", "{{placeId}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "date"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excelente lugar, muy recomendado. El servicio es excepcional y la ubicación perfecta.\",\n  \"category\": \"general\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/reviews/place/{{placeId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "place", "{{placeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Buen lugar, actualizo mi reseña después de varias visitas.\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/reviews/review_id_here",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "review_id_here"]
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/reviews/review_id_here",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "review_id_here"]
+            }
+          }
+        },
+        {
+          "name": "Vote on Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"voteType\": \"helpful\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/reviews/review_id_here/vote",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "review_id_here", "vote"]
+            }
+          }
+        },
+        {
+          "name": "Get My Reviews",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/reviews/user/my-reviews?page=1&limit=10",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "user", "my-reviews"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Place Review Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/reviews/place/{{placeId}}/stats",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "place", "{{placeId}}", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get User Review Statistics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/reviews/user/stats",
+              "host": ["{{apiUrl}}"],
+              "path": ["reviews", "user", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "� Statistics",
+      "item": [
+        {
+          "name": "Get Public Platform Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/stats/public",
+              "host": ["{{apiUrl}}"],
+              "path": ["stats", "public"]
+            }
+          }
+        },
+        {
+          "name": "Get Places Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/stats/places/overview",
+              "host": ["{{apiUrl}}"],
+              "path": ["stats", "places", "overview"]
+            }
+          }
+        },
+        {
+          "name": "Get Places by Category Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/stats/places/categories",
+              "host": ["{{apiUrl}}"],
+              "path": ["stats", "places", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Top Rated Places",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/stats/places/top-rated?limit=10",
+              "host": ["{{apiUrl}}"],
+              "path": ["stats", "places", "top-rated"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Número de lugares a retornar"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recent Activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/stats/activity/recent?days=7",
+              "host": ["{{apiUrl}}"],
+              "path": ["stats", "activity", "recent"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "7",
+                  "description": "Días de actividad reciente a mostrar"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Regional Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/stats/regional?city=Encarnación",
+              "host": ["{{apiUrl}}"],
+              "path": ["stats", "regional"],
+              "query": [
+                {
+                  "key": "city",
+                  "value": "Encarnación",
+                  "description": "Ciudad para estadísticas regionales"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "�👥 Users",
+      "item": [
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/users",
+              "host": ["{{apiUrl}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/users/{{userId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Admin Creado\",\n  \"email\": \"admin@japasea.com\",\n  \"password\": \"adminpass123\",\n  \"phone\": \"+595971987654\",\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/users",
+              "host": ["{{apiUrl}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Actualizado\",\n  \"phone\": \"+595971987654\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/users/{{userId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Soft Delete User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Usuario solicitó eliminación de cuenta\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/users/{{userId}}/soft-delete",
+              "host": ["{{apiUrl}}"],
+              "path": ["users", "{{userId}}", "soft-delete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Admin",
+      "item": [
+        {
+          "name": "Update Place Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/places/{{placeId}}/status",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "places", "{{placeId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Verify Place",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isVerified\": true\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/places/{{placeId}}/verify",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "places", "{{placeId}}", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Feature Place",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isFeatured\": true\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/places/{{placeId}}/feature",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "places", "{{placeId}}", "feature"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Place",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/places/{{placeId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "places", "{{placeId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Places",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/places?page=1&limit=20&status=all",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "places"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "all"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/users?page=1&limit=20",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Admin User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/users/{{userId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/users/{{userId}}/role",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "users", "{{userId}}", "role"]
+            }
+          }
+        },
+        {
+          "name": "Suspend User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Violación de términos de servicio\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/users/{{userId}}/suspend",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "users", "{{userId}}", "suspend"]
+            }
+          }
+        },
+        {
+          "name": "Activate User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/users/{{userId}}/activate",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "users", "{{userId}}", "activate"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/users/{{userId}}",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get System Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/stats",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Places Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/stats/places",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "stats", "places"]
+            }
+          }
+        },
+        {
+          "name": "Get User Analytics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/stats/users?period=30d",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "stats", "users"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "Período de análisis: 7d, 30d, 90d, 1y"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Review Analytics",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/stats/reviews?period=30d&type=all",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "stats", "reviews"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "Período de análisis"
+                },
+                {
+                  "key": "type",
+                  "value": "all",
+                  "description": "Tipo de estadísticas: all, ratings, comments"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/dashboard/summary",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "dashboard", "summary"]
+            }
+          }
+        },
+        {
+          "name": "Get Settings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/settings",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maintenanceMode\": false,\n  \"allowRegistration\": true,\n  \"maxUploadSize\": 5242880\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/settings",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Send Bulk Notifications",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Actualización del Sistema\",\n  \"message\": \"El sistema será actualizado el próximo lunes.\",\n  \"userIds\": [\"user1\", \"user2\"],\n  \"sendToAll\": false\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/notifications/bulk",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "notifications", "bulk"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Reviews",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/reviews?status=pending&page=1&limit=20",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "reviews"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"adminNote\": \"Reseña aprobada por cumplir las normas\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/reviews/review_id_here/approve",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "reviews", "review_id_here", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Reject Review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Contenido inapropiado\",\n  \"adminNote\": \"Reseña rechazada por lenguaje ofensivo\"\n}"
+            },
+            "url": {
+              "raw": "{{apiUrl}}/admin/reviews/review_id_here/reject",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "reviews", "review_id_here", "reject"]
+            }
+          }
+        },
+        {
+          "name": "Delete Review (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/admin/reviews/review_id_here",
+              "host": ["{{apiUrl}}"],
+              "path": ["admin", "reviews", "review_id_here"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 File Management",
+      "item": [
+        {
+          "name": "Upload Single File",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "folder",
+                  "value": "places",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiUrl}}/files/upload/single",
+              "host": ["{{apiUrl}}"],
+              "path": ["files", "upload", "single"]
+            }
+          }
+        },
+        {
+          "name": "Upload Multiple Files",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "folder",
+                  "value": "places",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiUrl}}/files/upload/multiple",
+              "host": ["{{apiUrl}}"],
+              "path": ["files", "upload", "multiple"]
+            }
+          }
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{apiUrl}}/files/places/filename.jpg",
+              "host": ["{{apiUrl}}"],
+              "path": ["files", "places", "filename.jpg"]
+            }
+          }
+        },
+        {
+          "name": "Upload Place Images",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiUrl}}/files/places/{{placeId}}/images",
+              "host": ["{{apiUrl}}"],
+              "path": ["files", "places", "{{placeId}}", "images"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
