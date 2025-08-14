@@ -1,101 +1,229 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { 
   Box, 
   Typography, 
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
+  Card,
+  CardContent,
   Chip
 } from '@mui/material';
-import { LocationOn, Place } from '@mui/icons-material';
+import { LocationOn, Phone } from '@mui/icons-material';
 import { usePlaces } from '../hooks/usePlaces';
-import type { Place as PlaceType } from '../types';
+import type { Place } from '../types';
 
-export const MapComponent: React.FC = () => {
+// Fix Leaflet default markers
+const iconPrototype = L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown };
+delete iconPrototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+interface MapComponentProps {
+  center?: [number, number];
+  zoom?: number;
+}
+
+export const MapComponent: React.FC<MapComponentProps> = ({ 
+  center = [-27.3328, -55.8664], // Centered on Encarnación city
+  zoom = 15
+}) => {
   const { places, loading } = usePlaces();
+  const mapRef = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    // Force map to invalidate size when component mounts or resizes
+    const handleResize = () => {
+      if (mapRef.current) {
+        setTimeout(() => {
+          mapRef.current?.invalidateSize();
+        }, 100);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call once on mount
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const extractPhone = (description: string): string | null => {
+    const phoneRegex = /(\d{4}\s?\d{3}\s?\d{3})/g;
+    const match = description.match(phoneRegex);
+    return match ? match[0] : null;
+  };
+
+  const getTypeColor = (type: string | undefined): "primary" | "secondary" | "success" | "warning" | "info" => {
+    if (!type) return 'primary';
+    
+    switch (type.toLowerCase()) {
+      case 'alojamiento':
+        return 'primary';
+      case 'desayunos y meriendas':
+        return 'secondary';
+      case 'comida':
+        return 'warning';
+      case 'turístico':
+        return 'success';
+      case 'compras':
+        return 'info';
+      default:
+        return 'primary';
+    }
+  };
+
+  const mapCenter = places.length > 0 
+    ? [places[0].location?.lat || center[0], places[0].location?.lng || center[1]] as [number, number]
+    : center;
 
   if (loading) {
     return (
       <Box sx={{ 
-        p: 3,
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 2,
         bgcolor: 'background.paper',
-        textAlign: 'center'
+        borderRadius: 0,
+        overflow: 'hidden',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        border: 'none',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}>
-        <Typography>Cargando lugares...</Typography>
+        <Typography>Cargando mapa...</Typography>
       </Box>
     );
   }
 
   return (
-    <Paper sx={{ 
-      p: 3,
-      border: '1px solid',
-      borderColor: 'divider',
-      borderRadius: 2,
+    <Box sx={{ 
       bgcolor: 'background.paper',
+      borderRadius: 0,
+      overflow: 'hidden',
       height: '100%',
-      maxHeight: 500,
-      overflow: 'auto'
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      border: 'none'
     }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <LocationOn color="primary" sx={{ mr: 1 }} />
-        <Typography variant="h6">
-          Mapa de Lugares ({places.length})
+      {/* Header Section */}
+      <Box sx={{ 
+        p: 3,
+        pb: 2,
+        bgcolor: '#f8f9fa',
+        borderBottom: '1px solid #e9ecef',
+        flexShrink: 0
+      }}>
+        <Typography 
+          variant="h5" 
+          component="h2" 
+          sx={{ 
+            fontWeight: 600,
+            color: '#2c3e50',
+            mb: 1,
+            fontSize: '1.5rem'
+          }}
+        >
+          Mapa de Lugares
+        </Typography>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: '#6c757d',
+            fontSize: '0.875rem'
+          }}
+        >
+          Explora los lugares de interés en Encarnación
         </Typography>
       </Box>
-      
-      {places.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
-          No hay lugares disponibles para mostrar.
-        </Typography>
-      ) : (
-        <List dense>
-          {places.slice(0, 10).map((place: PlaceType) => (
-            <ListItem key={place.id} divider>
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: 'primary.main' }}>
-                  <Place />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={place.name}
-                secondary={
-                  <Box sx={{ mt: 0.5 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {place.description?.substring(0, 100)}...
-                    </Typography>
-                    <Box sx={{ mt: 1 }}>
-                      <Chip 
-                        size="small" 
-                        label={place.type} 
-                        variant="outlined"
-                        color="primary"
-                      />
-                    </Box>
-                  </Box>
-                }
-              />
-            </ListItem>
-          ))}
-          {places.length > 10 && (
-            <ListItem>
-              <ListItemText
-                primary={
-                  <Typography variant="body2" color="text.secondary" align="center">
-                    Y {places.length - 10} lugares más...
-                  </Typography>
-                }
-              />
-            </ListItem>
-          )}
-        </List>
-      )}
-    </Paper>
+
+      {/* Map Container */}
+      <Box sx={{ 
+        flex: 1,
+        position: 'relative',
+        minHeight: 0, // Allow flex child to shrink
+        width: '100%',
+        overflow: 'hidden',
+        borderRadius: 0 // Remove border radius for full coverage
+      }}>
+        <MapContainer 
+          center={mapCenter} 
+          zoom={zoom} 
+          style={{ 
+            height: '100%', 
+            width: '100%',
+            zIndex: 1
+          }}
+          key={`${places.length}-${mapCenter.join(',')}`}
+          scrollWheelZoom={true}
+          zoomControl={true}
+          ref={mapRef}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {places.map((place: Place, index: number) => {
+            const phone = extractPhone(place.description || '');
+            const uniqueKey = place.id || `${place.name}-${index}`;
+            
+            if (!place.location?.lat || !place.location?.lng) {
+              return null; // Skip places without valid coordinates
+            }
+            
+            return (
+              <Marker 
+                key={uniqueKey} 
+                position={[place.location.lat, place.location.lng]}
+              >
+                <Popup>
+                  <Card sx={{ minWidth: 250, maxWidth: 300, boxShadow: 'none' }}>
+                    <CardContent sx={{ pb: '16px !important' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
+                          {place.name}
+                        </Typography>
+                        <Chip 
+                          label={place.type || 'Lugar'} 
+                          color={getTypeColor(place.type)}
+                          size="small"
+                        />
+                      </Box>
+                      
+                      {place.address && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <LocationOn sx={{ color: 'text.secondary', mr: 1, fontSize: 16 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {place.address}
+                          </Typography>
+                        </Box>
+                      )}
+                      
+                      <Typography variant="body2" color="text.primary" sx={{ mb: 1 }}>
+                        {place.description?.replace(/Teléfono:.*/, '').trim()}
+                      </Typography>
+                      
+                      {phone && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <Phone sx={{ color: 'text.secondary', mr: 1, fontSize: 16 }} />
+                          <Typography variant="body2" color="primary">
+                            {phone}
+                          </Typography>
+                        </Box>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MapContainer>
+      </Box>
+    </Box>
   );
 };
