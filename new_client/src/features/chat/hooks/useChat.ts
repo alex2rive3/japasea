@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../../app/store';
 import {
@@ -52,17 +52,24 @@ export const useChat = () => {
   const chatState = useSelector(selectChatState);
   const currentSession = useSelector(selectCurrentSession);
 
-  // Load sessions on mount
-  useEffect(() => {
-    dispatch(getSessions({}));
-  }, [dispatch]);
+  // Simplified initialization - no automatic loading on mount
+  // Load sessions on mount (only once if needed)
+  // useEffect(() => {
+  //   let mounted = true;
+  //   if (mounted) {
+  //     dispatch(getSessions({}));
+  //   }
+  //   return () => {
+  //     mounted = false;
+  //   };
+  // }, [dispatch]);
 
-  // Load messages when session changes
-  useEffect(() => {
-    if (currentSessionId) {
-      dispatch(getMessages({ sessionId: currentSessionId }));
-    }
-  }, [currentSessionId, dispatch]);
+  // Load messages when session changes (only if sessionId exists)
+  // useEffect(() => {
+  //   if (currentSessionId) {
+  //     dispatch(getMessages({ sessionId: currentSessionId }));
+  //   }
+  // }, [currentSessionId, dispatch]);
 
   // Async actions
   const sendChatMessage = useCallback((data: SendMessageRequest) => {

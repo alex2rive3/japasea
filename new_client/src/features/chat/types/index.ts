@@ -52,22 +52,3 @@ export interface GetSessionsRequest {
   page?: number;
   limit?: number;
 }
-
-export interface ChatResponse {
-  message: ChatMessage;
-  sessionId: string;
-}
-
-export interface SessionsResponse {
-  sessions: ChatSession[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-export interface MessagesResponse {
-  messages: ChatMessage[];
-  total: number;
-  page: number;
-  limit: number;
-}

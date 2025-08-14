@@ -45,14 +45,16 @@ export const sendMessage = createAsyncThunk(
       
       const response = await chatService.sendMessage(data);
       
-      // Update user message status and add assistant response
+      // Update user message status
       dispatch(updateMessageStatus({ id: userMessage.id, status: 'sent' }));
       dispatch(setIsTyping(false));
       
       return response;
+      return response;
     } catch (error: unknown) {
       dispatch(setIsTyping(false));
       const errorMessage = error instanceof Error ? error.message : 'Error al enviar mensaje';
+      console.error('Error in sendMessage:', errorMessage);
       return rejectWithValue(errorMessage);
     }
   }
@@ -200,9 +202,11 @@ const chatSlice = createSlice({
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading = false;
         // Add assistant response
-        state.messages.push(action.payload.message);
+        if (action.payload && action.payload.message) {
+          state.messages.push(action.payload.message);
+        }
         // Update current session
-        if (action.payload.sessionId) {
+        if (action.payload && action.payload.sessionId) {
           state.currentSessionId = action.payload.sessionId;
         }
       })
@@ -219,7 +223,9 @@ const chatSlice = createSlice({
       })
       .addCase(getMessages.fulfilled, (state, action) => {
         state.loading = false;
-        state.messages = action.payload.messages;
+        if (action.payload && action.payload.messages) {
+          state.messages = action.payload.messages;
+        }
       })
       .addCase(getMessages.rejected, (state, action) => {
         state.loading = false;
@@ -244,7 +250,9 @@ const chatSlice = createSlice({
       
       // Get Sessions
       .addCase(getSessions.fulfilled, (state, action) => {
-        state.sessions = action.payload.sessions;
+        if (action.payload && action.payload.sessions) {
+          state.sessions = action.payload.sessions;
+        }
       })
       
       // Get Session

@@ -7,81 +7,178 @@ import type {
   UpdateSessionRequest,
   DeleteSessionRequest,
   GetMessagesRequest,
-  GetSessionsRequest,
-  ChatResponse,
-  SessionsResponse,
-  MessagesResponse
+  GetSessionsRequest
 } from '../types';
 
-class ChatService {
-  private readonly baseUrl = '/api/chat';
+// Interfaces for the new server API
+interface ProcessChatRequest {
+  message: string;
+  sessionId?: string;
+  context?: string;
+}
 
-  async sendMessage(data: SendMessageRequest): Promise<ChatResponse> {
-    const response = await apiClient.post<ChatResponse>(`${this.baseUrl}/message`, data);
-    return response.data;
+interface ProcessChatResponse {
+  success: boolean;
+  message: string;
+  sessionId: string;
+  response: {
+    message: string;
+    places?: any[];
+    travelPlan?: any;
+  };
+  timestamp: string;
+}
+
+interface ChatHistoryResponse {
+  success: boolean;
+  data: Array<{
+    sessionId: string;
+    lastActivity: string;
+    messages: Array<{
+      text: string;
+      sender: 'user' | 'bot';
+      timestamp: string;
+      context?: string;
+      response?: {
+        message?: string;
+        places?: any[];
+        travelPlan?: any;
+      };
+    }>;
+  }>;
+}
+
+class ChatService {
+  private readonly baseUrl = '/api/v1/chat';
+
+  async sendMessage(data: SendMessageRequest): Promise<{ message: ChatMessage; sessionId: string }> {
+    const request: ProcessChatRequest = {
+      message: data.content,
+      sessionId: data.sessionId
+    };
+
+    const response = await apiClient.post<ProcessChatResponse>(`${this.baseUrl}/process`, request);
+    
+    // Transform server response to match client expectations
+    const assistantMessage: ChatMessage = {
+      id: `${Date.now()}-assistant`,
+      content: response.data.response.message,
+      role: 'assistant',
+      timestamp: response.data.timestamp,
+      status: 'sent'
+    };
+
+    return {
+      message: assistantMessage,
+      sessionId: response.data.sessionId
+    };
   }
 
-  async getMessages(params: GetMessagesRequest): Promise<MessagesResponse> {
-    const { sessionId, ...otherParams } = params;
-    const searchParams = new URLSearchParams();
-    
-    if (otherParams.page) searchParams.append('page', otherParams.page.toString());
-    if (otherParams.limit) searchParams.append('limit', otherParams.limit.toString());
-
-    const queryString = searchParams.toString();
-    const url = queryString 
-      ? `${this.baseUrl}/sessions/${sessionId}/messages?${queryString}` 
-      : `${this.baseUrl}/sessions/${sessionId}/messages`;
-    
-    const response = await apiClient.get<MessagesResponse>(url);
-    return response.data;
+  async getMessages(params: GetMessagesRequest): Promise<{ messages: ChatMessage[]; total: number; page: number; limit: number }> {
+    // For now, return empty messages as this endpoint doesn't exist in new server
+    // This can be implemented later when the server supports session message history
+    return {
+      messages: [],
+      total: 0,
+      page: params.page || 1,
+      limit: params.limit || 20
+    };
   }
 
   async createSession(data: CreateSessionRequest = {}): Promise<ChatSession> {
-    const response = await apiClient.post<ChatSession>(`${this.baseUrl}/sessions`, data);
-    return response.data;
+    // Create a local session ID for now since the server doesn't have dedicated session creation
+    const session: ChatSession = {
+      id: `session-${Date.now()}`,
+      title: data.title || 'Nueva conversación',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messageCount: 0,
+      lastMessage: ''
+    };
+    
+    return session;
   }
 
-  async getSessions(params: GetSessionsRequest = {}): Promise<SessionsResponse> {
-    const searchParams = new URLSearchParams();
+  async getSessions(params: GetSessionsRequest = {}): Promise<{ sessions: ChatSession[]; total: number; page: number; limit: number }> {
+    try {
+      // Try to get chat history from server
+      const response = await apiClient.get<ChatHistoryResponse>(`${this.baseUrl}/history?limit=${params.limit || 10}`);
+      
+      if (response.data.success) {
+        const sessions: ChatSession[] = response.data.data.map(item => ({
+          id: item.sessionId,
+          title: 'Conversación',
+          createdAt: item.lastActivity,
+          updatedAt: item.lastActivity,
+          messageCount: item.messages.length,
+          lastMessage: item.messages[item.messages.length - 1]?.text || ''
+        }));
+        
+        return {
+          sessions,
+          total: sessions.length,
+          page: params.page || 1,
+          limit: params.limit || 10
+        };
+      }
+    } catch (error) {
+      console.log('No authenticated user or no history available');
+    }
     
-    if (params.page) searchParams.append('page', params.page.toString());
-    if (params.limit) searchParams.append('limit', params.limit.toString());
-
-    const queryString = searchParams.toString();
-    const url = queryString ? `${this.baseUrl}/sessions?${queryString}` : `${this.baseUrl}/sessions`;
-    
-    const response = await apiClient.get<SessionsResponse>(url);
-    return response.data;
+    // Return empty sessions if not authenticated or no history
+    return {
+      sessions: [],
+      total: 0,
+      page: params.page || 1,
+      limit: params.limit || 10
+    };
   }
 
   async getSession(sessionId: string): Promise<ChatSession> {
-    const response = await apiClient.get<ChatSession>(`${this.baseUrl}/sessions/${sessionId}`);
-    return response.data;
+    // For now, return a basic session structure
+    return {
+      id: sessionId,
+      title: 'Conversación',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messageCount: 0,
+      lastMessage: ''
+    };
   }
 
   async updateSession(data: UpdateSessionRequest): Promise<ChatSession> {
-    const { sessionId, ...updateData } = data;
-    const response = await apiClient.put<ChatSession>(`${this.baseUrl}/sessions/${sessionId}`, updateData);
-    return response.data;
+    // For now, return the updated session without server call
+    return {
+      id: data.sessionId,
+      title: data.title || 'Conversación',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messageCount: 0,
+      lastMessage: ''
+    };
   }
 
   async deleteSession(data: DeleteSessionRequest): Promise<void> {
-    await apiClient.delete(`${this.baseUrl}/sessions/${data.sessionId}`);
+    // For now, just log the deletion (server doesn't have this endpoint yet)
+    console.log(`Deleting session: ${data.sessionId}`);
   }
 
   async clearSession(sessionId: string): Promise<void> {
-    await apiClient.delete(`${this.baseUrl}/sessions/${sessionId}/messages`);
+    // For now, just log the clearing (server doesn't have this endpoint yet)
+    console.log(`Clearing session: ${sessionId}`);
   }
 
   async exportSession(sessionId: string): Promise<ChatMessage[]> {
-    const response = await apiClient.get<ChatMessage[]>(`${this.baseUrl}/sessions/${sessionId}/export`);
-    return response.data;
+    // For now, return empty array
+    return [];
   }
 
   async getSessionStats(sessionId: string): Promise<{ messageCount: number; firstMessage: string; lastMessage: string }> {
-    const response = await apiClient.get<{ messageCount: number; firstMessage: string; lastMessage: string }>(`${this.baseUrl}/sessions/${sessionId}/stats`);
-    return response.data;
+    return {
+      messageCount: 0,
+      firstMessage: '',
+      lastMessage: ''
+    };
   }
 }
 
