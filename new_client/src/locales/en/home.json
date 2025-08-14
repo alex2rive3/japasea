@@ -1,0 +1,47 @@
+{
+  "chat": {
+    "welcome": "Hi! I'm your virtual assistant. How can I help you today?",
+    "placeholder": "Type your message here...",
+    "send": "Send",
+    "typing": "The assistant is typing...",
+    "error": "Error sending message. Please try again.",
+    "noPlaces": "No places found for your query.",
+    "searchingPlaces": "Searching places...",
+    "recommendations": "Recommendations",
+    "historySaved": "History saved"
+  },
+  "map": {
+    "title": "Interactive Map",
+    "subtitle": "Explore destinations, hotels and activities.",
+    "noPlaces": "No places to display",
+    "loading": "Loading map...",
+    "selectPlace": "Select a place to view details"
+  },
+  "places": {
+    "viewDetails": "View details",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "rating": "Rating",
+    "reviews": "reviews",
+    "distance": "Distance",
+    "category": "Category",
+    "recommendedPlaces": "Recommended Places",
+    "place": "Place",
+    "morePhotos": "+{{count}} more",
+    "schedules": "Schedules",
+    "features": "Features",
+    "writeReview": "Write Review",
+    "thisPlace": "this place",
+    "whatsappMessage": "Hi! I saw your business {{name}} on Japasea and would like more information.",
+    "shareMessage": "Check out this place: {{name}}"
+  },
+  "travelPlan": {
+    "day": "Day",
+    "placeWithoutName": "Unnamed place",
+    "addressNotAvailable": "Address not available",
+    "defaultCity": "Encarnación",
+    "activity": "Activity",
+    "activitiesSummary": "{{count}} activity in {{days}} day",
+    "activitiesSummary_other": "{{count}} activities in {{days}} days"
+  }
+}

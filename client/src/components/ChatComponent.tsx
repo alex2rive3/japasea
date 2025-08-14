@@ -12,9 +12,9 @@ import {
   Chip,
 } from '@mui/material'
 import { Send, Person, SmartToy, History } from '@mui/icons-material'
-import { placesService } from '../services/placesService'
+import { usePlaces } from '../features/places/hooks/usePlaces'
 import TravelPlanComponent from './TravelPlanComponent'
-import type { Place, TravelPlan } from '../types/places'
+import type { Place, TravelPlan } from '../features/places/types'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
 
@@ -27,13 +27,13 @@ interface Message {
   travelPlan?: TravelPlan
 }
 
-interface ChatComponentProps {
-  onPlacesUpdate?: (places: Place[]) => void
-}
-
-export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
+export const ChatComponent = () => {
   const { user } = useAuth()
   const { t, i18n } = useTranslation('home')
+  const { 
+    sendChatMessage, 
+    selectPlace 
+  } = usePlaces()
   const messagesContainerRef = useRef<HTMLDivElement | null>(null)
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -164,9 +164,10 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
           setMessages((prev) => [...prev, botResponse])
           setBotTyping(false)
           
-          if (onPlacesUpdate && allPlaces.length > 0) {
-            onPlacesUpdate(allPlaces)
-          }
+          // Places are now managed through Redux, no callback needed
+          // if (onPlacesUpdate && allPlaces.length > 0) {
+          //   onPlacesUpdate(allPlaces)
+          // }
 
         } catch (error) {
           console.error('Error processing chat message:', error)
@@ -192,9 +193,10 @@ export const ChatComponent = ({ onPlacesUpdate }: ChatComponentProps) => {
   }
 
   const handlePlaceClick = (place: Place) => {
-    if (onPlacesUpdate) {
-      onPlacesUpdate([place])
-    }
+    // Places are now managed through Redux, no callback needed
+    // if (onPlacesUpdate) {
+    //   onPlacesUpdate([place])
+    // }
   }
 
   return (

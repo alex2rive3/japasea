@@ -1,0 +1,89 @@
+{
+  "title": "Meu Perfil",
+  "role": {
+    "admin": "Administrador",
+    "user": "Usuário"
+  },
+  "memberSince": "Membro desde: {{date}}",
+  "tabs": {
+    "information": "Informação",
+    "favorites": "Favoritos ({{count}})",
+    "preferences": "Preferências",
+    "statistics": "Estatísticas"
+  },
+  "personalInfo": {
+    "title": "Informações Pessoais",
+    "nameLabel": "Nome completo",
+    "emailLabel": "Email",
+    "emailHelper": "O email não pode ser alterado",
+    "phoneLabel": "Telefone (opcional)",
+    "phonePlaceholder": "+595 987 654 321",
+    "saveChanges": "Salvar Alterações",
+    "saving": "Salvando..."
+  },
+  "security": {
+    "title": "Segurança",
+    "changePassword": "Alterar Senha",
+    "logout": "Sair"
+  },
+  "favorites": {
+    "title": "Meus Favoritos",
+    "empty": "Você ainda não tem lugares favoritos salvos.",
+    "addedOn": "Adicionado: {{date}}",
+    "viewAll": "Ver todos ({{count}})"
+  },
+  "preferences": {
+    "title": "Preferências",
+    "language": "Idioma",
+    "theme": "Tema",
+    "themeOptions": {
+      "light": "Claro",
+      "dark": "Escuro",
+      "auto": "Automático"
+    },
+    "notifications": {
+      "title": "Notificações",
+      "email": "Notificações por email",
+      "push": "Notificações push",
+      "newsletter": "Newsletter semanal"
+    },
+    "privacy": {
+      "title": "Privacidade",
+      "searchHistory": "Salvar histórico de pesquisa",
+      "deleteHistory": "Deletar histórico ({{count}} pesquisas)"
+    },
+    "savePreferences": "Salvar Preferências",
+    "saving": "Salvando..."
+  },
+  "statistics": {
+    "title": "Minhas Estatísticas",
+    "favoritePlaces": "Lugares Favoritos",
+    "favoriteType": "Tipo Favorito",
+    "searchesMade": "Pesquisas Realizadas",
+    "memberSince": "Membro Desde",
+    "memberDays": "{{days}} dias"
+  },
+  "passwordDialog": {
+    "title": "Alterar Senha",
+    "currentPassword": "Senha atual",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar nova senha",
+    "cancel": "Cancelar",
+    "change": "Alterar"
+  },
+  "messages": {
+    "profileUpdated": "Perfil atualizado com sucesso",
+    "preferencesUpdated": "Preferências atualizadas com sucesso",
+    "passwordChanged": "Senha alterada com sucesso",
+    "historyDeleted": "Histórico de pesquisa deletado",
+    "nameRequired": "Nome é obrigatório",
+    "passwordFieldsRequired": "Todos os campos de senha são obrigatórios",
+    "passwordMismatch": "As novas senhas não coincidem",
+    "passwordMinLength": "A nova senha deve ter pelo menos 6 caracteres",
+    "passwordComplexity": "A senha deve conter pelo menos uma letra minúscula, uma maiúscula e um número",
+    "updateError": "Erro ao atualizar perfil",
+    "passwordError": "Erro ao alterar senha",
+    "preferencesError": "Erro ao atualizar preferências",
+    "historyError": "Erro ao deletar histórico"
+  }
+}

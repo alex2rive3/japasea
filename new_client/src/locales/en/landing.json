@@ -1,0 +1,41 @@
+{
+  "hero": {
+    "title": "Discover Paraguay with a modern and simple platform",
+    "subtitle": "Maps, reviews, favorites and a business panel. Minimalist, fast and ready to sell.",
+    "startFree": "Start free",
+    "viewDemo": "View demo",
+    "readyForProduction": "Ready for production",
+    "secureAndAuditable": "Secure and auditable",
+    "description": "Interactive map, AI chat and business insights. All in one platform."
+  },
+  "features": {
+    "mapAndPlaces": {
+      "title": "Map and places",
+      "description": "Exploration by categories, filters and proximity."
+    },
+    "aiChat": {
+      "title": "AI Chat",
+      "description": "Smart recommendations in your language."
+    },
+    "security": {
+      "title": "Secure and scalable",
+      "description": "JWT, audit, rate limiting and roles."
+    },
+    "labels": {
+      "fast": "Fast",
+      "minimalist": "Minimalist",
+      "readyToSell": "Ready to sell"
+    }
+  },
+  "metrics": {
+    "coreReady": "Core ready",
+    "apiEndpoints": "API Endpoints",
+    "security": "Security"
+  },
+  "cta": {
+    "title": "Ready to take off in your city",
+    "subtitle": "Fast implementation, minimalist design and conversion focused. Try it free and add your business today.",
+    "startNow": "Start now",
+    "login": "Sign in"
+  }
+}
