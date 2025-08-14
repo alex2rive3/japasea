@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import type { 
   ChatState, 
   ChatMessage, 
-  ChatSession, 
+  ChatSession,
   SendMessageRequest,
   CreateSessionRequest,
   UpdateSessionRequest,
@@ -11,7 +11,12 @@ import type {
   GetSessionsRequest
 } from '../types';
 import { chatService } from '../services/chatService';
-import type { RootState } from '../../../app/store';
+
+// Define the base state structure for selectors
+type AppState = {
+  chat: ChatState;
+  // Add other slices as needed
+};
 
 const initialState: ChatState = {
   messages: [],
@@ -45,9 +50,10 @@ export const sendMessage = createAsyncThunk(
       dispatch(setIsTyping(false));
       
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       dispatch(setIsTyping(false));
-      return rejectWithValue(error.response?.data?.message || 'Error al enviar mensaje');
+      const errorMessage = error instanceof Error ? error.message : 'Error al enviar mensaje';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -57,8 +63,9 @@ export const getMessages = createAsyncThunk(
   async (params: GetMessagesRequest, { rejectWithValue }) => {
     try {
       return await chatService.getMessages(params);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al obtener mensajes');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al obtener mensajes';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -68,8 +75,9 @@ export const createSession = createAsyncThunk(
   async (data: CreateSessionRequest = {}, { rejectWithValue }) => {
     try {
       return await chatService.createSession(data);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al crear sesión');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al crear sesión';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -79,8 +87,9 @@ export const getSessions = createAsyncThunk(
   async (params: GetSessionsRequest = {}, { rejectWithValue }) => {
     try {
       return await chatService.getSessions(params);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al obtener sesiones');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al obtener sesiones';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -90,8 +99,9 @@ export const getSession = createAsyncThunk(
   async (sessionId: string, { rejectWithValue }) => {
     try {
       return await chatService.getSession(sessionId);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al obtener sesión');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al obtener sesión';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -101,8 +111,9 @@ export const updateSession = createAsyncThunk(
   async (data: UpdateSessionRequest, { rejectWithValue }) => {
     try {
       return await chatService.updateSession(data);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al actualizar sesión');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al actualizar sesión';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -113,8 +124,9 @@ export const deleteSession = createAsyncThunk(
     try {
       await chatService.deleteSession(data);
       return data.sessionId;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al eliminar sesión');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al eliminar sesión';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -125,8 +137,9 @@ export const clearSession = createAsyncThunk(
     try {
       await chatService.clearSession(sessionId);
       return sessionId;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al limpiar sesión');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al limpiar sesión';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -136,8 +149,9 @@ export const exportSession = createAsyncThunk(
   async (sessionId: string, { rejectWithValue }) => {
     try {
       return await chatService.exportSession(sessionId);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Error al exportar sesión');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al exportar sesión';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -289,18 +303,18 @@ export const {
 } = chatSlice.actions;
 
 // Selectors
-export const selectChatMessages = (state: RootState) => state.chat.messages;
-export const selectChatSessions = (state: RootState) => state.chat.sessions;
-export const selectCurrentSessionId = (state: RootState) => state.chat.currentSessionId;
-export const selectChatLoading = (state: RootState) => state.chat.loading;
-export const selectChatError = (state: RootState) => state.chat.error;
-export const selectIsTyping = (state: RootState) => state.chat.isTyping;
-export const selectChatState = (state: RootState) => state.chat;
+export const selectChatMessages = (state: AppState) => state.chat.messages;
+export const selectChatSessions = (state: AppState) => state.chat.sessions;
+export const selectCurrentSessionId = (state: AppState) => state.chat.currentSessionId;
+export const selectChatLoading = (state: AppState) => state.chat.loading;
+export const selectChatError = (state: AppState) => state.chat.error;
+export const selectIsTyping = (state: AppState) => state.chat.isTyping;
+export const selectChatState = (state: AppState) => state.chat;
 
-export const selectCurrentSession = (state: RootState) =>
-  state.chat.sessions.find(s => s.id === state.chat.currentSessionId);
+export const selectCurrentSession = (state: AppState) =>
+  state.chat.sessions.find((s: ChatSession) => s.id === state.chat.currentSessionId);
 
-export const selectSessionById = (sessionId: string) => (state: RootState) =>
-  state.chat.sessions.find(s => s.id === sessionId);
+export const selectSessionById = (sessionId: string) => (state: AppState) =>
+  state.chat.sessions.find((s: ChatSession) => s.id === sessionId);
 
 export { chatSlice };

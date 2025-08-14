@@ -1,5 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { usePlaces } from '../features/places/hooks/usePlaces';
+import { ChatComponent } from '../features/chat/components';
+import { MapComponent } from '../features/places/components';
 
 export function HomePage() {
   const { places } = usePlaces();
@@ -10,7 +12,7 @@ export function HomePage() {
         Bienvenido a Japasea
       </Typography>
       <Typography variant="body1" color="text.secondary" paragraph>
-        Tu guía inteligente para descubrir Japón
+        Tu guía inteligente para descubrir Encarnación, Paraguay
       </Typography>
       
       <Box sx={{ mt: 4 }}>
@@ -22,35 +24,14 @@ export function HomePage() {
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
           gap: 2,
-          mt: 2
+          mt: 2,
+          height: { md: '500px' }
         }}>
-          {/* Chat Component Placeholder */}
-          <Box sx={{ 
-            p: 3,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2,
-            bgcolor: 'background.paper'
-          }}>
-            <Typography variant="h6" gutterBottom>Chat AI</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Pregunta sobre lugares en Japón y recibe recomendaciones personalizadas.
-            </Typography>
-          </Box>
+          {/* Chat Component */}
+          <ChatComponent />
           
-          {/* Map Component Placeholder */}
-          <Box sx={{ 
-            p: 3,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2,
-            bgcolor: 'background.paper'
-          }}>
-            <Typography variant="h6" gutterBottom>Mapa Interactivo</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Explora lugares en el mapa de Japón con información detallada.
-            </Typography>
-          </Box>
+          {/* Map Component */}
+          <MapComponent />
         </Box>
       </Box>
     </Box>
