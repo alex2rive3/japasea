@@ -327,7 +327,7 @@ userSchema.methods.verifyEmail = function() {
   return this.save()
 }
 
-userSchema.index({ email: 1 })
+// Indexes - email already has unique:true, so no need for separate index
 userSchema.index({ createdAt: 1 })
 userSchema.index({ isActive: 1 })
 

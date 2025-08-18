@@ -3,10 +3,7 @@ const config = require('./config')
 
 const connectDatabase = async () => {
   try {
-    const conn = await mongoose.connect(config.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    const conn = await mongoose.connect(config.MONGODB_URI)
     
     console.log(`MongoDB conectado: ${conn.connection.host}`)
     
