@@ -1,0 +1,333 @@
+{
+    "status": "success",
+    "data": [
+        {
+            "_id": "68a3bb6b85f171bb72cb97e8",
+            "messages": [
+                {
+                    "response": {
+                        "travelPlan": {
+                            "budget": {
+                                "breakdown": []
+                            },
+                            "recommendations": [],
+                            "generalTips": [],
+                            "days": [],
+                            "totalDays": 0
+                        },
+                        "places": []
+                    },
+                    "text": "arma un plan para conecer encarncacion el finde de semana, necesito un hotel y quiero conocer lugares como tambien comer pizza y sushi",
+                    "sender": "user",
+                    "context": "bot: Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.\nuser: arma un plan para conecer encarncacion el finde de semana, necesito un hotel y quiero conocer lugares como tambien comer pizza y sushi\nbot: Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.",
+                    "_id": "68a3bb6b85f171bb72cb97ea",
+                    "timestamp": "2025-08-18T23:46:51.074Z"
+                },
+                {
+                    "response": {
+                        "travelPlan": {
+                            "budget": {
+                                "breakdown": []
+                            },
+                            "recommendations": [],
+                            "days": [],
+                            "totalDays": 0
+                        },
+                        "places": []
+                    },
+                    "text": "arma un plan para conecer encarncacion el finde de semana, necesito un hotel y quiero conocer lugares como tambien comer pizza y sushi",
+                    "sender": "user",
+                    "context": "user: arma un plan para conecer encarncacion el finde de semana, necesito un hotel y quiero conocer lugares como tambien comer pizza y sushi",
+                    "_id": "68a3c2318394c55fa3f83554",
+                    "timestamp": "2025-08-19T00:15:45.131Z"
+                },
+                {
+                    "response": {
+                        "travelPlan": {
+                            "budget": {
+                                "breakdown": []
+                            },
+                            "totalDays": 2,
+                            "days": [
+                                {
+                                    "dayNumber": 1,
+                                    "title": "Día 1: Costanera, Centro Histórico y Noche de Pizza",
+                                    "activities": [
+                                        {
+                                            "time": "15:00",
+                                            "category": "Alojamiento",
+                                            "place": {
+                                                "key": "Hotel Río Dorado",
+                                                "name": "Hotel Río Dorado",
+                                                "type": "Alojamiento",
+                                                "description": "Un hotel céntrico y acogedor, ideal para tu estancia en Encarnación, con un ambiente tranquilo y buena ubicación para explorar. Teléfono: 0994 856578.",
+                                                "address": "Mcal Estigarribia / Tomás R. Pereira",
+                                                "location": {
+                                                    "lat": -27.331214860149306,
+                                                    "lng": -55.86649810395628
+                                                },
+                                                "category": "Alojamiento"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f83558"
+                                        },
+                                        {
+                                            "time": "16:00",
+                                            "category": "Turismo",
+                                            "place": {
+                                                "key": "Costanera de Encarnación",
+                                                "name": "Costanera de Encarnación",
+                                                "type": "Turístico",
+                                                "description": "Disfruta de un relajante paseo por la hermosa Costanera Padre Carlos Bolik, con vistas al río Paraná. Ideal para caminar, sacar fotos y sentir la brisa. Puedes pasear en bici o simplemente sentarte a disfrutar el paisaje. ¡Es el corazón de la ciudad!",
+                                                "address": "Avda Costanera Padre Carlos Bolik",
+                                                "location": {
+                                                    "lat": -27.32,
+                                                    "lng": -55.875
+                                                },
+                                                "category": "Turístico"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f83559"
+                                        },
+                                        {
+                                            "time": "18:00",
+                                            "category": "Turismo",
+                                            "place": {
+                                                "key": "Centro Histórico de Encarnación",
+                                                "name": "Centro Histórico de Encarnación",
+                                                "type": "Turístico",
+                                                "description": "Recorre las calles del Centro Histórico para admirar su arquitectura, visitar la Plaza de Armas y la Catedral de Encarnación. Es un buen momento para empaparse de la cultura local y descubrir rincones encantadores.",
+                                                "address": "Alrededores de la Plaza de Armas",
+                                                "location": {
+                                                    "lat": -27.3309,
+                                                    "lng": -55.8663
+                                                },
+                                                "category": "Turístico"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f8355a"
+                                        },
+                                        {
+                                            "time": "20:30",
+                                            "category": "Cena",
+                                            "place": {
+                                                "key": "Pizzería La Strada",
+                                                "name": "Pizzería La Strada",
+                                                "type": "Gastronomía",
+                                                "description": "Una de las pizzerías más reconocidas de Encarnación, famosa por sus pizzas al horno de leña y su ambiente familiar. Perfecta para disfrutar de una auténtica pizza paraguaya.",
+                                                "address": "Avda Mariscal Estigarribia c/ Villarrica",
+                                                "location": {
+                                                    "lat": -27.3335,
+                                                    "lng": -55.869
+                                                },
+                                                "category": "Gastronomía"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f8355b"
+                                        }
+                                    ],
+                                    "_id": "68a3c2318394c55fa3f83557"
+                                },
+                                {
+                                    "dayNumber": 2,
+                                    "title": "Día 2: Compras, Paseo Gastronómico y Noche de Sushi",
+                                    "activities": [
+                                        {
+                                            "time": "09:30",
+                                            "category": "Desayuno",
+                                            "place": {
+                                                "key": "Café de la Terminal",
+                                                "name": "Café de la Terminal",
+                                                "type": "Desayunos y meriendas",
+                                                "description": "Ideal para un desayuno rápido y rico antes de empezar el día. Ofrecen café, jugos naturales, chipas y otras delicias locales.",
+                                                "address": "Avda. Bernardino Caballero, Terminal de Ómnibus",
+                                                "location": {
+                                                    "lat": -27.326,
+                                                    "lng": -55.864
+                                                },
+                                                "category": "Desayunos y meriendas"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f8355d"
+                                        },
+                                        {
+                                            "time": "10:30",
+                                            "category": "Compras",
+                                            "place": {
+                                                "key": "Centro Comercial de Encarnación",
+                                                "name": "Centro Comercial de Encarnación",
+                                                "type": "Compras",
+                                                "description": "Dedica la mañana a explorar las tiendas y galerías del centro, donde encontrarás desde productos locales hasta artículos importados a buenos precios. Ideal para buscar recuerdos o algún capricho.",
+                                                "address": "Calles principales del centro, como Mcal Estigarribia y Artigas",
+                                                "location": {
+                                                    "lat": -27.3309,
+                                                    "lng": -55.8663
+                                                },
+                                                "category": "Compras"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f8355e"
+                                        },
+                                        {
+                                            "time": "13:00",
+                                            "category": "Almuerzo",
+                                            "place": {
+                                                "key": "Restaurante El Quincho",
+                                                "name": "Restaurante El Quincho",
+                                                "type": "Gastronomía",
+                                                "description": "Un lugar clásico para probar la parrilla paraguaya, con cortes de carne deliciosos y un ambiente tradicional. Perfecto para reponer energías después de las compras.",
+                                                "address": "Avda. Carlos Antonio López y Cerro Corá",
+                                                "location": {
+                                                    "lat": -27.33,
+                                                    "lng": -55.87
+                                                },
+                                                "category": "Gastronomía"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f8355f"
+                                        },
+                                        {
+                                            "time": "15:30",
+                                            "category": "Turismo",
+                                            "place": {
+                                                "key": "Paseo Gastronómico (Avda. Dr. Francia)",
+                                                "name": "Paseo Gastronómico (Avda. Dr. Francia)",
+                                                "type": "Turístico",
+                                                "description": "Explora el animado Paseo Gastronómico en Avda. Dr. Francia. Aunque es famoso por la comida, es un lugar vibrante para pasear, ver la vida local y disfrutar del ambiente antes de tu cena de sushi. Hay muchas opciones de cafés y bares.",
+                                                "address": "Avda. Dr. Francia",
+                                                "location": {
+                                                    "lat": -27.334355600000002,
+                                                    "lng": -55.87199081254272
+                                                },
+                                                "category": "Turístico"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f83560"
+                                        },
+                                        {
+                                            "time": "20:00",
+                                            "category": "Cena",
+                                            "place": {
+                                                "key": "Okinawa Sushi Bar",
+                                                "name": "Okinawa Sushi Bar",
+                                                "type": "Gastronomía",
+                                                "description": "Uno de los mejores lugares para disfrutar de sushi fresco y delicioso en Encarnación, con una amplia variedad de rolls y un ambiente moderno y agradable. Ideal para los amantes de la comida japonesa.",
+                                                "address": "Avda. Irrazábal y Honorio González (cerca de la Costanera)",
+                                                "location": {
+                                                    "lat": -27.3315,
+                                                    "lng": -55.876
+                                                },
+                                                "category": "Gastronomía"
+                                            },
+                                            "tips": [],
+                                            "_id": "68a3c2318394c55fa3f83561"
+                                        }
+                                    ],
+                                    "_id": "68a3c2318394c55fa3f8355c"
+                                }
+                            ],
+                            "recommendations": []
+                        },
+                        "message": "¡Claro que sí! Aquí tienes un plan de fin de semana en Encarnación diseñado especialmente para ti, con un hotel cómodo y opciones deliciosas de pizza y sushi, además de los imperdibles de la ciudad. ¡Prepárate para disfrutar de la \"Perla del Sur\"!",
+                        "places": []
+                    },
+                    "text": "¡Claro que sí! Aquí tienes un plan de fin de semana en Encarnación diseñado especialmente para ti, con un hotel cómodo y opciones deliciosas de pizza y sushi, además de los imperdibles de la ciudad. ¡Prepárate para disfrutar de la \"Perla del Sur\"!",
+                    "sender": "bot",
+                    "_id": "68a3c2318394c55fa3f83556",
+                    "timestamp": "2025-08-19T00:15:45.179Z"
+                },
+                {
+                    "response": {
+                        "travelPlan": {
+                            "budget": {
+                                "breakdown": []
+                            },
+                            "recommendations": [],
+                            "days": [],
+                            "totalDays": 0
+                        },
+                        "places": []
+                    },
+                    "text": "dime lugares buenos para ir a comer hamburguesa",
+                    "sender": "user",
+                    "context": "user: arma un plan para conecer encarncacion el finde de semana, necesito un hotel y quiero conocer lugares como tambien comer pizza y sushi\nuser: arma un plan para conecer encarncacion el finde de semana, necesito un hotel y quiero conocer lugares como tambien comer pizza y sushi\nbot: ¡Claro que sí! Aquí tienes un plan de fin de semana en Encarnación diseñado especialmente para ti, con un hotel cómodo y opciones deliciosas de pizza y sushi, además de los imperdibles de la ciudad. ¡Prepárate para disfrutar de la \"Perla del Sur\"!",
+                    "_id": "68a3c25e8394c55fa3f83577",
+                    "timestamp": "2025-08-19T00:16:30.328Z"
+                },
+                {
+                    "response": {
+                        "travelPlan": {
+                            "budget": {
+                                "breakdown": []
+                            },
+                            "days": [],
+                            "recommendations": [],
+                            "totalDays": 0
+                        },
+                        "message": "¡Claro! En Encarnación encontrarás varias opciones excelentes para disfrutar de una deliciosa hamburguesa. Aquí te dejo algunas recomendaciones:",
+                        "places": [
+                            {
+                                "location": {
+                                    "lat": -27.32356,
+                                    "lng": -55.85871
+                                },
+                                "key": "Burger King Encarnación",
+                                "name": "Burger King Encarnación",
+                                "category": "Comida Rápida",
+                                "description": "Una opción conocida para hamburguesas clásicas y papas fritas, ideal para un gusto rápido y familiar.",
+                                "address": "Avda. Mariscal Estigarribia 1726",
+                                "tags": [],
+                                "features": []
+                            },
+                            {
+                                "location": {
+                                    "lat": -27.34002,
+                                    "lng": -55.85698
+                                },
+                                "key": "McDonald's Encarnación",
+                                "name": "McDonald's Encarnación",
+                                "category": "Comida Rápida",
+                                "description": "La cadena internacional ofrece sus tradicionales hamburguesas y combos, perfecto para una opción rápida y reconocida.",
+                                "address": "Avda. Irrazábal y Honorio González",
+                                "tags": [],
+                                "features": []
+                            },
+                            {
+                                "location": {
+                                    "lat": -27.33246,
+                                    "lng": -55.86754
+                                },
+                                "key": "Brooklyn Burger Lab",
+                                "name": "Brooklyn Burger Lab",
+                                "category": "Hamburguesería Artesanal",
+                                "description": "Famoso por sus hamburguesas artesanales con ingredientes de calidad y combinaciones creativas, ideal para los amantes de las burgers gourmet.",
+                                "address": "Independencia Nacional c/ Mcal. Estigarribia",
+                                "tags": [],
+                                "features": []
+                            },
+                            {
+                                "location": {
+                                    "lat": -27.32789,
+                                    "lng": -55.86234
+                                },
+                                "key": "Rock N' Rolla Burger",
+                                "name": "Rock N' Rolla Burger",
+                                "category": "Hamburguesería",
+                                "description": "Un lugar con ambiente juvenil y hamburguesas sabrosas, perfecto para disfrutar con amigos y buena música.",
+                                "address": "Capitán Caballero 945",
+                                "tags": [],
+                                "features": []
+                            }
+                        ]
+                    },
+                    "text": "¡Claro! En Encarnación encontrarás varias opciones excelentes para disfrutar de una deliciosa hamburguesa. Aquí te dejo algunas recomendaciones:",
+                    "sender": "bot",
+                    "_id": "68a3c25e8394c55fa3f83579",
+                    "timestamp": "2025-08-19T00:16:30.356Z"
+                }
+            ],
+            "sessionId": "session-1755560656540",
+            "lastActivity": "2025-08-19T00:16:30.360Z"
+        }
+    ]
+}
